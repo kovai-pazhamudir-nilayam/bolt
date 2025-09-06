@@ -2,6 +2,7 @@ import { Button, Col, Form, Row, Select, message } from 'antd'
 import { useRef, useState } from 'react'
 import CustomCard from '../components/CustomCard/CustomCard'
 import LogsViewer from '../components/LogsViewer/LogsViewer'
+import PageHeader from '../components/PageHeader/PageHeader'
 
 const ITEMS = ['PRODUCT', 'CATEGORY', 'BRAND']
 
@@ -55,66 +56,72 @@ const MediaPage = () => {
   }
 
   return (
-    <Row gutter={[16, 16]}>
-      <Col lg={10} xs={24}>
-        <CustomCard title="Media Processing Details ">
-          <Form layout="vertical" onFinish={onFinish}>
-            <Form.Item
-              name="cancelReason"
-              label="Choose a item"
-              rules={[
-                {
-                  required: true,
-                  message: `Please select cancellation reason`
-                }
-              ]}
-            >
-              <Select
-                style={{ width: '100%' }}
-                placeholder="Select reason"
-                options={ITEMS.map((item) => {
-                  return {
-                    label: item,
-                    value: item
+    <div>
+      <PageHeader
+        title="Media Processing"
+        description="Process media files from a selected folder and upload them to a Google Cloud Storage bucket."
+      />
+      <Row gutter={[16, 16]}>
+        <Col lg={10} xs={24}>
+          <CustomCard title="Media Processing Details ">
+            <Form layout="vertical" onFinish={onFinish}>
+              <Form.Item
+                name="cancelReason"
+                label="Choose a item"
+                rules={[
+                  {
+                    required: true,
+                    message: `Please select cancellation reason`
                   }
-                })}
-              />
-            </Form.Item>
-            <Row gutter={[16]}>
-              <Col xs={12} lg={12}>
-                <Form.Item>
-                  <Button type="dashed" block onClick={handleSelectFolder}>
-                    Select Folder
-                  </Button>
-                  {folderPath && (
-                    <div style={{ marginTop: 8, wordBreak: 'break-all', fontSize: 12 }}>
-                      <b>Selected folder:</b> {folderPath}
-                    </div>
-                  )}
-                </Form.Item>
-              </Col>
-              <Col xs={12} lg={12}>
-                <Form.Item>
-                  <Button
-                    loading={uploading}
-                    danger
-                    type="primary"
-                    htmlType="submit"
-                    block
-                    disabled={uploading}
-                  >
-                    Upload
-                  </Button>
-                </Form.Item>
-              </Col>
-            </Row>
-          </Form>
-        </CustomCard>
-      </Col>
-      <Col lg={14} xs={24}>
-        <LogsViewer logRef={logRef} logs={logs} />
-      </Col>
-    </Row>
+                ]}
+              >
+                <Select
+                  style={{ width: '100%' }}
+                  placeholder="Select reason"
+                  options={ITEMS.map((item) => {
+                    return {
+                      label: item,
+                      value: item
+                    }
+                  })}
+                />
+              </Form.Item>
+              <Row gutter={[16]}>
+                <Col xs={12} lg={12}>
+                  <Form.Item>
+                    <Button type="dashed" block onClick={handleSelectFolder}>
+                      Select Folder
+                    </Button>
+                    {folderPath && (
+                      <div style={{ marginTop: 8, wordBreak: 'break-all', fontSize: 12 }}>
+                        <b>Selected folder:</b> {folderPath}
+                      </div>
+                    )}
+                  </Form.Item>
+                </Col>
+                <Col xs={12} lg={12}>
+                  <Form.Item>
+                    <Button
+                      loading={uploading}
+                      danger
+                      type="primary"
+                      htmlType="submit"
+                      block
+                      disabled={uploading}
+                    >
+                      Upload
+                    </Button>
+                  </Form.Item>
+                </Col>
+              </Row>
+            </Form>
+          </CustomCard>
+        </Col>
+        <Col lg={14} xs={24}>
+          <LogsViewer logRef={logRef} logs={logs} />
+        </Col>
+      </Row>
+    </div>
   )
 }
 

@@ -2,13 +2,14 @@ import { Button, ConfigProvider, Layout, Menu, notification } from 'antd'
 import { Moon, Sun } from 'lucide-react'
 import { useState } from 'react'
 import { Route, BrowserRouter as Router, Routes, useLocation, useNavigate } from 'react-router-dom'
-import electronLogo from './assets/electron.svg'
+import logo from './assets/logo.png'
 import './assets/main.css'
 import { ROUTES } from './routing'
 // import Versions from './components/Versions'
 import Footer from './components/Footer'
 import MasterSelectionModal from './components/MasterSelectionModal'
 import { MasterDataProvider } from './context/masterDataContext'
+import { NotificationContext } from './context/notificationContext'
 import { darkTheme, lightTheme } from './theme/theme'
 // Custom theme tokens for menu states
 // const menuAccent = '#f67373'
@@ -33,15 +34,17 @@ function App() {
     <MasterDataProvider>
       <ConfigProvider theme={customTheme}>
         {contextHolder}
-        <Router>
-          <AppLayout
-            openNotification={openNotification}
-            collapsed={collapsed}
-            setCollapsed={setCollapsed}
-            isDark={isDark}
-            setIsDark={setIsDark}
-          />
-        </Router>
+        <NotificationContext.Provider value={api}>
+          <Router>
+            <AppLayout
+              openNotification={openNotification}
+              collapsed={collapsed}
+              setCollapsed={setCollapsed}
+              isDark={isDark}
+              setIsDark={setIsDark}
+            />
+          </Router>
+        </NotificationContext.Provider>
       </ConfigProvider>
     </MasterDataProvider>
   )
@@ -54,7 +57,8 @@ function AppLayout({ openNotification, collapsed, setCollapsed, isDark, setIsDar
   const pathKey = {
     '/': '1',
     '/settings': '2',
-    '/notifications': '3'
+    '/notifications': '3',
+    '/backup': '4'
   }
   return (
     <Layout style={{ minHeight: '100vh' }}>
@@ -65,11 +69,7 @@ function AppLayout({ openNotification, collapsed, setCollapsed, isDark, setIsDar
         style={{ background: isDark ? '#181818' : '#f8f8f8' }}
       >
         <div style={{ height: 64, margin: 16, textAlign: 'center' }}>
-          <img
-            src={electronLogo}
-            alt="logo"
-            style={{ width: 48, filter: isDark ? 'invert(1)' : 'none' }}
-          />
+          <img src={logo} alt="logo" style={{ width: 148 }} />
         </div>
         <Menu
           theme={isDark ? 'dark' : 'light'}

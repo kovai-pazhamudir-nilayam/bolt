@@ -1,63 +1,77 @@
 import { createContext, useContext, useState, useEffect } from 'react'
 
 export const MasterDataContext = createContext({
-  brand: null,
-  environment: null,
+  companyCode: null,
+  environmentCode: null,
   configs: {},
-  brands: [],
+  companies: [],
   environments: [],
   setMasterData: () => {},
   loadConfigs: () => {},
-  refreshBrands: () => {},
+  refreshCompanies: () => {},
   refreshEnvironments: () => {}
 })
 
 export const useMasterDataContext = () => useContext(MasterDataContext)
 
 export const MasterDataProvider = ({ children }) => {
-  const [masterData, setMasterData] = useState({ 
-    brand: null, 
-    environment: null, 
+  const [masterData, setMasterData] = useState({
+    companyCode: null,
+    environmentCode: null,
     configs: {},
-    brands: [],
+    companies: [],
     environments: []
   })
 
-  // Load available brands on mount
-  const refreshBrands = async () => {
+  // Load available companies
+  const refreshCompanies = async () => {
     try {
-      const brands = await window.api.config.getBrands()
-      setMasterData(prev => ({ ...prev, brands }))
+      const companies = await window.api.companies.getAll()
+      setMasterData((prev) => ({ ...prev, companies }))
     } catch (error) {
-      console.error('Failed to load brands:', error)
+      console.error('Failed to load companies:', error)
     }
   }
 
-  // Load environments for current brand
-  const refreshEnvironments = async (brand) => {
-    if (!brand) {
-      setMasterData(prev => ({ ...prev, environments: [] }))
-      return
-    }
-    
+  // Load environments (global list)
+  const refreshEnvironments = async () => {
     try {
-      const environments = await window.api.config.getEnvironments(brand)
-      setMasterData(prev => ({ ...prev, environments }))
+      const environments = await window.api.environments.getAll()
+      setMasterData((prev) => ({ ...prev, environments }))
     } catch (error) {
       console.error('Failed to load environments:', error)
     }
   }
 
-  // Load configurations for current brand and environment
-  const loadConfigs = async (brand, environment) => {
-    if (!brand || !environment) {
-      setMasterData(prev => ({ ...prev, configs: {} }))
+  // Load normalized configurations for current company and environment
+  const loadConfigs = async (companyCode, environmentCode) => {
+    if (!companyCode || !environmentCode) {
+      setMasterData((prev) => ({ ...prev, configs: {} }))
       return
     }
 
     try {
-      const configs = await window.api.config.getAll(brand, environment)
-      setMasterData(prev => ({ ...prev, configs }))
+      const [allCoreTokens, allGcpConfigs, allGithubConfigs] = await Promise.all([
+        window.api.coreTokenConfigs.getAll(),
+        window.api.gcpProjectConfigs.getAll(),
+        window.api.githubConfigs.getAll()
+      ])
+
+      const coreToken = allCoreTokens.find(
+        (c) => c.company_code === companyCode && c.environment_code === environmentCode
+      )
+      const gcpProject = allGcpConfigs.find(
+        (g) => g.company_code === companyCode && g.environment_code === environmentCode
+      )
+      const github = allGithubConfigs.find((g) => g.company_code === companyCode)
+
+      const configs = {
+        CORE_TOKEN_CONFIG: coreToken || null,
+        GCP_PROJECT_CONFIG: gcpProject || null,
+        GITHUB_CONFIG: github || null
+      }
+
+      setMasterData((prev) => ({ ...prev, configs }))
     } catch (error) {
       console.error('Failed to load configs:', error)
     }
@@ -65,35 +79,35 @@ export const MasterDataProvider = ({ children }) => {
 
   // Enhanced setMasterData that also loads configs
   const setMasterDataWithConfigs = async (newData) => {
-    setMasterData(prev => ({ ...prev, ...newData }))
-    
-    // If brand changed, refresh environments
-    if (newData.brand !== undefined) {
-      await refreshEnvironments(newData.brand)
-    }
-    
-    // If brand or environment changed, load configs
-    const finalBrand = newData.brand !== undefined ? newData.brand : masterData.brand
-    const finalEnvironment = newData.environment !== undefined ? newData.environment : masterData.environment
-    
-    if (finalBrand && finalEnvironment) {
-      await loadConfigs(finalBrand, finalEnvironment)
+    setMasterData((prev) => ({ ...prev, ...newData }))
+
+    // If company or environment changed, load configs
+    const finalCompanyCode =
+      newData.companyCode !== undefined ? newData.companyCode : masterData.companyCode
+    const finalEnvironmentCode =
+      newData.environmentCode !== undefined ? newData.environmentCode : masterData.environmentCode
+
+    if (finalCompanyCode && finalEnvironmentCode) {
+      await loadConfigs(finalCompanyCode, finalEnvironmentCode)
     }
   }
 
-  // Load brands on mount
+  // Load companies and environments on mount
   useEffect(() => {
-    refreshBrands()
+    refreshCompanies()
+    refreshEnvironments()
   }, [])
 
   return (
-    <MasterDataContext.Provider value={{ 
-      ...masterData, 
-      setMasterData: setMasterDataWithConfigs,
-      loadConfigs,
-      refreshBrands,
-      refreshEnvironments
-    }}>
+    <MasterDataContext.Provider
+      value={{
+        ...masterData,
+        setMasterData: setMasterDataWithConfigs,
+        loadConfigs,
+        refreshCompanies,
+        refreshEnvironments
+      }}
+    >
       {children}
     </MasterDataContext.Provider>
   )

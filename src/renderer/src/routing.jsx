@@ -1,8 +1,10 @@
-import { Images, Bell, LayoutDashboard, Settings as SettingsIcon } from 'lucide-react'
+import { Images, Bell, LayoutDashboard, Settings as SettingsIcon, Database, GitBranch, Shield } from 'lucide-react'
 import Notifications from './pages/Notifications'
 import SettingsPage from './pages/SettingsPage/SettingsPage'
+import GithubSettings from './pages/SettingsPage/GithubSettings'
 import MediaPage from './pages/MediaPage'
-import ConfigDemo from './components/ConfigDemo'
+import BackupPage from './pages/BackupPage'
+import GithubAccessPage from './pages/GithubAccessPage'
 
 export const ROUTES = [
   {
@@ -32,17 +34,10 @@ export const ROUTES = [
             borderRadius: 8
           }}
         >
-          <h2 style={{ color: '#fff' }}>Configuration Demo</h2>
-          <ConfigDemo />
+          dsd
         </div>
       </div>
     )
-  },
-  {
-    label: 'Settings',
-    path: '/settings',
-    icon: SettingsIcon,
-    element: <SettingsPage />
   },
   {
     label: 'Media',
@@ -55,5 +50,29 @@ export const ROUTES = [
     path: '/notifications',
     icon: Bell,
     element: <Notifications />
+  },
+  {
+    label: 'Settings',
+    path: '/settings',
+    icon: SettingsIcon,
+    element: <SettingsPage />
+  },
+  {
+    label: 'GitHub Settings',
+    path: '/github-settings',
+    icon: GitBranch,
+    element: <GithubSettings />
+  },
+  {
+    label: 'GitHub Access',
+    path: '/github-access',
+    icon: Shield,
+    element: <GithubAccessPage />
+  },
+  {
+    label: 'Backup',
+    path: '/backup',
+    icon: Database,
+    element: <BackupPage />
   }
 ]

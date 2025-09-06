@@ -4,25 +4,14 @@ This document explains how to use the SQLite-based configuration management syst
 
 ## Overview
 
-The system stores configuration data that varies by brand and environment in a SQLite database. This is perfect for your use case where you need to store different configurations like:
+The system stores configuration data by company and environment in a SQLite database. This is perfect for your use case where you need to store different configurations like:
 
 - `ITEM_CONFIG`: Bucket configurations for different item types
 - `GCP_CONFIG`: Google Cloud Platform configurations
 
 ## Database Schema
 
-```sql
-CREATE TABLE brand_configs (
-  id INTEGER PRIMARY KEY AUTOINCREMENT,
-  brand TEXT NOT NULL,
-  environment TEXT NOT NULL,
-  config_type TEXT NOT NULL,
-  config_data TEXT NOT NULL,  -- JSON string
-  created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-  updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-  UNIQUE(brand, environment, config_type)
-);
-```
+Normalized tables are used: `companies`, `environments`, `core_token_configs`, `gcp_project_configs`, and `github_configs`.
 
 ## Usage Examples
 
@@ -32,26 +21,26 @@ CREATE TABLE brand_configs (
 import { useMasterDataContext } from '../context/masterDataContext'
 
 function MyComponent() {
-  const { brand, environment, configs, setMasterData } = useMasterDataContext()
+  const { companyCode, environmentCode, configs, setMasterData } = useMasterDataContext()
 
-  // Set brand and environment (automatically loads configs)
-  const handleBrandChange = async (newBrand) => {
-    await setMasterData({ brand: newBrand, environment: null })
+  // Set company and environment (automatically loads configs)
+  const handleCompanyChange = async (newCompany) => {
+    await setMasterData({ companyCode: newCompany, environmentCode: null })
   }
 
   const handleEnvironmentChange = async (newEnvironment) => {
-    await setMasterData({ environment: newEnvironment })
+    await setMasterData({ environmentCode: newEnvironment })
   }
 
   // Access configurations
-  const itemConfig = configs.ITEM_CONFIG
-  const gcpConfig = configs.GCP_CONFIG
+  const coreToken = configs.CORE_TOKEN_CONFIG
+  const gcpProject = configs.GCP_PROJECT_CONFIG
 
   return (
     <div>
-      <p>Brand: {brand}</p>
-      <p>Environment: {environment}</p>
-      <p>GCP Project: {gcpConfig?.project}</p>
+      <p>Company: {companyCode}</p>
+      <p>Environment: {environmentCode}</p>
+      <p>GCP Project: {gcpProject?.gcp_project}</p>
     </div>
   )
 }
@@ -60,56 +49,20 @@ function MyComponent() {
 ### 2. Using ConfigManager Helper
 
 ```jsx
-import { ConfigManager, configHelpers } from '../helpers/configManager.helper'
-
-// Get specific configuration
-const itemConfig = await ConfigManager.getConfig('kpn', 'staging', 'ITEM_CONFIG')
-
-// Save configuration
-await ConfigManager.saveConfig('kpn', 'staging', 'ITEM_CONFIG', {
-  brand: { bucket_name: "kpn-brand-upload-bucket-staging/images" },
-  category: { bucket_name: "kpn-category-upload-bucket-staging/images" },
-  product: { bucket_name: "kpn-product-upload-bucket-staging/images" }
-})
-
-// Get all brands
-const brands = await ConfigManager.getBrands()
-
-// Get environments for a brand
-const environments = await ConfigManager.getEnvironments('kpn')
-
-// Helper functions
-const bucketName = configHelpers.getBucketName(configs, 'brand')
-const isComplete = configHelpers.isConfigComplete(configs)
+// Prefer normalized APIs via context or window.api.* for companies/environments
 ```
 
-### 3. Using the ConfigViewer Component
-
-```jsx
-import ConfigViewer from '../components/ConfigViewer'
-
-function SettingsPage() {
-  return (
-    <div>
-      <ConfigViewer />
-    </div>
-  )
-}
-```
+<!-- ConfigViewer component has been removed in favor of normalized settings tabs. -->
 
 ## API Reference
 
-### ConfigManager Static Methods
+### Normalized Config APIs (via context and IPC)
 
-- `getConfig(brand, environment, configType)` - Get specific config
-- `saveConfig(brand, environment, configType, configData)` - Save config
-- `getAllConfigs(brand, environment)` - Get all configs for brand/env
-- `getBrands()` - Get all available brands
-- `getEnvironments(brand)` - Get environments for a brand
-- `getConfigValue(config, path)` - Get value using dot notation
-- `setConfigValue(config, path, value)` - Set value using dot notation
-- `validateConfig(config, configType)` - Validate config structure
-- `createConfigTemplate(configType)` - Create template for config type
+- Companies: list/add/update/delete
+- Environments: list/add/update/delete
+- Core Token Configs: per company/environment
+- GCP Project Configs: per company/environment
+- GitHub Configs: per company
 
 ### configHelpers
 
@@ -119,32 +72,32 @@ function SettingsPage() {
 
 ### Master Data Context
 
-- `brand` - Current selected brand
-- `environment` - Current selected environment
-- `configs` - All configurations for current brand/env
-- `brands` - Available brands
-- `environments` - Available environments for current brand
-- `setMasterData(data)` - Set brand/environment (auto-loads configs)
-- `loadConfigs(brand, environment)` - Load configs manually
-- `refreshBrands()` - Refresh available brands
-- `refreshEnvironments(brand)` - Refresh environments for brand
+- `companyCode` - Current selected company code
+- `environmentCode` - Current selected environment code
+- `configs` - All configurations for current company/env
+- `companies` - Available companies
+- `environments` - Available environments
+- `setMasterData(data)` - Set company/environment (auto-loads configs)
+- `loadConfigs(companyCode, environmentCode)` - Load configs manually
+- `refreshCompanies()` - Refresh available companies
+- `refreshEnvironments()` - Refresh environments
 
 ## Sample Data
 
-The system comes with sample data for the 'kpn' brand:
+Example normalized data for 'KPN' company:
 
 **Staging Environment:**
 ```json
 {
-  "ITEM_CONFIG": {
-    "brand": { "bucket_name": "kpn-brand-upload-bucket-staging/images" },
-    "category": { "bucket_name": "kpn-category-upload-bucket-staging/images" },
-    "product": { "bucket_name": "kpn-product-upload-bucket-staging/images" }
+  "GCP_PROJECT_CONFIG": {
+    "gcp_project": "kpn-staging-380605",
+    "gcp_cluster": "kpn-staging-gke-cluster",
+    "gcp_region": "asia-south1"
   },
-  "GCP_CONFIG": {
-    "project": "kpn-staging-380605",
-    "cluster": "kpn-staging-gke-cluster",
-    "region": "asia-south1"
+  "CORE_TOKEN_CONFIG": {
+    "domain": "https://kpn-staging-api.example.com",
+    "token_api": "/api/auth/token",
+    "auth_key": "..."
   }
 }
 ```
@@ -152,15 +105,15 @@ The system comes with sample data for the 'kpn' brand:
 **Production Environment:**
 ```json
 {
-  "ITEM_CONFIG": {
-    "brand": { "bucket_name": "kpn-brand-upload-bucket-prod/images" },
-    "category": { "bucket_name": "kpn-category-upload-bucket-prod/images" },
-    "product": { "bucket_name": "kpn-product-upload-bucket-prod/images" }
+  "GCP_PROJECT_CONFIG": {
+    "gcp_project": "kpn-prod-380605",
+    "gcp_cluster": "kpn-prod-gke-cluster",
+    "gcp_region": "asia-south1"
   },
-  "GCP_CONFIG": {
-    "project": "kpn-prod-380605",
-    "cluster": "kpn-prod-gke-cluster",
-    "region": "asia-south1"
+  "CORE_TOKEN_CONFIG": {
+    "domain": "https://kpn-prod-api.example.com",
+    "token_api": "/api/auth/token",
+    "auth_key": "..."
   }
 }
 ```
@@ -176,7 +129,7 @@ The SQLite database is stored in the user data directory:
 
 1. **Structured Data**: SQLite provides ACID transactions and structured queries
 2. **Performance**: Fast lookups and efficient storage
-3. **Scalability**: Can handle many brands and environments
+3. **Scalability**: Can handle many companies and environments
 4. **Reliability**: Data is persisted safely on disk
 5. **Flexibility**: Easy to add new configuration types
 6. **Cross-platform**: Works consistently across all operating systems
