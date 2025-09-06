@@ -1,16 +1,23 @@
-import { Button, ConfigProvider, Layout, Menu, notification, theme } from 'antd'
+import { Button, ConfigProvider, Layout, Menu, notification } from 'antd'
+import { Moon, Sun } from 'lucide-react'
 import { useState } from 'react'
 import { Route, BrowserRouter as Router, Routes, useLocation, useNavigate } from 'react-router-dom'
 import electronLogo from './assets/electron.svg'
 import './assets/main.css'
-import Versions from './components/Versions'
-import Notifications from './pages/Notifications'
-import Settings from './pages/Settings'
+import { ROUTES } from './routing'
+// import Versions from './components/Versions'
+import Footer from './components/Footer'
+import MasterSelectionModal from './components/MasterSelectionModal'
+import { MasterDataProvider } from './context/masterDataContext'
+import { darkTheme, lightTheme } from './theme/theme'
+// Custom theme tokens for menu states
+// const menuAccent = '#f67373'
 const { Header, Content, Sider } = Layout
 
 function App() {
   const [api, contextHolder] = notification.useNotification()
   const [collapsed, setCollapsed] = useState(false)
+  const [isDark, setIsDark] = useState(false)
   const openNotification = () => {
     api.info({
       message: 'Notification',
@@ -19,55 +26,28 @@ function App() {
     })
   }
 
-  // Black & white AntD theme tokens
-  const customTheme = {
-    algorithm: theme.darkAlgorithm,
-    token: {
-      colorPrimary: '#fff',
-      colorBgBase: '#111',
-      colorTextBase: '#fff',
-      colorText: '#fff',
-      colorBgContainer: '#181818',
-      colorBorder: '#333',
-      borderRadius: 8
-    },
-    components: {
-      Button: {
-        colorPrimary: '#fff',
-        colorBgContainer: '#111',
-        colorText: '#fff',
-        colorBorder: '#fff'
-      },
-      Layout: {
-        colorBgHeader: '#111',
-        colorBgSider: '#181818',
-        colorBgBase: '#111'
-      },
-      Menu: {
-        colorItemBg: '#181818',
-        colorItemText: '#fff',
-        colorItemTextHover: '#000',
-        colorItemBgSelected: '#fff',
-        colorItemTextSelected: '#000'
-      }
-    }
-  }
+  // Merge custom menu accent color into theme
+  const customTheme = isDark ? darkTheme : lightTheme
 
   return (
-    <ConfigProvider theme={customTheme}>
-      {contextHolder}
-      <Router>
-        <AppLayout
-          openNotification={openNotification}
-          collapsed={collapsed}
-          setCollapsed={setCollapsed}
-        />
-      </Router>
-    </ConfigProvider>
+    <MasterDataProvider>
+      <ConfigProvider theme={customTheme}>
+        {contextHolder}
+        <Router>
+          <AppLayout
+            openNotification={openNotification}
+            collapsed={collapsed}
+            setCollapsed={setCollapsed}
+            isDark={isDark}
+            setIsDark={setIsDark}
+          />
+        </Router>
+      </ConfigProvider>
+    </MasterDataProvider>
   )
 }
 
-function AppLayout({ openNotification, collapsed, setCollapsed }) {
+function AppLayout({ openNotification, collapsed, setCollapsed, isDark, setIsDark }) {
   const navigate = useNavigate()
   const location = useLocation()
   // Map path to menu key
@@ -82,87 +62,98 @@ function AppLayout({ openNotification, collapsed, setCollapsed }) {
         collapsible
         collapsed={collapsed}
         onCollapse={setCollapsed}
-        style={{ background: '#181818' }}
+        style={{ background: isDark ? '#181818' : '#f8f8f8' }}
       >
         <div style={{ height: 64, margin: 16, textAlign: 'center' }}>
-          <img src={electronLogo} alt="logo" style={{ width: 48, filter: 'invert(1)' }} />
+          <img
+            src={electronLogo}
+            alt="logo"
+            style={{ width: 48, filter: isDark ? 'invert(1)' : 'none' }}
+          />
         </div>
         <Menu
-          theme="dark"
+          theme={isDark ? 'dark' : 'light'}
           mode="inline"
           selectedKeys={[pathKey[location.pathname] || '1']}
           onClick={({ key }) => {
-            if (key === '1') navigate('/')
-            if (key === '2') navigate('/settings')
-            if (key === '3') navigate('/notifications')
+            navigate(key)
           }}
-          items={[
-            { key: '1', label: 'Dashboard' },
-            { key: '2', label: 'Settings' },
-            { key: '3', label: 'Notifications' }
-          ]}
-          style={{ background: '#181818', color: '#fff' }}
+          items={ROUTES.map(({ path, label, icon: IconComponent }) => {
+            return {
+              key: path,
+              icon: <IconComponent size={18} />,
+              label
+            }
+          })}
+          style={{ background: isDark ? '#181818' : '#f8f8f8', color: isDark ? '#fff' : '#000' }}
         />
       </Sider>
       <Layout>
-        <Header style={{ background: '#111', color: '#fff', fontSize: 20, fontWeight: 700 }}>
-          Bolt Dashboard
+        <Header
+          style={{
+            background: isDark ? '#111' : '#fff',
+            color: isDark ? '#fff' : '#000',
+            fontSize: 20,
+            fontWeight: 700,
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between'
+          }}
+        >
+          <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
+            <span>Bolt Dashboard</span>
+            <MasterSelectionModal />
+          </div>
         </Header>
+        {/* Floating Theme Toggle Button */}
+        <Button
+          type="primary"
+          shape="circle"
+          onClick={() => setIsDark((d) => !d)}
+          style={{
+            position: 'fixed',
+            bottom: 32,
+            right: 32,
+            zIndex: 1000,
+            width: 48,
+            height: 48,
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            background: isDark ? '#222' : '#fff',
+            color: isDark ? '#fff' : '#000',
+            boxShadow: '0 2px 8px rgba(0,0,0,0.15)'
+          }}
+          aria-label="Toggle theme"
+        >
+          {isDark ? <Sun size={24} /> : <Moon size={24} />}
+        </Button>
         <Content
           style={{
             margin: '24px 16px',
             padding: 24,
-            background: '#181818',
-            color: '#fff',
+            background: isDark ? '#181818' : '#f8f8f8',
+            color: isDark ? '#fff' : '#000',
             borderRadius: 8
           }}
         >
           <Routes>
-            <Route
-              path="/"
-              element={
-                <div style={{ display: 'flex', gap: 24, flexWrap: 'wrap' }}>
-                  <div
-                    style={{
-                      flex: 1,
-                      minWidth: 240,
-                      background: '#222',
-                      padding: 16,
-                      borderRadius: 8
-                    }}
-                  >
-                    <h2 style={{ color: '#fff' }}>Widget 1</h2>
-                    <p style={{ color: '#fff' }}>This is a sample widget.</p>
-                    <Button
-                      type="primary"
-                      onClick={openNotification}
-                      style={{ background: '#fff', color: '#000' }}
-                    >
-                      Show Notification
-                    </Button>
-                  </div>
-                  <div
-                    style={{
-                      flex: 1,
-                      minWidth: 240,
-                      background: '#222',
-                      padding: 16,
-                      borderRadius: 8
-                    }}
-                  >
-                    <h2 style={{ color: '#fff' }}>Widget 2</h2>
-                    <p style={{ color: '#fff' }}>Another widget area.</p>
-                  </div>
-                </div>
-              }
-            />
-            <Route path="/settings" element={<Settings />} />
-            <Route path="/notifications" element={<Notifications />} />
+            {ROUTES.map(({ path, element }) => (
+              <Route key={path} path={path} element={element} />
+            ))}
           </Routes>
-          <div style={{ marginTop: 32 }}>
-            <Versions />
-          </div>
         </Content>
+        <Layout.Footer
+          style={{
+            textAlign: 'center',
+            background: 'transparent',
+            color: isDark ? '#fff' : '#000',
+            fontSize: 13,
+            padding: 8
+          }}
+        >
+          {<Footer />}
+        </Layout.Footer>
       </Layout>
     </Layout>
   )
