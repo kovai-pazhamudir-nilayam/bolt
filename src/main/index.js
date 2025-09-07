@@ -4,16 +4,16 @@ import { electronApp, optimizer, is } from '@electron-toolkit/utils'
 import { ConfigDatabase } from './database.js'
 
 // Import IPC handlers
-import { registerSystemHandlers } from './ipc/system.js'
-import { registerGithubUsersHandlers } from './ipc/githubUsers.js'
-import { registerCompaniesHandlers } from './ipc/companies.js'
-import { registerEnvironmentsHandlers } from './ipc/environments.js'
-import { registerCoreTokenConfigsHandlers } from './ipc/coreTokenConfigs.js'
-import { registerGcpProjectConfigsHandlers } from './ipc/gcpProjectConfigs.js'
-import { registerGithubConfigsHandlers } from './ipc/githubConfigs.js'
-import { registerGithubReposHandlers } from './ipc/githubRepos.js'
-import { registerGithubRepoAccessHandlers } from './ipc/githubRepoAccess.js'
-import { registerBackupHandlers } from './ipc/backup.js'
+import { registerSystemHandlers } from './ipc/system.ipc.js'
+import { registerGithubUsersHandlers } from './ipc/githubUsers.ipc.js'
+import { registerCompaniesHandlers } from './ipc/companies.ipc.js'
+import { registerEnvironmentsHandlers } from './ipc/environments.ipc.js'
+import { registerCoreTokenConfigsHandlers } from './ipc/coreTokenConfigs.ipc.js'
+import { registerGcpProjectConfigsHandlers } from './ipc/gcpProjectConfigs.ipc.js'
+import { registerGithubConfigsHandlers } from './ipc/githubConfigs.ipc.js'
+import { registerGithubReposHandlers } from './ipc/githubRepos.ipc.js'
+import { registerGithubRepoAccessHandlers } from './ipc/githubRepoAccess.ipc.js'
+import { registerBackupHandlers } from './ipc/backup.ipc.js'
 
 function createWindow() {
   // Create the browser window.
