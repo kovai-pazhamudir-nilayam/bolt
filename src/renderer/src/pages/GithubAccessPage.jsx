@@ -7,6 +7,21 @@ import { renderErrorNotification } from '../helpers/error.helper'
 import { renderSuccessNotification } from '../helpers/success.helper'
 const { Option } = Select
 
+const GITHUB_REPO_ACCESS_LEVELS = [
+  {
+    label: 'WRITE',
+    value: 'push'
+  },
+  {
+    label: 'READ',
+    value: 'pull'
+  },
+  {
+    label: 'ADMIN',
+    value: 'Admin'
+  }
+]
+
 const GithubAccessPage = () => {
   const notificationApi = useNotification()
   const [isModalVisible, setIsModalVisible] = useState(false)
@@ -57,7 +72,8 @@ const GithubAccessPage = () => {
       { title: 'Company', dataIndex: 'company_name', key: 'company_name' },
       { title: 'Repository', dataIndex: 'repo_name', key: 'repo_name' },
       { title: 'User', dataIndex: 'user_name', key: 'user_name' },
-      { title: 'GitHub Handle', dataIndex: 'github_handle', key: 'github_handle' }
+      { title: 'GitHub Handle', dataIndex: 'github_handle', key: 'github_handle' },
+      { title: 'Access', dataIndex: 'access_level', key: 'access_level' }
     ],
     []
   )
@@ -86,10 +102,14 @@ const GithubAccessPage = () => {
     }
   }
 
-  const handleSave = async () => {
+  const handleSave = async (values) => {
     try {
-      const values = await form.validateFields()
-      await window.api.githubRepoAccess.add(values.company_id, values.repo_id, values.user_id)
+      await window.api.githubRepoAccess.add(
+        values.company_id,
+        values.repo_id,
+        values.user_id,
+        values.access_level
+      )
       renderSuccessNotification({ message: 'Access granted' }, notificationApi)
       setIsModalVisible(false)
       form.resetFields()
@@ -166,7 +186,14 @@ const GithubAccessPage = () => {
             label="Repository"
             rules={[{ required: true, message: 'Please select repository' }]}
           >
-            <Select placeholder="Select repository" disabled={!selectedCompanyId}>
+            <Select
+              showSearch
+              filterOption={(input, option) =>
+                (option?.key ?? '').toLowerCase().includes(input.toLowerCase())
+              }
+              placeholder="Select repository"
+              disabled={!selectedCompanyId}
+            >
               {filteredRepos.map((repo) => (
                 <Option key={repo.id} value={repo.id}>
                   {repo.name}
@@ -186,6 +213,17 @@ const GithubAccessPage = () => {
                 </Option>
               ))}
             </Select>
+          </Form.Item>
+          <Form.Item
+            name="access_level"
+            label="Access level"
+            rules={[{ required: true, message: 'Please select Access level' }]}
+          >
+            <Select
+              options={GITHUB_REPO_ACCESS_LEVELS}
+              placeholder="Select Access level"
+              disabled={!selectedCompanyId}
+            />
           </Form.Item>
           <Form.Item>
             <Button type="primary" htmlType="submit">

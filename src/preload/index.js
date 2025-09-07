@@ -69,10 +69,25 @@ const api = {
       return await ipcRenderer.invoke('/get/core-token-configs')
     },
     add: async (companyId, environmentId, domain, tokenApi, authKey) => {
-      return await ipcRenderer.invoke('/add/core-token-configs', companyId, environmentId, domain, tokenApi, authKey)
+      return await ipcRenderer.invoke(
+        '/add/core-token-configs',
+        companyId,
+        environmentId,
+        domain,
+        tokenApi,
+        authKey
+      )
     },
     update: async (id, companyId, environmentId, domain, tokenApi, authKey) => {
-      return await ipcRenderer.invoke('/update/core-token-configs', id, companyId, environmentId, domain, tokenApi, authKey)
+      return await ipcRenderer.invoke(
+        '/update/core-token-configs',
+        id,
+        companyId,
+        environmentId,
+        domain,
+        tokenApi,
+        authKey
+      )
     },
     delete: async (id) => {
       return await ipcRenderer.invoke('/delete/core-token-configs', id)
@@ -84,10 +99,25 @@ const api = {
       return await ipcRenderer.invoke('/get/gcp-project-configs')
     },
     add: async (companyId, environmentId, gcpProject, gcpCluster, gcpRegion) => {
-      return await ipcRenderer.invoke('/add/gcp-project-configs', companyId, environmentId, gcpProject, gcpCluster, gcpRegion)
+      return await ipcRenderer.invoke(
+        '/add/gcp-project-configs',
+        companyId,
+        environmentId,
+        gcpProject,
+        gcpCluster,
+        gcpRegion
+      )
     },
     update: async (id, companyId, environmentId, gcpProject, gcpCluster, gcpRegion) => {
-      return await ipcRenderer.invoke('/update/gcp-project-configs', id, companyId, environmentId, gcpProject, gcpCluster, gcpRegion)
+      return await ipcRenderer.invoke(
+        '/update/gcp-project-configs',
+        id,
+        companyId,
+        environmentId,
+        gcpProject,
+        gcpCluster,
+        gcpRegion
+      )
     },
     delete: async (id) => {
       return await ipcRenderer.invoke('/delete/gcp-project-configs', id)
@@ -128,8 +158,14 @@ const api = {
     getAll: async () => {
       return await ipcRenderer.invoke('/get/github-repo-access')
     },
-    add: async (companyId, repoId, userId) => {
-      return await ipcRenderer.invoke('/add/github-repo-access', companyId, repoId, userId)
+    add: async (companyId, repoId, userId, accessLevel) => {
+      return await ipcRenderer.invoke(
+        '/add/github-repo-access',
+        companyId,
+        repoId,
+        userId,
+        accessLevel
+      )
     },
     delete: async (id) => {
       return await ipcRenderer.invoke('/delete/github-repo-access', id)

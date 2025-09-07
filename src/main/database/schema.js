@@ -89,6 +89,7 @@ export const createTables = async (knex) => {
   if (!(await knex.schema.hasTable('github_repo_access'))) {
     await knex.schema.createTable('github_repo_access', (t) => {
       t.increments('id').primary()
+      t.string('access_level').notNullable()
       t.integer('company_id').notNullable().references('companies.id')
       t.integer('repo_id').notNullable().references('github_repos.id')
       t.integer('user_id').notNullable().references('users.id')
@@ -127,9 +128,15 @@ export const createTables = async (knex) => {
   await knex.schema.raw(
     'CREATE INDEX IF NOT EXISTS idx_gcp_company_env ON gcp_project_configs(company_id, environment_id)'
   )
-  await knex.schema.raw('CREATE INDEX IF NOT EXISTS idx_github_company ON github_configs(company_id)')
-  await knex.schema.raw('CREATE INDEX IF NOT EXISTS idx_github_repos_company ON github_repos(company_id)')
-  await knex.schema.raw('CREATE INDEX IF NOT EXISTS idx_user_preferences_key ON user_preferences(key)')
+  await knex.schema.raw(
+    'CREATE INDEX IF NOT EXISTS idx_github_company ON github_configs(company_id)'
+  )
+  await knex.schema.raw(
+    'CREATE INDEX IF NOT EXISTS idx_github_repos_company ON github_repos(company_id)'
+  )
+  await knex.schema.raw(
+    'CREATE INDEX IF NOT EXISTS idx_user_preferences_key ON user_preferences(key)'
+  )
   await knex.schema.raw(
     'CREATE INDEX IF NOT EXISTS idx_github_repo_access_company ON github_repo_access(company_id)'
   )
