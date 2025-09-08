@@ -1,11 +1,11 @@
 /**
- * System-related IPC handlers
+ * System-related IPC Handler
  */
 
 import { spawn } from 'child_process'
-import { shell, dialog } from 'electron'
+import { dialog } from 'electron'
 
-export const registerSystemHandlers = (ipcMain) => {
+export const registerSystemHandler = (ipcMain) => {
   // Shell command execution
   ipcMain.on('run-shell-command-stream', (event, command) => {
     const child = spawn(command, { shell: true })

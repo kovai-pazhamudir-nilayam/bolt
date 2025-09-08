@@ -1,4 +1,4 @@
-export function registerBackupHandlers(ipcMain, configDb) {
+export function registerBackupHandler(ipcMain, configDb) {
   // Export database
   ipcMain.handle('export_database', async () => {
     try {

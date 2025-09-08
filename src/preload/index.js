@@ -21,56 +21,56 @@ const api = {
   // GitHub Users management APIs
   githubUsers: {
     getAll: async () => {
-      return await ipcRenderer.invoke('/get/github-users')
+      return await ipcRenderer.invoke('/get/github-user')
     },
     add: async (name, githubHandle) => {
-      return await ipcRenderer.invoke('/add/github-users', name, githubHandle)
+      return await ipcRenderer.invoke('/add/github-user', name, githubHandle)
     },
     update: async (id, name, githubHandle) => {
-      return await ipcRenderer.invoke('/update/github-users', id, name, githubHandle)
+      return await ipcRenderer.invoke('/update/github-user', id, name, githubHandle)
     },
     delete: async (id) => {
-      return await ipcRenderer.invoke('/delete/github-users', id)
+      return await ipcRenderer.invoke('/delete/github-user', id)
     }
   },
   // Companies APIs
   companies: {
     getAll: async () => {
-      return await ipcRenderer.invoke('/get/companies')
+      return await ipcRenderer.invoke('/get/company')
     },
     add: async (code, name, logo) => {
-      return await ipcRenderer.invoke('/add/companies', code, name, logo)
+      return await ipcRenderer.invoke('/add/company', code, name, logo)
     },
     update: async (id, code, name, logo) => {
-      return await ipcRenderer.invoke('/update/companies', id, code, name, logo)
+      return await ipcRenderer.invoke('/update/company', id, code, name, logo)
     },
     delete: async (id) => {
-      return await ipcRenderer.invoke('/delete/companies', id)
+      return await ipcRenderer.invoke('/delete/company', id)
     }
   },
   // Environments APIs
   environments: {
     getAll: async () => {
-      return await ipcRenderer.invoke('/get/environments')
+      return await ipcRenderer.invoke('/get/environment')
     },
     add: async (code, name) => {
-      return await ipcRenderer.invoke('/add/environments', code, name)
+      return await ipcRenderer.invoke('/add/environment', code, name)
     },
     update: async (id, code, name) => {
-      return await ipcRenderer.invoke('/update/environments', id, code, name)
+      return await ipcRenderer.invoke('/update/environment', id, code, name)
     },
     delete: async (id) => {
-      return await ipcRenderer.invoke('/delete/environments', id)
+      return await ipcRenderer.invoke('/delete/environment', id)
     }
   },
   // Core Token Configs APIs
   coreTokenConfigs: {
     getAll: async () => {
-      return await ipcRenderer.invoke('/get/core-token-configs')
+      return await ipcRenderer.invoke('/get/core-token-config')
     },
     add: async (companyId, environmentId, domain, tokenApi, authKey) => {
       return await ipcRenderer.invoke(
-        '/add/core-token-configs',
+        '/add/core-token-config',
         companyId,
         environmentId,
         domain,
@@ -80,7 +80,7 @@ const api = {
     },
     update: async (id, companyId, environmentId, domain, tokenApi, authKey) => {
       return await ipcRenderer.invoke(
-        '/update/core-token-configs',
+        '/update/core-token-config',
         id,
         companyId,
         environmentId,
@@ -90,17 +90,17 @@ const api = {
       )
     },
     delete: async (id) => {
-      return await ipcRenderer.invoke('/delete/core-token-configs', id)
+      return await ipcRenderer.invoke('/delete/core-token-config', id)
     }
   },
   // GCP Project Configs APIs
   gcpProjectConfigs: {
     getAll: async () => {
-      return await ipcRenderer.invoke('/get/gcp-project-configs')
+      return await ipcRenderer.invoke('/get/gcp-project-config')
     },
     add: async (companyId, environmentId, gcpProject, gcpCluster, gcpRegion) => {
       return await ipcRenderer.invoke(
-        '/add/gcp-project-configs',
+        '/add/gcp-project-config',
         companyId,
         environmentId,
         gcpProject,
@@ -110,7 +110,7 @@ const api = {
     },
     update: async (id, companyId, environmentId, gcpProject, gcpCluster, gcpRegion) => {
       return await ipcRenderer.invoke(
-        '/update/gcp-project-configs',
+        '/update/gcp-project-config',
         id,
         companyId,
         environmentId,
@@ -120,37 +120,37 @@ const api = {
       )
     },
     delete: async (id) => {
-      return await ipcRenderer.invoke('/delete/gcp-project-configs', id)
+      return await ipcRenderer.invoke('/delete/gcp-project-config', id)
     }
   },
   // GitHub Configs APIs
   githubConfigs: {
     getAll: async () => {
-      return await ipcRenderer.invoke('/get/github-configs')
+      return await ipcRenderer.invoke('/get/github-config')
     },
     add: async (companyId, githubToken, owner) => {
-      return await ipcRenderer.invoke('/add/github-configs', companyId, githubToken, owner)
+      return await ipcRenderer.invoke('/add/github-config', companyId, githubToken, owner)
     },
     update: async (id, companyId, githubToken, owner) => {
-      return await ipcRenderer.invoke('/update/github-configs', id, companyId, githubToken, owner)
+      return await ipcRenderer.invoke('/update/github-config', id, companyId, githubToken, owner)
     },
     delete: async (id) => {
-      return await ipcRenderer.invoke('/delete/github-configs', id)
+      return await ipcRenderer.invoke('/delete/github-config', id)
     }
   },
   // GitHub Repos APIs
   githubRepos: {
     getAll: async () => {
-      return await ipcRenderer.invoke('/get/github-repos')
+      return await ipcRenderer.invoke('/get/github-repo')
     },
     add: async (companyId, name) => {
-      return await ipcRenderer.invoke('/add/github-repos', companyId, name)
+      return await ipcRenderer.invoke('/add/github-repo', companyId, name)
     },
     delete: async (id) => {
-      return await ipcRenderer.invoke('/delete/github-repos', id)
+      return await ipcRenderer.invoke('/delete/github-repo', id)
     },
     sync: async (companyId) => {
-      return await ipcRenderer.invoke('/sync/github-repos', companyId)
+      return await ipcRenderer.invoke('/sync/github-repo', companyId)
     }
   },
   // GitHub Repo Access APIs

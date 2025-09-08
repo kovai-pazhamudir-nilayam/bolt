@@ -1,8 +1,8 @@
 /**
- * GitHub Repo Access IPC handlers
+ * GitHub Repo Access IPC Handler
  */
 
-export const registerGithubRepoAccessHandlers = (ipcMain, configDb) => {
+export const registerGithubRepoAccessHandler = (ipcMain, configDb) => {
   ipcMain.handle('/get/github-repo-access', async () => {
     try {
       return await configDb

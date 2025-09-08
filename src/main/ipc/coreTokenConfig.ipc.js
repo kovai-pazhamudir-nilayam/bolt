@@ -1,12 +1,12 @@
 /**
- * Core Token Configurations IPC handlers
+ * Core Token Configurations IPC Handler
  */
 
-export const registerCoreTokenConfigsHandlers = (ipcMain, configDb) => {
-  ipcMain.handle('/get/core-token-configs', async () => {
+export const registerCoreTokenConfigHandler = (ipcMain, configDb) => {
+  ipcMain.handle('/get/core-token-config', async () => {
     try {
       return await configDb
-        .knex('core_token_configs as ctc')
+        .knex('core_token_config as ctc')
         .select(
           'ctc.*',
           'c.code as company_code',
@@ -14,20 +14,20 @@ export const registerCoreTokenConfigsHandlers = (ipcMain, configDb) => {
           'e.code as environment_code',
           'e.name as environment_name'
         )
-        .join('companies as c', 'ctc.company_id', 'c.id')
-        .join('environments as e', 'ctc.environment_id', 'e.id')
+        .join('company as c', 'ctc.company_id', 'c.id')
+        .join('environment as e', 'ctc.environment_id', 'e.id')
         .orderBy(['c.name', 'e.name'])
     } catch (error) {
-      console.error('Error getting core token configs:', error)
+      console.error('Error getting core token config:', error)
       return []
     }
   })
 
   ipcMain.handle(
-    '/add/core-token-configs',
+    '/add/core-token-config',
     async (event, companyId, environmentId, domain, tokenApi, authKey) => {
       try {
-        return await configDb.knex('core_token_configs').insert({
+        return await configDb.knex('core_token_config').insert({
           company_id: companyId,
           environment_id: environmentId,
           domain,
@@ -42,20 +42,17 @@ export const registerCoreTokenConfigsHandlers = (ipcMain, configDb) => {
   )
 
   ipcMain.handle(
-    '/update/core-token-configs',
+    '/update/core-token-config',
     async (event, id, companyId, environmentId, domain, tokenApi, authKey) => {
       try {
-        return await configDb
-          .knex('core_token_configs')
-          .where({ id })
-          .update({
-            company_id: companyId,
-            environment_id: environmentId,
-            domain,
-            token_api: tokenApi,
-            auth_key: authKey,
-            updated_at: configDb.knex.fn.now()
-          })
+        return await configDb.knex('core_token_config').where({ id }).update({
+          company_id: companyId,
+          environment_id: environmentId,
+          domain,
+          token_api: tokenApi,
+          auth_key: authKey,
+          updated_at: configDb.knex.fn.now()
+        })
       } catch (error) {
         console.error('Error updating core token config:', error)
         throw error
@@ -63,9 +60,9 @@ export const registerCoreTokenConfigsHandlers = (ipcMain, configDb) => {
     }
   )
 
-  ipcMain.handle('/delete/core-token-configs', async (event, id) => {
+  ipcMain.handle('/delete/core-token-config', async (event, id) => {
     try {
-      return await configDb.knex('core_token_configs').where({ id }).del()
+      return await configDb.knex('core_token_config').where({ id }).del()
     } catch (error) {
       console.error('Error deleting core token config:', error)
       throw error

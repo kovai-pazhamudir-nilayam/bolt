@@ -1,14 +1,14 @@
 /**
- * GitHub Repos IPC handlers
+ * GitHub Repos IPC Handler
  */
 
-export const registerGithubReposHandlers = (ipcMain, configDb) => {
-  ipcMain.handle('/get/github-repos', async () => {
+export const registerGithubRepoHandler = (ipcMain, configDb) => {
+  ipcMain.handle('/get/github-repo', async () => {
     try {
       return await configDb
-        .knex('github_repos as gr')
+        .knex('github_repo as gr')
         .select('gr.*', 'c.code as company_code', 'c.name as company_name')
-        .join('companies as c', 'gr.company_id', 'c.id')
+        .join('company as c', 'gr.company_id', 'c.id')
         .orderBy(['c.name', { column: 'gr.name', order: 'asc' }])
     } catch (error) {
       console.error('Error getting GitHub repos:', error)
@@ -16,28 +16,28 @@ export const registerGithubReposHandlers = (ipcMain, configDb) => {
     }
   })
 
-  ipcMain.handle('/add/github-repos', async (event, companyId, name) => {
+  ipcMain.handle('/add/github-repo', async (event, companyId, name) => {
     try {
-      return await configDb.knex('github_repos').insert({ company_id: companyId, name })
+      return await configDb.knex('github_repo').insert({ company_id: companyId, name })
     } catch (error) {
       console.error('Error adding GitHub repo:', error)
       throw error
     }
   })
 
-  ipcMain.handle('/delete/github-repos', async (event, id) => {
+  ipcMain.handle('/delete/github-repo', async (event, id) => {
     try {
-      return await configDb.knex('github_repos').where({ id }).del()
+      return await configDb.knex('github_repo').where({ id }).del()
     } catch (error) {
       console.error('Error deleting GitHub repo:', error)
       throw error
     }
   })
 
-  ipcMain.handle('/sync/github-repos', async (event, companyId) => {
+  ipcMain.handle('/sync/github-repo', async (event, companyId) => {
     try {
       const cfg = await configDb
-        .knex('github_configs')
+        .knex('github_config')
         .select('github_token', 'owner')
         .where({ company_id: companyId })
         .first()
@@ -71,7 +71,7 @@ export const registerGithubReposHandlers = (ipcMain, configDb) => {
       await configDb.knex.transaction(async (trx) => {
         for (const repo of repos) {
           if (repo && repo.name) {
-            await trx('github_repos')
+            await trx('github_repo')
               .insert({ company_id: companyId, name: repo.name })
               .onConflict(['company_id', 'name'])
               .ignore()

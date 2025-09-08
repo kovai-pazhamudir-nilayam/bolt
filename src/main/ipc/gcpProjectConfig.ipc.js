@@ -1,9 +1,9 @@
 /**
- * GCP Project Configurations IPC handlers
+ * GCP Project Configurations IPC Handler
  */
 
-export const registerGcpProjectConfigsHandlers = (ipcMain, configDb) => {
-  ipcMain.handle('/get/gcp-project-configs', async () => {
+export const registerGcpProjectConfigHandler = (ipcMain, configDb) => {
+  ipcMain.handle('/get/gcp-project-config', async () => {
     try {
       return await configDb
         .knex('gcp_project_configs as gpc')
@@ -14,20 +14,20 @@ export const registerGcpProjectConfigsHandlers = (ipcMain, configDb) => {
           'e.code as environment_code',
           'e.name as environment_name'
         )
-        .join('companies as c', 'gpc.company_id', 'c.id')
-        .join('environments as e', 'gpc.environment_id', 'e.id')
+        .join('company as c', 'gpc.company_id', 'c.id')
+        .join('environment as e', 'gpc.environment_id', 'e.id')
         .orderBy(['c.name', 'e.name'])
     } catch (error) {
-      console.error('Error getting GCP project configs:', error)
+      console.error('Error getting GCP project config:', error)
       return []
     }
   })
 
   ipcMain.handle(
-    '/add/gcp-project-configs',
+    '/add/gcp-project-config',
     async (event, companyId, environmentId, gcpProject, gcpCluster, gcpRegion) => {
       try {
-        return await configDb.knex('gcp_project_configs').insert({
+        return await configDb.knex('gcp_project_config').insert({
           company_id: companyId,
           environment_id: environmentId,
           gcp_project: gcpProject,
@@ -42,20 +42,17 @@ export const registerGcpProjectConfigsHandlers = (ipcMain, configDb) => {
   )
 
   ipcMain.handle(
-    '/update/gcp-project-configs',
+    '/update/gcp-project-config',
     async (event, id, companyId, environmentId, gcpProject, gcpCluster, gcpRegion) => {
       try {
-        return await configDb
-          .knex('gcp_project_configs')
-          .where({ id })
-          .update({
-            company_id: companyId,
-            environment_id: environmentId,
-            gcp_project: gcpProject,
-            gcp_cluster: gcpCluster,
-            gcp_region: gcpRegion,
-            updated_at: configDb.knex.fn.now()
-          })
+        return await configDb.knex('gcp_project_config').where({ id }).update({
+          company_id: companyId,
+          environment_id: environmentId,
+          gcp_project: gcpProject,
+          gcp_cluster: gcpCluster,
+          gcp_region: gcpRegion,
+          updated_at: configDb.knex.fn.now()
+        })
       } catch (error) {
         console.error('Error updating GCP project config:', error)
         throw error
@@ -63,9 +60,9 @@ export const registerGcpProjectConfigsHandlers = (ipcMain, configDb) => {
     }
   )
 
-  ipcMain.handle('/delete/gcp-project-configs', async (event, id) => {
+  ipcMain.handle('/delete/gcp-project-config', async (event, id) => {
     try {
-      return await configDb.knex('gcp_project_configs').where({ id }).del()
+      return await configDb.knex('gcp_project_config').where({ id }).del()
     } catch (error) {
       console.error('Error deleting GCP project config:', error)
       throw error

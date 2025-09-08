@@ -2,23 +2,23 @@ import { app, BrowserWindow, ipcMain } from 'electron'
 import { join } from 'path'
 import { electronApp, optimizer, is } from '@electron-toolkit/utils'
 
-// Import IPC handlers
-import { registerSystemHandlers } from './ipc/system.ipc.js'
-import { registerGithubUsersHandlers } from './ipc/githubUsers.ipc.js'
-import { registerCompaniesHandlers } from './ipc/companies.ipc.js'
-import { registerEnvironmentsHandlers } from './ipc/environments.ipc.js'
-import { registerCoreTokenConfigsHandlers } from './ipc/coreTokenConfigs.ipc.js'
-import { registerGcpProjectConfigsHandlers } from './ipc/gcpProjectConfigs.ipc.js'
-import { registerGithubConfigsHandlers } from './ipc/githubConfigs.ipc.js'
-import { registerGithubReposHandlers } from './ipc/githubRepos.ipc.js'
-import { registerGithubRepoAccessHandlers } from './ipc/githubRepoAccess.ipc.js'
-import { registerBackupHandlers } from './ipc/backup.ipc.js'
+// Import IPC Handler
+import { registerSystemHandler } from './ipc/system.ipc.js'
+import { registerGithubUserHandler } from './ipc/githubUser.ipc.js'
+import { registerCompanyHandler } from './ipc/company.ipc.js'
+import { registerEnvironmentHandler } from './ipc/environment.ipc.js'
+import { registerCoreTokenConfigHandler } from './ipc/coreTokenConfig.ipc.js'
+import { registerGcpProjectConfigHandler } from './ipc/gcpProjectConfig.ipc.js'
+import { registerGithubConfigHandler } from './ipc/githubConfig.ipc.js'
+import { registerGithubRepoHandler } from './ipc/githubRepo.ipc.js'
+import { registerGithubRepoAccessHandler } from './ipc/githubRepoAccess.ipc.js'
+import { registerBackupHandler } from './ipc/backup.ipc.js'
 import { ConfigDatabase } from './database/ConfigDatabase.js'
 
 function createWindow() {
   // Create the browser window.
   const mainWindow = new BrowserWindow({
-    fullscreen: true,
+    fullscreen: false,
     show: false,
     autoHideMenuBar: true,
     // ...(process.platform === 'linux' ? { icon } : {}),
@@ -67,18 +67,17 @@ app.whenReady().then(async () => {
     optimizer.watchWindowShortcuts(window)
   })
 
-  // Register all IPC handlers
-  registerSystemHandlers(ipcMain)
-  // Legacy handlers removed
-  registerGithubUsersHandlers(ipcMain, configDb)
-  registerCompaniesHandlers(ipcMain, configDb)
-  registerEnvironmentsHandlers(ipcMain, configDb)
-  registerCoreTokenConfigsHandlers(ipcMain, configDb)
-  registerGcpProjectConfigsHandlers(ipcMain, configDb)
-  registerGithubConfigsHandlers(ipcMain, configDb)
-  registerGithubReposHandlers(ipcMain, configDb)
-  registerBackupHandlers(ipcMain, configDb)
-  registerGithubRepoAccessHandlers(ipcMain, configDb)
+  // Register all IPC Handler
+  registerSystemHandler(ipcMain)
+  registerGithubUserHandler(ipcMain, configDb)
+  registerCompanyHandler(ipcMain, configDb)
+  registerEnvironmentHandler(ipcMain, configDb)
+  registerCoreTokenConfigHandler(ipcMain, configDb)
+  registerGcpProjectConfigHandler(ipcMain, configDb)
+  registerGithubConfigHandler(ipcMain, configDb)
+  registerGithubRepoHandler(ipcMain, configDb)
+  registerBackupHandler(ipcMain, configDb)
+  registerGithubRepoAccessHandler(ipcMain, configDb)
 
   createWindow()
 
