@@ -30,7 +30,7 @@ const GithubAccessPage = () => {
 
   const [loading, setLoading] = useState(false)
   const [companies, setCompanies] = useState([])
-  const [users, setUsers] = useState([])
+  const [githubUsers, setGithubUsers] = useState([])
   const [repos, setRepos] = useState([])
   const [access, setAccess] = useState([])
 
@@ -44,7 +44,7 @@ const GithubAccessPage = () => {
         window.api.githubRepoAccess.getAll()
       ])
       setCompanies(c || [])
-      setUsers(u || [])
+      setGithubUsers(u || [])
       setRepos(r || [])
       setAccess(a || [])
     } catch (error) {
@@ -107,7 +107,7 @@ const GithubAccessPage = () => {
       await window.api.githubRepoAccess.add(
         values.company_id,
         values.repo_id,
-        values.user_id,
+        values.github_user_id,
         values.access_level
       )
       renderSuccessNotification({ message: 'Access granted' }, notificationApi)
@@ -202,12 +202,12 @@ const GithubAccessPage = () => {
             </Select>
           </Form.Item>
           <Form.Item
-            name="user_id"
+            name="github_user_id"
             label="User"
             rules={[{ required: true, message: 'Please select user' }]}
           >
             <Select placeholder="Select user">
-              {users.map((user) => (
+              {githubUsers.map((user) => (
                 <Option key={user.id} value={user.id}>
                   {user.name} (@{user.github_handle})
                 </Option>

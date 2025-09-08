@@ -11,7 +11,7 @@ const GithubUsersSettings = () => {
   const [editingItem, setEditingItem] = useState(null)
   const [searchText, setSearchText] = useState('')
   const [form] = Form.useForm()
-  const { users, loading, loadAllData, notificationApi } = useDatabaseData()
+  const { githubUsers, loading, loadAllData, notificationApi } = useDatabaseData()
 
   const columns = [
     { title: 'Name', dataIndex: 'name', key: 'name' },
@@ -112,7 +112,7 @@ const GithubUsersSettings = () => {
   return (
     <>
       <EntityTable
-        data={users}
+        data={githubUsers}
         columns={columns}
         loading={loading}
         onAdd={handleAdd}

@@ -4,28 +4,28 @@
 
 export const registerGithubUsersHandlers = (ipcMain, configDb) => {
   // IPC handlers for GitHub user management
-  ipcMain.handle('github-users-get-all', async () => {
+  ipcMain.handle('/get/github-users', async () => {
     try {
-      return await configDb.knex('users').select('*').orderBy('name')
+      return await configDb.knex('github_users').select('*').orderBy('name')
     } catch (error) {
       console.error('Error getting users:', error)
       return []
     }
   })
 
-  ipcMain.handle('github-users-add', async (event, name, githubHandle) => {
+  ipcMain.handle('/add/github-users', async (event, name, githubHandle) => {
     try {
-      return await configDb.knex('users').insert({ name, github_handle: githubHandle })
+      return await configDb.knex('github_users').insert({ name, github_handle: githubHandle })
     } catch (error) {
       console.error('Error adding user:', error)
       throw error
     }
   })
 
-  ipcMain.handle('github-users-update', async (event, id, name, githubHandle) => {
+  ipcMain.handle('/update/github-users', async (event, id, name, githubHandle) => {
     try {
       return await configDb
-        .knex('users')
+        .knex('github_users')
         .where({ id })
         .update({ name, github_handle: githubHandle, updated_at: configDb.knex.fn.now() })
     } catch (error) {
@@ -34,9 +34,9 @@ export const registerGithubUsersHandlers = (ipcMain, configDb) => {
     }
   })
 
-  ipcMain.handle('github-users-delete', async (event, id) => {
+  ipcMain.handle('/delete/github-users', async (event, id) => {
     try {
-      return await configDb.knex('users').where({ id }).del()
+      return await configDb.knex('github_users').where({ id }).del()
     } catch (error) {
       console.error('Error deleting user:', error)
       throw error

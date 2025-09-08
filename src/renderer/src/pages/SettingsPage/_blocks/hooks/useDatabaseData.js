@@ -6,7 +6,7 @@ export const useDatabaseData = () => {
   const [loading, setLoading] = useState(false)
   const [companies, setCompanies] = useState([])
   const [environments, setEnvironments] = useState([])
-  const [users, setUsers] = useState([]) // GitHub users
+  const [githubUsers, setGithubUsers] = useState([]) // GitHub users
   const [coreTokenConfigs, setCoreTokenConfigs] = useState([])
   const [gcpProjectConfigs, setGcpProjectConfigs] = useState([])
   const [githubConfigs, setGithubConfigs] = useState([])
@@ -15,7 +15,7 @@ export const useDatabaseData = () => {
   const loadAllData = async () => {
     try {
       setLoading(true)
-      const [companiesData, environmentsData, usersData, coreTokenData, gcpData, githubData] =
+      const [companiesData, environmentsData, githubUsersData, coreTokenData, gcpData, githubData] =
         await Promise.all([
           window.api.companies.getAll(),
           window.api.environments.getAll(),
@@ -27,7 +27,7 @@ export const useDatabaseData = () => {
 
       setCompanies(companiesData || [])
       setEnvironments(environmentsData || [])
-      setUsers(usersData || [])
+      setGithubUsers(githubUsersData || [])
       setCoreTokenConfigs(coreTokenData || [])
       setGcpProjectConfigs(gcpData || [])
       setGithubConfigs(githubData || [])
@@ -55,7 +55,7 @@ export const useDatabaseData = () => {
     loading,
     companies,
     environments,
-    users,
+    githubUsers,
     coreTokenConfigs,
     gcpProjectConfigs,
     githubConfigs,

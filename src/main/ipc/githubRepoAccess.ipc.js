@@ -16,7 +16,7 @@ export const registerGithubRepoAccessHandlers = (ipcMain, configDb) => {
         )
         .join('companies as c', 'gra.company_id', 'c.id')
         .join('github_repos as gr', 'gra.repo_id', 'gr.id')
-        .join('users as u', 'gra.user_id', 'u.id')
+        .join('github_users as u', 'gra.github_user_id', 'u.id')
         .orderBy(['c.name', 'gr.name', 'u.name'])
     } catch (error) {
       console.error('Error getting repo access:', error)
@@ -26,7 +26,7 @@ export const registerGithubRepoAccessHandlers = (ipcMain, configDb) => {
 
   ipcMain.handle(
     '/add/github-repo-access',
-    async (event, companyId, repoId, userId, accessLevel) => {
+    async (event, companyId, repoId, githubUserId, accessLevel) => {
       try {
         const cfg = await configDb
           .knex('github_configs')
@@ -50,13 +50,16 @@ export const registerGithubRepoAccessHandlers = (ipcMain, configDb) => {
           })
           if (res.status === 404) return null
           if (!res.ok) throw new Error(`GitHub API error: ${res.status}`)
-          return await res.json()
+          const response = await res.json()
+          console.log(response, '------')
+
+          return response
         }
 
         const response = await addCollaborator(
-          `https://api.github.com/repos/${cfg.owner}/${repoId}/collaborators`
+          `https://api.github.com/repos/${cfg.owner}/${repoId}/collaborators/${githubUserId}`
         )
-        console.log(response, '-------')
+        console.log(response)
 
         // handle if response is not valid
 
@@ -65,10 +68,10 @@ export const registerGithubRepoAccessHandlers = (ipcMain, configDb) => {
           .insert({
             company_id: companyId,
             repo_id: repoId,
-            user_id: userId,
+            github_user_id: githubUserId,
             access_level: accessLevel
           })
-          .onConflict(['company_id', 'repo_id', 'user_id'])
+          .onConflict(['company_id', 'repo_id', 'github_user_id'])
           .ignore()
       } catch (error) {
         console.error('Error adding repo access:', error)

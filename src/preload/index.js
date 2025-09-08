@@ -21,16 +21,16 @@ const api = {
   // GitHub Users management APIs
   githubUsers: {
     getAll: async () => {
-      return await ipcRenderer.invoke('github-users-get-all')
+      return await ipcRenderer.invoke('/get/github-users')
     },
     add: async (name, githubHandle) => {
-      return await ipcRenderer.invoke('github-users-add', name, githubHandle)
+      return await ipcRenderer.invoke('/add/github-users', name, githubHandle)
     },
     update: async (id, name, githubHandle) => {
-      return await ipcRenderer.invoke('github-users-update', id, name, githubHandle)
+      return await ipcRenderer.invoke('/update/github-users', id, name, githubHandle)
     },
     delete: async (id) => {
-      return await ipcRenderer.invoke('github-users-delete', id)
+      return await ipcRenderer.invoke('/delete/github-users', id)
     }
   },
   // Companies APIs
@@ -158,12 +158,12 @@ const api = {
     getAll: async () => {
       return await ipcRenderer.invoke('/get/github-repo-access')
     },
-    add: async (companyId, repoId, userId, accessLevel) => {
+    add: async (companyId, repoId, githubUserId, accessLevel) => {
       return await ipcRenderer.invoke(
         '/add/github-repo-access',
         companyId,
         repoId,
-        userId,
+        githubUserId,
         accessLevel
       )
     },
