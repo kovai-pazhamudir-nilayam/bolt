@@ -1,7 +1,6 @@
 import { app, BrowserWindow, ipcMain } from 'electron'
 import { join } from 'path'
 import { electronApp, optimizer, is } from '@electron-toolkit/utils'
-import { ConfigDatabase } from './database.js'
 
 // Import IPC handlers
 import { registerSystemHandlers } from './ipc/system.ipc.js'
@@ -14,6 +13,7 @@ import { registerGithubConfigsHandlers } from './ipc/githubConfigs.ipc.js'
 import { registerGithubReposHandlers } from './ipc/githubRepos.ipc.js'
 import { registerGithubRepoAccessHandlers } from './ipc/githubRepoAccess.ipc.js'
 import { registerBackupHandlers } from './ipc/backup.ipc.js'
+import { ConfigDatabase } from './database/ConfigDatabase.js'
 
 function createWindow() {
   // Create the browser window.

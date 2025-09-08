@@ -18,6 +18,18 @@
     "build:mac": "npm run build && electron-builder --mac",
     "build:linux": "npm run build && electron-builder --linux"
   },
+  "build": {
+    "extraResources": [
+      {
+        "from": "src/main/database/migrations/",
+        "to": "migrations"
+      },
+      {
+        "from": "src/main/database/seeds/",
+        "to": "seeds"
+      }
+    ]
+  },
   "dependencies": {
     "@electron-toolkit/preload": "^3.0.2",
     "@electron-toolkit/utils": "^4.0.0",
