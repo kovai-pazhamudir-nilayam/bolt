@@ -1,21 +1,26 @@
-import { Form, Input, Modal } from 'antd'
+import { Form, Input, Modal, Typography } from 'antd'
 import { useState } from 'react'
-import EntityTable from './components/EntityTable'
-import { useDatabaseData } from './hooks/useDatabaseData'
+import EntityTable from '../../../components/EntityTable'
+import { useDatabaseData } from './../_blocks/hooks/useDatabaseData'
 import { renderSuccessNotification } from '../../../helpers/success.helper'
 import { renderErrorNotification } from '../../../helpers/error.helper'
+const { Text } = Typography
 
-const CompaniesSettings = () => {
+const GithubUsersSettings = () => {
   const [isModalVisible, setIsModalVisible] = useState(false)
   const [editingItem, setEditingItem] = useState(null)
   const [searchText, setSearchText] = useState('')
   const [form] = Form.useForm()
-  const { companies, loading, loadAllData, notificationApi } = useDatabaseData()
+  const { githubUsers, loading, loadAllData, notificationApi } = useDatabaseData()
 
   const columns = [
-    { title: 'Code', dataIndex: 'code', key: 'code' },
     { title: 'Name', dataIndex: 'name', key: 'name' },
-    { title: 'Logo', dataIndex: 'logo', key: 'logo', render: (text) => text || 'No logo' },
+    {
+      title: 'GitHub Handle',
+      dataIndex: 'github_handle',
+      key: 'github_handle',
+      render: (text) => <Text code>@{text}</Text>
+    },
     {
       title: 'Created',
       dataIndex: 'created_at',
@@ -38,21 +43,21 @@ const CompaniesSettings = () => {
 
   const handleDelete = async (item) => {
     try {
-      await window.api.companies.delete(item.id)
+      await window.api.githubUsers.delete(item.id)
       renderSuccessNotification(
         {
-          message: 'Company deleted successfully!'
+          message: 'GitHub user deleted successfully!'
         },
         notificationApi
       )
       loadAllData()
     } catch (error) {
-      console.error('Error deleting company:', error)
+      console.error('Error deleting user:', error)
       renderErrorNotification(
         [
           {
             title: 'Delete Failed',
-            message: error.message || 'Failed to delete company'
+            message: error.message || 'Failed to delete GitHub user'
           }
         ],
         notificationApi
@@ -65,14 +70,16 @@ const CompaniesSettings = () => {
       const values = await form.validateFields()
 
       if (editingItem) {
-        await window.api.companies.update(editingItem.id, values.code, values.name, values.logo)
+        await window.api.githubUsers.update(editingItem.id, values.name, values.github_handle)
       } else {
-        await window.api.companies.add(values.code, values.name, values.logo)
+        await window.api.githubUsers.add(values.name, values.github_handle)
       }
 
       renderSuccessNotification(
         {
-          message: editingItem ? 'Company updated successfully!' : 'Company added successfully!'
+          message: editingItem
+            ? 'GitHub user updated successfully!'
+            : 'GitHub user added successfully!'
         },
         notificationApi
       )
@@ -81,12 +88,12 @@ const CompaniesSettings = () => {
       form.resetFields()
       loadAllData()
     } catch (error) {
-      console.error('Error saving company:', error)
+      console.error('Error saving GitHub user:', error)
       renderErrorNotification(
         [
           {
             title: 'Save Failed',
-            message: error.message || 'Failed to save company'
+            message: error.message || 'Failed to save GitHub user'
           }
         ],
         notificationApi
@@ -107,7 +114,7 @@ const CompaniesSettings = () => {
   return (
     <>
       <EntityTable
-        data={companies}
+        data={githubUsers}
         columns={columns}
         loading={loading}
         onAdd={handleAdd}
@@ -115,11 +122,11 @@ const CompaniesSettings = () => {
         onDelete={handleDelete}
         searchText={searchText}
         onSearchChange={handleSearchChange}
-        emptyText="No companies found. Click 'Add New' to get started."
+        emptyText="No users found. Click 'Add New' to get started."
       />
 
       <Modal
-        title={editingItem ? 'Edit Company' : 'Add New Company'}
+        title={editingItem ? 'Edit GitHub User' : 'Add New GitHub User'}
         open={isModalVisible}
         onOk={handleSave}
         onCancel={handleCancel}
@@ -129,21 +136,18 @@ const CompaniesSettings = () => {
       >
         <Form form={form} layout="vertical" requiredMark={false}>
           <Form.Item
-            name="code"
-            label="Company Code"
-            rules={[{ required: true, message: 'Please enter company code' }]}
+            name="name"
+            label="Name"
+            rules={[{ required: true, message: 'Please enter user name' }]}
           >
-            <Input placeholder="e.g., KPN, IBO" />
+            <Input placeholder="User's full name" />
           </Form.Item>
           <Form.Item
-            name="name"
-            label="Company Name"
-            rules={[{ required: true, message: 'Please enter company name' }]}
+            name="github_handle"
+            label="GitHub Handle"
+            rules={[{ required: true, message: 'Please enter GitHub handle' }]}
           >
-            <Input placeholder="e.g., Kovai Pazhamudir Nilayam" />
-          </Form.Item>
-          <Form.Item name="logo" label="Logo URL">
-            <Input placeholder="Optional logo URL" />
+            <Input placeholder="GitHub username" />
           </Form.Item>
         </Form>
       </Modal>
@@ -151,4 +155,4 @@ const CompaniesSettings = () => {
   )
 }
 
-export default CompaniesSettings
+export default GithubUsersSettings

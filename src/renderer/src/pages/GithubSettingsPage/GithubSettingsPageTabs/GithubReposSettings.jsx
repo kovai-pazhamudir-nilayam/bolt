@@ -1,7 +1,7 @@
 import { Button, Form, Input, Modal, Select } from 'antd'
 import { useEffect, useMemo, useState } from 'react'
-import EntityTable from './components/EntityTable'
-import { useDatabaseData } from './hooks/useDatabaseData'
+import EntityTable from '../../../components/EntityTable'
+import { useDatabaseData } from './../_blocks/hooks/useDatabaseData'
 import { renderSuccessNotification } from '../../../helpers/success.helper'
 import { renderErrorNotification } from '../../../helpers/error.helper'
 import { RefreshCw } from 'lucide-react'
@@ -224,5 +224,3 @@ const GithubReposSettings = () => {
 }
 
 export default GithubReposSettings
-
-

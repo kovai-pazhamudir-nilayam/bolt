@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react'
 import { Popconfirm } from 'antd'
 
 const EntityTable = ({
+  rowKey,
   data,
   columns,
   loading,
@@ -84,7 +85,7 @@ const EntityTable = ({
       <Table
         columns={tableColumns}
         dataSource={filteredData}
-        rowKey="id"
+        rowKey={rowKey}
         loading={loading}
         pagination={{
           pageSize: 10,
@@ -93,9 +94,7 @@ const EntityTable = ({
           showTotal: (total, range) => `${range[0]}-${range[1]} of ${total} items`
         }}
         locale={{
-          emptyText: searchText
-            ? `No items found matching "${searchText}"`
-            : emptyText
+          emptyText: searchText ? `No items found matching "${searchText}"` : emptyText
         }}
       />
     </>

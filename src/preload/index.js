@@ -1,11 +1,61 @@
 import { contextBridge, ipcRenderer } from 'electron'
 import { electronAPI } from '@electron-toolkit/preload'
 
+// GitHub Configs APIs
+
+const githubConfigs = {
+  getAll: async () => {
+    return await ipcRenderer.invoke('db:getConfigs')
+  },
+  add: async (companyId, githubToken, owner) => {
+    return await ipcRenderer.invoke('db:addConfig', companyId, githubToken, owner)
+  },
+  update: async (id, companyId, githubToken, owner) => {
+    return await ipcRenderer.invoke('db:updateConfig', id, companyId, githubToken, owner)
+  },
+  delete: async (id) => {
+    return await ipcRenderer.invoke('db:deleteConfig', id)
+  }
+}
+
+// GitHub Users management APIs
+const githubUsers = {
+  getAll: async () => {
+    return await ipcRenderer.invoke('/get/github-user')
+  },
+  add: async (name, githubHandle) => {
+    return await ipcRenderer.invoke('/add/github-user', name, githubHandle)
+  },
+  update: async (id, name, githubHandle) => {
+    return await ipcRenderer.invoke('/update/github-user', id, name, githubHandle)
+  },
+  delete: async (id) => {
+    return await ipcRenderer.invoke('/delete/github-user', id)
+  }
+}
+
+// Companies APIs
+const companies = {
+  getAll: async () => {
+    return await ipcRenderer.invoke('/get/company')
+  },
+  add: async (code, name, logo) => {
+    return await ipcRenderer.invoke('/add/company', code, name, logo)
+  },
+  update: async (id, code, name, logo) => {
+    return await ipcRenderer.invoke('/update/company', id, code, name, logo)
+  },
+  delete: async (id) => {
+    return await ipcRenderer.invoke('/delete/company', id)
+  }
+}
+
 // Custom APIs for renderer
 const api = {
   selectFolder: async () => {
     return await ipcRenderer.invoke('select-folder')
   },
+
   runShellCommandStream: (command, onLog, onEnd) => {
     ipcRenderer.removeAllListeners('shell-command-log')
     ipcRenderer.removeAllListeners('shell-command-end')
@@ -17,37 +67,13 @@ const api = {
     })
     ipcRenderer.send('run-shell-command-stream', command)
   },
-  // Legacy config APIs removed
+
+  // GitHub Configs APIs
+  githubConfigs,
   // GitHub Users management APIs
-  githubUsers: {
-    getAll: async () => {
-      return await ipcRenderer.invoke('/get/github-user')
-    },
-    add: async (name, githubHandle) => {
-      return await ipcRenderer.invoke('/add/github-user', name, githubHandle)
-    },
-    update: async (id, name, githubHandle) => {
-      return await ipcRenderer.invoke('/update/github-user', id, name, githubHandle)
-    },
-    delete: async (id) => {
-      return await ipcRenderer.invoke('/delete/github-user', id)
-    }
-  },
+  githubUsers,
   // Companies APIs
-  companies: {
-    getAll: async () => {
-      return await ipcRenderer.invoke('/get/company')
-    },
-    add: async (code, name, logo) => {
-      return await ipcRenderer.invoke('/add/company', code, name, logo)
-    },
-    update: async (id, code, name, logo) => {
-      return await ipcRenderer.invoke('/update/company', id, code, name, logo)
-    },
-    delete: async (id) => {
-      return await ipcRenderer.invoke('/delete/company', id)
-    }
-  },
+  companies,
   // Environments APIs
   environments: {
     getAll: async () => {
@@ -123,21 +149,6 @@ const api = {
       return await ipcRenderer.invoke('/delete/gcp-project-config', id)
     }
   },
-  // GitHub Configs APIs
-  githubConfigs: {
-    getAll: async () => {
-      return await ipcRenderer.invoke('/get/github-config')
-    },
-    add: async (companyId, githubToken, owner) => {
-      return await ipcRenderer.invoke('/add/github-config', companyId, githubToken, owner)
-    },
-    update: async (id, companyId, githubToken, owner) => {
-      return await ipcRenderer.invoke('/update/github-config', id, companyId, githubToken, owner)
-    },
-    delete: async (id) => {
-      return await ipcRenderer.invoke('/delete/github-config', id)
-    }
-  },
   // GitHub Repos APIs
   githubRepos: {
     getAll: async () => {
@@ -188,11 +199,13 @@ const api = {
 if (process.contextIsolated) {
   try {
     contextBridge.exposeInMainWorld('electron', electronAPI)
-    contextBridge.exposeInMainWorld('api', api)
+    contextBridge.exposeInMainWorld('api', api) // needs to remove this
+    contextBridge.exposeInMainWorld('dbApi', api)
   } catch (error) {
     console.error(error)
   }
 } else {
   window.electron = electronAPI
-  window.api = api
+  window.api = api // needs to remove this
+  window.dbApi = api
 }

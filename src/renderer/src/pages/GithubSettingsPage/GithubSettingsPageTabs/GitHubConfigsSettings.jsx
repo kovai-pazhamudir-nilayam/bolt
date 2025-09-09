@@ -1,20 +1,28 @@
-import { Form, Input, Modal, Select } from 'antd'
-import { useState } from 'react'
-import EntityTable from './components/EntityTable'
-import { useDatabaseData } from './hooks/useDatabaseData'
+import { Button, Form, Input, Modal, Select } from 'antd'
+import { useEffect, useState } from 'react'
+import EntityTable from '../../../components/EntityTable'
 import { renderSuccessNotification } from '../../../helpers/success.helper'
 import { renderErrorNotification } from '../../../helpers/error.helper'
+import { githubConfigsFactory } from '../../../repos/githubConfigs.repo'
+import useNotification from 'antd/es/notification/useNotification'
+import GitHubConfigsModal from '../_blocks/GitHubConfigsModal'
 const { Option } = Select
 
+const { githubConfigsRepo } = githubConfigsFactory()
+
 const GitHubConfigsSettings = () => {
+  const notificationApi = useNotification()
+
   const [isModalVisible, setIsModalVisible] = useState(false)
   const [editingItem, setEditingItem] = useState(null)
   const [searchText, setSearchText] = useState('')
   const [form] = Form.useForm()
-  const { companies, githubConfigs, loading, loadAllData, notificationApi } = useDatabaseData()
+  const [loading, setLoading] = useState(false)
+  const [githubConfigsData, setGithubConfigsData] = useState([])
 
   const columns = [
     { title: 'Company', dataIndex: 'company_name', key: 'company_name' },
+    { title: 'Company Code', dataIndex: 'company_code', key: 'company_code' },
     {
       title: 'GitHub Token',
       dataIndex: 'github_token',
@@ -23,6 +31,23 @@ const GitHubConfigsSettings = () => {
     },
     { title: 'Owner', dataIndex: 'owner', key: 'owner' }
   ]
+
+  async function fetchData() {
+    try {
+      setLoading(true)
+      const data = await githubConfigsRepo.getGitHubConfig()
+      setGithubConfigsData(data)
+      renderSuccessNotification({ message: 'Access removed' }, notificationApi)
+    } catch (errors) {
+      renderErrorNotification(errors)
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  useEffect(() => {
+    fetchData()
+  }, [])
 
   const handleAdd = () => {
     setEditingItem(null)
@@ -45,7 +70,7 @@ const GitHubConfigsSettings = () => {
         },
         notificationApi
       )
-      loadAllData()
+      fetchData()
     } catch (error) {
       console.error('Error deleting GitHub config:', error)
       renderErrorNotification(
@@ -60,10 +85,8 @@ const GitHubConfigsSettings = () => {
     }
   }
 
-  const handleSave = async () => {
+  const handleSave = async (values) => {
     try {
-      const values = await form.validateFields()
-
       if (editingItem) {
         await window.api.githubConfigs.update(
           editingItem.id,
@@ -72,7 +95,7 @@ const GitHubConfigsSettings = () => {
           values.owner
         )
       } else {
-        await window.api.githubConfigs.add(values.company_id, values.github_token, values.owner)
+        await githubConfigsRepo.addGithubConfig(values)
       }
 
       renderSuccessNotification(
@@ -86,7 +109,7 @@ const GitHubConfigsSettings = () => {
 
       setIsModalVisible(false)
       form.resetFields()
-      loadAllData()
+      fetchData()
     } catch (error) {
       console.error('Error saving GitHub config:', error)
       renderErrorNotification(
@@ -114,7 +137,8 @@ const GitHubConfigsSettings = () => {
   return (
     <>
       <EntityTable
-        data={githubConfigs}
+        rowKey="github_config_id"
+        data={githubConfigsData}
         columns={columns}
         loading={loading}
         onAdd={handleAdd}
@@ -125,45 +149,15 @@ const GitHubConfigsSettings = () => {
         emptyText="No GitHub configs found. Click 'Add New' to get started."
       />
 
-      <Modal
-        title={editingItem ? 'Edit GitHub Config' : 'Add New GitHub Config'}
-        open={isModalVisible}
-        onOk={handleSave}
-        onCancel={handleCancel}
-        okText="Save"
-        cancelText="Cancel"
-        width={600}
-      >
-        <Form form={form} layout="vertical" requiredMark={false}>
-          <Form.Item
-            name="company_id"
-            label="Company"
-            rules={[{ required: true, message: 'Please select company' }]}
-          >
-            <Select placeholder="Select company">
-              {companies.map((company) => (
-                <Option key={company.id} value={company.id}>
-                  {company.name}
-                </Option>
-              ))}
-            </Select>
-          </Form.Item>
-          <Form.Item
-            name="github_token"
-            label="GitHub Token"
-            rules={[{ required: true, message: 'Please enter GitHub token' }]}
-          >
-            <Input.Password placeholder="ghp_xxxxxxxxxxxx" />
-          </Form.Item>
-          <Form.Item
-            name="owner"
-            label="Owner"
-            rules={[{ required: true, message: 'Please enter GitHub owner' }]}
-          >
-            <Input placeholder="organization or username" />
-          </Form.Item>
-        </Form>
-      </Modal>
+      {isModalVisible && (
+        <GitHubConfigsModal
+          editingItem={editingItem}
+          handleCancel={handleCancel}
+          handleSave={handleSave}
+          // companies={companies }
+          companies={[]}
+        />
+      )}
     </>
   )
 }

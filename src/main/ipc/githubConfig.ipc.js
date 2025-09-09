@@ -3,31 +3,26 @@
  */
 
 export const registerGithubConfigHandler = (ipcMain, configDb) => {
-  ipcMain.handle('/get/github-config', async () => {
+  async function getConfigs() {
     try {
-      return await configDb
-        .knex('github_config as gc')
-        .select('gc.*', 'c.code as company_code', 'c.name as company_name')
-        .join('company as c', 'gc.company_id', 'c.id')
-        .orderBy('c.name')
+      return await configDb.knex('github_config').select('*')
     } catch (error) {
       console.error('Error getting GitHub configs:', error)
-      return []
+      throw error
     }
-  })
+  }
 
-  ipcMain.handle('/add/github-config', async (event, companyId, githubToken, owner) => {
+  async function addConfig(event, input) {
+    const { company_code, github_token, owner } = input
     try {
-      return await configDb
-        .knex('github_config')
-        .insert({ company_id: companyId, github_token: githubToken, owner })
+      return await configDb.knex('github_config').insert({ company_code, github_token, owner })
     } catch (error) {
       console.error('Error adding GitHub config:', error)
       throw error
     }
-  })
+  }
 
-  ipcMain.handle('/update/github-config', async (event, id, companyId, githubToken, owner) => {
+  async function updateConfig(event, id, companyId, githubToken, owner) {
     try {
       return await configDb.knex('github_config').where({ id }).update({
         company_id: companyId,
@@ -39,14 +34,22 @@ export const registerGithubConfigHandler = (ipcMain, configDb) => {
       console.error('Error updating GitHub config:', error)
       throw error
     }
-  })
+  }
 
-  ipcMain.handle('/delete/github-config', async (event, id) => {
+  async function deleteConfig(event, id) {
     try {
       return await configDb.knex('github_config').where({ id }).del()
     } catch (error) {
       console.error('Error deleting GitHub config:', error)
       throw error
     }
-  })
+  }
+
+  ipcMain.handle('db:getConfigs', getConfigs)
+
+  ipcMain.handle('db:addConfig', addConfig)
+
+  ipcMain.handle('db:updateConfig', updateConfig)
+
+  ipcMain.handle('db:deleteConfig', deleteConfig)
 }

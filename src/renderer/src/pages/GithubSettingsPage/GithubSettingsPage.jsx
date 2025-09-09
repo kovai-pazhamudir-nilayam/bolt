@@ -1,11 +1,11 @@
 import { Tabs } from 'antd'
 import { Database, GitBranch, User } from 'lucide-react'
 import PageHeader from './../../components/PageHeader/PageHeader'
-import GithubUsersSettings from './_blocks/GithubUsersSettings'
-import GitHubConfigsSettings from './_blocks/GitHubConfigsSettings'
-import GithubReposSettings from './_blocks/GithubReposSettings'
+import GithubUsersSettings from './GithubSettingsPageTabs/GithubUsersSettings'
+import GitHubConfigsSettings from './GithubSettingsPageTabs/GitHubConfigsSettings'
+import GithubReposSettings from './GithubSettingsPageTabs/GithubReposSettings'
 
-const GithubSettings = () => {
+const GithubSettingsPage = () => {
   const tabItems = [
     {
       key: 'github-configs',
@@ -51,6 +51,4 @@ const GithubSettings = () => {
   )
 }
 
-export default GithubSettings
-
-
+export default GithubSettingsPage
