@@ -1,18 +1,14 @@
-import { Button, Form, Input, Modal, Select } from 'antd'
+/* eslint-disable react/prop-types */
+import { Form } from 'antd'
 import { useEffect, useState } from 'react'
 import EntityTable from '../../../components/EntityTable'
-import { renderSuccessNotification } from '../../../helpers/success.helper'
-import { renderErrorNotification } from '../../../helpers/error.helper'
+import withNotification from '../../../hoc/withNotification'
 import { githubConfigsFactory } from '../../../repos/githubConfigs.repo'
-import useNotification from 'antd/es/notification/useNotification'
 import GitHubConfigsModal from '../_blocks/GitHubConfigsModal'
-const { Option } = Select
 
 const { githubConfigsRepo } = githubConfigsFactory()
 
-const GitHubConfigsSettings = () => {
-  const notificationApi = useNotification()
-
+const GitHubConfigsSettingsWOC = ({ renderErrorNotification, renderSuccessNotification }) => {
   const [isModalVisible, setIsModalVisible] = useState(false)
   const [editingItem, setEditingItem] = useState(null)
   const [searchText, setSearchText] = useState('')
@@ -37,7 +33,6 @@ const GitHubConfigsSettings = () => {
       setLoading(true)
       const data = await githubConfigsRepo.getGitHubConfig()
       setGithubConfigsData(data)
-      renderSuccessNotification({ message: 'Access removed' }, notificationApi)
     } catch (errors) {
       renderErrorNotification(errors)
     } finally {
@@ -64,63 +59,38 @@ const GitHubConfigsSettings = () => {
   const handleDelete = async (item) => {
     try {
       await window.api.githubConfigs.delete(item.id)
-      renderSuccessNotification(
-        {
-          message: 'GitHub Config deleted successfully!'
-        },
-        notificationApi
-      )
+      renderSuccessNotification({
+        message: 'GitHub Config deleted successfully!'
+      })
       fetchData()
     } catch (error) {
       console.error('Error deleting GitHub config:', error)
-      renderErrorNotification(
-        [
-          {
-            title: 'Delete Failed',
-            message: error.message || 'Failed to delete GitHub config'
-          }
-        ],
-        notificationApi
-      )
+      renderErrorNotification({
+        title: 'Delete Failed',
+        message: error.message || 'Failed to delete GitHub config'
+      })
     }
   }
 
   const handleSave = async (values) => {
     try {
-      if (editingItem) {
-        await window.api.githubConfigs.update(
-          editingItem.id,
-          values.company_id,
-          values.github_token,
-          values.owner
-        )
-      } else {
-        await githubConfigsRepo.addGithubConfig(values)
-      }
+      await githubConfigsRepo.addGithubConfig(values)
 
-      renderSuccessNotification(
-        {
-          message: editingItem
-            ? 'GitHub Config updated successfully!'
-            : 'GitHub Config added successfully!'
-        },
-        notificationApi
-      )
+      renderSuccessNotification({
+        message: editingItem
+          ? 'GitHub Config updated successfully!'
+          : 'GitHub Config added successfully!'
+      })
 
       setIsModalVisible(false)
       form.resetFields()
       fetchData()
     } catch (error) {
       console.error('Error saving GitHub config:', error)
-      renderErrorNotification(
-        [
-          {
-            title: 'Save Failed',
-            message: error.message || 'Failed to save GitHub config'
-          }
-        ],
-        notificationApi
-      )
+      renderErrorNotification({
+        message: 'Error',
+        description: error.message
+      })
     }
   }
 
@@ -162,4 +132,5 @@ const GitHubConfigsSettings = () => {
   )
 }
 
+const GitHubConfigsSettings = withNotification(GitHubConfigsSettingsWOC)
 export default GitHubConfigsSettings
