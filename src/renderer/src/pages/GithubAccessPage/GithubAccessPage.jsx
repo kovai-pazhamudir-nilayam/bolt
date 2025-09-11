@@ -1,5 +1,5 @@
-import PageHeader from '../components/PageHeader/PageHeader'
-import { useNotification } from '../context/notificationContext'
+import PageHeader from '../../components/PageHeader/PageHeader'
+import { useNotification } from '../../context/notificationContext'
 
 const GITHUB_REPO_ACCESS_LEVELS = [
   {
