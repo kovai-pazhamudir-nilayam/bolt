@@ -3,7 +3,7 @@ import { Database, GitBranch, User } from 'lucide-react'
 import PageHeader from './../../components/PageHeader/PageHeader'
 import GithubUsersSettings from './GithubSettingsPageTabs/GithubUsersSettings'
 import GitHubConfigsSettings from './GithubSettingsPageTabs/GitHubConfigsSettings'
-import GithubReposSettings from './GithubSettingsPageTabs/GithubReposSettings'
+import GithubRepositoriesSettings from './GithubSettingsPageTabs/GithubRepositoriesSettings'
 
 const GithubSettingsPage = () => {
   const tabItems = [
@@ -28,14 +28,14 @@ const GithubSettingsPage = () => {
       children: <GithubUsersSettings />
     },
     {
-      key: 'github-repos',
+      key: 'github-Repositories',
       label: (
         <span>
           <GitBranch size={16} style={{ marginRight: 8 }} />
-          GitHub Repos
+          GitHub Repositories
         </span>
       ),
-      children: <GithubReposSettings />
+      children: <GithubRepositoriesSettings />
     }
   ]
 

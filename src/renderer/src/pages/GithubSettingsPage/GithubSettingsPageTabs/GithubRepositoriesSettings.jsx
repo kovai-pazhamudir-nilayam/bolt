@@ -1,13 +1,12 @@
 import { Button, Form, Input, Modal, Select } from 'antd'
 import { useEffect, useMemo, useState } from 'react'
 import EntityTable from '../../../components/EntityTable'
-import { useDatabaseData } from './../_blocks/hooks/useDatabaseData'
-import { renderSuccessNotification } from '../../../helpers/success.helper'
-import { renderErrorNotification } from '../../../helpers/error.helper'
+import { useDatabaseData } from '../_blocks/hooks/useDatabaseData'
 import { RefreshCw } from 'lucide-react'
+import withNotification from '../../../hoc/withNotification'
 const { Option } = Select
 
-const GithubReposSettings = () => {
+const GithubRepositoriesSettingsWOC = ({ renderErrorNotification, renderSuccessNotification }) => {
   const [isModalVisible, setIsModalVisible] = useState(false)
   const [searchText, setSearchText] = useState('')
   const [form] = Form.useForm()
@@ -22,16 +21,7 @@ const GithubReposSettings = () => {
       const data = await window.api.githubRepos.getAll()
       setRepos(data || [])
     } catch (error) {
-      console.error('Error loading repos:', error)
-      renderErrorNotification(
-        [
-          {
-            title: 'Load Failed',
-            message: 'Failed to load GitHub repos'
-          }
-        ],
-        notificationApi
-      )
+      renderErrorNotification(error)
     } finally {
       setLoading(false)
     }
@@ -57,24 +47,12 @@ const GithubReposSettings = () => {
   const handleDelete = async (item) => {
     try {
       await window.api.githubRepos.delete(item.id)
-      renderSuccessNotification(
-        {
-          message: 'Repository deleted successfully!'
-        },
-        notificationApi
-      )
+      renderSuccessNotification({
+        message: 'Repository deleted successfully!'
+      })
       loadRepos()
     } catch (error) {
-      console.error('Error deleting repo:', error)
-      renderErrorNotification(
-        [
-          {
-            title: 'Delete Failed',
-            message: error.message || 'Failed to delete repository'
-          }
-        ],
-        notificationApi
-      )
+      renderErrorNotification(error)
     }
   }
 
@@ -82,26 +60,15 @@ const GithubReposSettings = () => {
     try {
       const values = await form.validateFields()
       await window.api.githubRepos.add(values.company_id, values.name)
-      renderSuccessNotification(
-        {
-          message: 'Repository added successfully!'
-        },
-        notificationApi
-      )
+      renderSuccessNotification({
+        message: 'Repository added successfully!'
+      })
       setIsModalVisible(false)
       form.resetFields()
       loadRepos()
     } catch (error) {
       console.error('Error saving repo:', error)
-      renderErrorNotification(
-        [
-          {
-            title: 'Save Failed',
-            message: error.message || 'Failed to save repository'
-          }
-        ],
-        notificationApi
-      )
+      renderErrorNotification(error)
     }
   }
 
@@ -223,4 +190,5 @@ const GithubReposSettings = () => {
   )
 }
 
-export default GithubReposSettings
+const GithubRepositoriesSettings = withNotification(GithubRepositoriesSettingsWOC)
+export default GithubRepositoriesSettings
