@@ -22,20 +22,6 @@ export const registerGithubConfigHandler = (ipcMain, configDb) => {
     }
   }
 
-  async function updateConfig(event, id, companyId, githubToken, owner) {
-    try {
-      return await configDb.knex('github_config').where({ id }).update({
-        company_id: companyId,
-        github_token: githubToken,
-        owner,
-        updated_at: configDb.knex.fn.now()
-      })
-    } catch (error) {
-      console.error('Error updating GitHub config:', error)
-      throw error
-    }
-  }
-
   async function deleteConfig(event, id) {
     try {
       return await configDb.knex('github_config').where({ id }).del()
@@ -48,8 +34,6 @@ export const registerGithubConfigHandler = (ipcMain, configDb) => {
   ipcMain.handle('db:getConfigs', getConfigs)
 
   ipcMain.handle('db:addConfig', addConfig)
-
-  ipcMain.handle('db:updateConfig', updateConfig)
 
   ipcMain.handle('db:deleteConfig', deleteConfig)
 }

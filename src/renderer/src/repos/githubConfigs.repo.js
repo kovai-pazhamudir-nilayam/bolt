@@ -1,19 +1,17 @@
+/**  API implementation  */
 const githubConfigsAPI = {
   getGithubConfig: () => {},
   addGithubConfig: () => {},
-  updateGithubConfig: () => {},
   deleteGithubConfig: () => {}
 }
 
+/**  Local DB implementation  */
 const githubConfigsDB = {
   getGitHubConfig: () => {
     return window.dbApi.githubConfigs.getAll()
   },
   addGithubConfig: (input) => {
     return window.dbApi.githubConfigs.add(input)
-  },
-  updateGithubConfig: () => {
-    return window.dbApi.githubConfigs.update()
   },
   deleteGithubConfig: () => {
     return window.dbApi.githubConfigs.delete()
