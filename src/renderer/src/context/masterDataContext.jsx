@@ -93,10 +93,10 @@ export const MasterDataProvider = ({ children }) => {
   }
 
   // Load companies and environments on mount
-  useEffect(() => {
-    refreshCompanies()
-    refreshEnvironments()
-  }, [])
+  // useEffect(() => {
+  //   refreshCompanies()
+  //   refreshEnvironments()
+  // }, [])
 
   return (
     <MasterDataContext.Provider

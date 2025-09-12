@@ -1,10 +1,11 @@
 import { Tabs } from 'antd'
 import { Building2, Cloud, Database } from 'lucide-react'
-import CompaniesSettings from './SettingsPageTabs/CompaniesSettings'
+// import CompaniesSettings from './SettingsPageTabs/CompaniesSettings'
 // import CoreTokenConfigsSettings from './_blocks/CoreTokenConfigsSettings'
 // import EnvironmentsSettings from './_blocks/EnvironmentsSettings'
 // import GcpProjectConfigsSettings from './_blocks/GcpProjectConfigsSettings'
 import PageHeader from './../../components/PageHeader/PageHeader'
+import CompanyPageTab from './_tabs/CompanyPageTab'
 
 const SettingsPage = () => {
   const tabItems = [
@@ -16,7 +17,7 @@ const SettingsPage = () => {
           Companies
         </span>
       ),
-      children: <CompaniesSettings />
+      children: <CompanyPageTab />
     }
     // {
     //   key: 'environments',

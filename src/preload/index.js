@@ -35,19 +35,10 @@ const githubUsers = {
 }
 
 // Companies APIs
-const companies = {
-  getAll: async () => {
-    return await ipcRenderer.invoke('/get/company')
-  },
-  add: async (code, name, logo) => {
-    return await ipcRenderer.invoke('/add/company', code, name, logo)
-  },
-  update: async (id, code, name, logo) => {
-    return await ipcRenderer.invoke('/update/company', id, code, name, logo)
-  },
-  delete: async (id) => {
-    return await ipcRenderer.invoke('/delete/company', id)
-  }
+const company = {
+  getAll: () => ipcRenderer.invoke('company:getAll'),
+  upsert: (input) => ipcRenderer.invoke('company:upsert', input),
+  delete: (company_code) => ipcRenderer.invoke('company:delete', company_code)
 }
 
 // Custom APIs for renderer
@@ -73,7 +64,7 @@ const api = {
   // GitHub Users management APIs
   githubUsers,
   // Companies APIs
-  companies,
+  company,
   // Environments APIs
   environments: {
     getAll: async () => {
