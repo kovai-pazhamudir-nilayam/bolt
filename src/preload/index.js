@@ -41,13 +41,12 @@ const company = {
   delete: (company_code) => ipcRenderer.invoke('company:delete', company_code)
 }
 
-// Custom APIs for renderer
-const api = {
+const systemAPI = {
   selectFolder: async () => {
-    return await ipcRenderer.invoke('select-folder')
+    return await ipcRenderer.invoke('system:select-folder')
   },
 
-  runShellCommandStream: (command, onLog, onEnd) => {
+  runShellCommandStreamLog: (command, onLog, onEnd) => {
     ipcRenderer.removeAllListeners('shell-command-log')
     ipcRenderer.removeAllListeners('shell-command-end')
     ipcRenderer.on('shell-command-log', (event, log) => {
@@ -58,7 +57,13 @@ const api = {
     })
     ipcRenderer.send('run-shell-command-stream', command)
   },
+  generateTaskManagerCode: async () => {
+    return await ipcRenderer.invoke('generate:taskManagerDICode')
+  }
+}
 
+// Custom APIs for renderer
+const dbApi = {
   // GitHub Configs APIs
   githubConfigs,
   // GitHub Users management APIs
@@ -190,13 +195,15 @@ const api = {
 if (process.contextIsolated) {
   try {
     contextBridge.exposeInMainWorld('electron', electronAPI)
-    contextBridge.exposeInMainWorld('api', api) // needs to remove this
-    contextBridge.exposeInMainWorld('dbApi', api)
+    contextBridge.exposeInMainWorld('api', dbApi) // needs to remove this
+    contextBridge.exposeInMainWorld('dbApi', dbApi)
+    contextBridge.exposeInMainWorld('systemAPI', systemAPI)
   } catch (error) {
     console.error(error)
   }
 } else {
   window.electron = electronAPI
-  window.api = api // needs to remove this
-  window.dbApi = api
+  window.api = dbApi // needs to remove this
+  window.dbApi = dbApi
+  window.systemAPI = systemAPI
 }

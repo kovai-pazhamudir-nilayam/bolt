@@ -1,7 +1,9 @@
-import { GitBranch, Shield, Settings as SettingsIcon } from 'lucide-react'
+import { GitBranch, Shield, ToolCase, Settings as SettingsIcon } from 'lucide-react'
 import GithubAccessPage from './pages/GithubAccessPage/GithubAccessPage'
 import GithubSettingsPage from './pages/GithubSettingsPage/GithubSettingsPage'
 import SettingsPage from './pages/SettingsPage/SettingsPage'
+import ToolsPage from './pages/ToolsPage/ToolsPage'
+import TaskManagerDI from './pages/TaskManagerDI/TaskManagerDI'
 
 export const ROUTES = [
   {
@@ -9,6 +11,19 @@ export const ROUTES = [
     path: '/settings',
     icon: SettingsIcon,
     element: <SettingsPage />
+  },
+  {
+    label: 'Tools',
+    path: '/tools',
+    icon: ToolCase,
+    element: <ToolsPage />
+  },
+  {
+    label: 'Task Manager DI',
+    path: '/tools/task-manager-di',
+    icon: ToolCase,
+    hideInMenu: true,
+    element: <TaskManagerDI />
   },
   {
     label: 'GitHub Settings',

@@ -138,8 +138,13 @@ function AppLayout({ openNotification, collapsed, setCollapsed, isDark, setIsDar
           }}
         >
           <Routes>
-            {ROUTES.map(({ path, element }) => (
-              <Route key={path} path={path} element={element} />
+            {ROUTES.map(({ path, element, hideInMenu }) => (
+              <Route
+                className={`${hideInMenu ? 'hide' : 'show'}`}
+                key={path}
+                path={path}
+                element={element}
+              />
             ))}
           </Routes>
         </Content>

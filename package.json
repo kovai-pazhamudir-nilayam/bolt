@@ -35,8 +35,9 @@
     "@electron-toolkit/utils": "^4.0.0",
     "antd": "^5.27.3",
     "better-sqlite3": "^12.2.0",
-    "knex": "^2.5.1",
     "electron-updater": "^6.3.9",
+    "fs-extra": "^11.3.1",
+    "knex": "^2.5.1",
     "lodash": "^4.17.21",
     "lucide-react": "^0.542.0",
     "react-router-dom": "^7.8.2"

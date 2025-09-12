@@ -6,6 +6,8 @@ import { join } from 'path'
 import { ConfigDatabase } from './database/ConfigDatabase.js'
 import { registerGithubConfigHandler } from './ipc/githubConfig.ipc.js'
 import { registerCompanyHandler } from './ipc/company.ipc.js'
+import { registerSystemHandler } from './ipc/system.ipc.js'
+import { registerTaskManagerDIHandler } from './ipc/system.ipc.js'
 
 function createWindow() {
   // Create the browser window.
@@ -62,6 +64,8 @@ app.whenReady().then(async () => {
   // Register all IPC Handler
   registerGithubConfigHandler(ipcMain, configDb)
   registerCompanyHandler(ipcMain, configDb)
+  registerSystemHandler(ipcMain)
+  registerTaskManagerDIHandler(ipcMain)
 
   // registerSystemHandler(ipcMain)
   // registerGithubUserHandler(ipcMain, configDb)
