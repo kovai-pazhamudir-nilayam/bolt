@@ -20,10 +20,10 @@ const getSanatizeText = (input) => {
   return finalString
 }
 
-export const getNamesAndPaths = ({ input }) => {
-  const { task, module_input } = input
-  const appDirPath = path.join(__dirname, '..', '..', 'src', 'app')
-  const moduleDirPath = path.join(appDirPath, module_input.name)
+const getNamesAndPaths = ({ targetDir, input }) => {
+  const { task_name, module_name, task_description } = input
+  const appDirPath = path.join(targetDir, 'src', 'app')
+  const moduleDirPath = path.join(appDirPath, module_name)
   const downstreamDirPath = path.join(appDirPath, 'downstreamCalls')
   const downstreamTemplateFilePath = path.join(
     __dirname,
@@ -43,10 +43,10 @@ export const getNamesAndPaths = ({ input }) => {
   }
 
   const names = {
-    moduleName: module_input.name,
-    taskName: getSanatizeText(task.task_name),
-    taskFileName: camelCase(task.task_name),
-    taskDescription: task.task_description
+    moduleName: module_name,
+    taskName: getSanatizeText(task_name),
+    taskFileName: camelCase(task_name),
+    taskDescription: task_description
   }
 
   return {
@@ -55,7 +55,7 @@ export const getNamesAndPaths = ({ input }) => {
   }
 }
 
-export function createDownstreamCallFile(downstreamDir, moduleName, templatePath) {
+function createDownstreamCallFile(downstreamDir, moduleName, templatePath) {
   const downstreamFilePath = path.join(downstreamDir, `${moduleName}.js`)
   let downstreamTemplate = fs.readFileSync(templatePath, 'utf8')
   downstreamTemplate = downstreamTemplate.replace(/TEMPLATE_/gi, moduleName)
@@ -63,14 +63,14 @@ export function createDownstreamCallFile(downstreamDir, moduleName, templatePath
   console.log(`Created downstream call file: ${downstreamFilePath}`)
 }
 
-export function createModuleFolder(moduleDirPath) {
+function createModuleFolder(moduleDirPath) {
   if (!fs.existsSync(moduleDirPath)) {
     fs.mkdirSync(moduleDirPath)
     console.log(`Created module folder: ${moduleDirPath}`)
   }
 }
 
-export function createTaskFile(moduleDirPath, templatePath, taskFileName) {
+function createTaskFile(moduleDirPath, templatePath, taskFileName) {
   const taskFilePath = path.join(moduleDirPath, `${taskFileName}.js`)
   let templateContent = fs.readFileSync(templatePath, 'utf8')
   templateContent = templateContent.replace(/TEMPLATE_TASK_NAME/gi, taskFileName)
@@ -78,29 +78,7 @@ export function createTaskFile(moduleDirPath, templatePath, taskFileName) {
   console.log(`Created task file: ${taskFilePath}`)
 }
 
-export const getExistingDomainFolders = () => {
-  const folders_needs_to_be_excluded = [
-    'commons',
-    'downstreamCalls',
-    'errorHandler',
-    'hooks',
-    'plugins',
-    'task-di',
-    'utils'
-  ]
-  const appDirPath = path.join(__dirname, '..', '..', 'src', 'app')
-
-  const folders = fs
-    .readdirSync(appDirPath, { withFileTypes: true })
-    .filter((dirent) => dirent.isDirectory())
-    .map((dirent) => dirent.name)
-
-  const filteredFolders = folders.filter((folder) => !folders_needs_to_be_excluded.includes(folder))
-
-  return filteredFolders
-}
-
-export const getExistingDownstreamFiles = () => {
+const getExistingDownstreamFiles = () => {
   const appDirPath = path.join(__dirname, '..', '..', 'src', 'app', 'downstreamCalls')
 
   const files = fs
@@ -112,20 +90,7 @@ export const getExistingDownstreamFiles = () => {
   return files
 }
 
-export const trasformUserInput = (input) => {
-  const { task, ...rest } = input
-  const data = {
-    ...rest,
-    task: {
-      task_name: getSanatizeText(task.task_name),
-      task_description: task.task_description
-    }
-  }
-
-  return data
-}
-
-export function updateServiceConfiguration(appDir, moduleName, taskName, taskFileName) {
+function updateServiceConfiguration(appDir, moduleName, taskName, taskFileName) {
   const serviceConfigPath = path.join(appDir, 'service.configuration.js')
   const serviceTransform = `
     module.exports = function(fileInfo, api) {
@@ -163,7 +128,7 @@ export function updateServiceConfiguration(appDir, moduleName, taskName, taskFil
   console.log(`Updated SERVICE_MAPPING in ${serviceConfigPath}`)
 }
 
-export function updateSupportedTask(appDir, taskName, taskDescription) {
+function updateSupportedTask(appDir, taskName, taskDescription) {
   const supportedTaskPath = path.join(appDir, 'supported.task.js')
   const supportedTaskTransform = `
     module.exports = function(fileInfo, api) {
@@ -188,4 +153,37 @@ export function updateSupportedTask(appDir, taskName, taskDescription) {
   execSync(`npx jscodeshift -t ${supportedTaskTransformPath} ${supportedTaskPath}`)
   fs.unlinkSync(supportedTaskTransformPath)
   console.log(`Updated SUPPORTED_TASK in ${supportedTaskPath}`)
+}
+
+export const generateTaskManagerCode = ({ targetDir, values }) => {
+  const input = values
+  const moduleName = input.module_name
+  const isNewModule = false
+
+  const { paths, names } = getNamesAndPaths({ targetDir, input })
+  const {
+    appDirPath,
+    moduleDirPath,
+    downstreamDirPath,
+    downstreamTemplateFilePath,
+    taskFileTemplatePath
+  } = paths
+
+  const { taskFileName, taskName } = names
+
+  if (isNewModule) {
+    createModuleFolder(moduleDirPath)
+  }
+
+  createTaskFile(moduleDirPath, taskFileTemplatePath, taskFileName)
+
+  updateServiceConfiguration(appDirPath, moduleName, taskName, taskFileName)
+
+  updateSupportedTask(appDirPath, taskName, input.task_description)
+
+  if (isNewModule && !getExistingDownstreamFiles().includes(`${moduleName}.js`)) {
+    createDownstreamCallFile(downstreamDirPath, moduleName, downstreamTemplateFilePath)
+  }
+
+  console.log('Automation complete.')
 }

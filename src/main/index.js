@@ -7,7 +7,7 @@ import { ConfigDatabase } from './database/ConfigDatabase.js'
 import { registerGithubConfigHandler } from './ipc/githubConfig.ipc.js'
 import { registerCompanyHandler } from './ipc/company.ipc.js'
 import { registerSystemHandler } from './ipc/system.ipc.js'
-import { registerTaskManagerDIHandler } from './ipc/system.ipc.js'
+import { registerTaskManagerDIHandler } from './ipc/taskManagerDI.ipc.js'
 
 function createWindow() {
   // Create the browser window.

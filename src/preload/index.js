@@ -43,7 +43,7 @@ const company = {
 
 const systemAPI = {
   selectFolder: async () => {
-    return await ipcRenderer.invoke('system:select-folder')
+    return ipcRenderer.invoke('system:select-folder')
   },
 
   runShellCommandStreamLog: (command, onLog, onEnd) => {
@@ -57,8 +57,11 @@ const systemAPI = {
     })
     ipcRenderer.send('run-shell-command-stream', command)
   },
-  generateTaskManagerCode: async () => {
-    return await ipcRenderer.invoke('generate:taskManagerDICode')
+  generateTaskManagerCode: async ({ targetDir, values }) => {
+    return ipcRenderer.invoke('generate:taskManagerDICode', { targetDir, values })
+  },
+  getExistingDomainFolders: async (targetDir) => {
+    return ipcRenderer.invoke('folder:getExistingDomainFolders', targetDir)
   }
 }
 
