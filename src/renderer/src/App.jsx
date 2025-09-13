@@ -66,7 +66,7 @@ function AppLayout({ openNotification, collapsed, setCollapsed, isDark, setIsDar
         collapsible
         collapsed={collapsed}
         onCollapse={setCollapsed}
-        style={{ background: isDark ? '#181818' : '#f8f8f8' }}
+        style={{ background: isDark ? '#181818' : '#fff' }}
       >
         <div style={{ height: 64, margin: 16, textAlign: 'center' }}>
           <img src={logo} alt="logo" style={{ width: 148 }} />
@@ -85,7 +85,7 @@ function AppLayout({ openNotification, collapsed, setCollapsed, isDark, setIsDar
               label
             }
           })}
-          style={{ background: isDark ? '#181818' : '#f8f8f8', color: isDark ? '#fff' : '#000' }}
+          style={{ background: isDark ? '#181818' : '#fff', color: isDark ? '#fff' : '#000' }}
         />
       </Sider>
       <Layout>
@@ -100,10 +100,10 @@ function AppLayout({ openNotification, collapsed, setCollapsed, isDark, setIsDar
             justifyContent: 'space-between'
           }}
         >
-          <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
+          {/* <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
             <span>Bolt Dashboard</span>
             <MasterSelectionModal />
-          </div>
+          </div> */}
         </Header>
         {/* Floating Theme Toggle Button */}
         <Button
@@ -132,7 +132,7 @@ function AppLayout({ openNotification, collapsed, setCollapsed, isDark, setIsDar
           style={{
             margin: '24px 16px',
             padding: 24,
-            background: isDark ? '#181818' : '#f8f8f8',
+            background: isDark ? '#181818' : '#fff',
             color: isDark ? '#fff' : '#000',
             borderRadius: 8
           }}
