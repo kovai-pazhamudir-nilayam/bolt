@@ -2,7 +2,7 @@ import { Button, Col, Form, Input, message, Row, Select } from 'antd'
 import _ from 'lodash'
 import { useRef, useState } from 'react'
 import PageHeader from '../../components/PageHeader/PageHeader'
-import { taskManagerDIFactroy } from './taskManagerDI.repo'
+import { taskManagerDIFactroy } from './TaskManagerDIPage.repo'
 import withNotification from '../../hoc/withNotification'
 
 const { taskManagerDIRepo } = taskManagerDIFactroy()
@@ -110,5 +110,5 @@ const TaskManagerDIWOC = ({ renderErrorNotification, renderSuccessNotification }
     </div>
   )
 }
-const TaskManagerDI = withNotification(TaskManagerDIWOC)
-export default TaskManagerDI
+const TaskManagerDIPage = withNotification(TaskManagerDIWOC)
+export default TaskManagerDIPage

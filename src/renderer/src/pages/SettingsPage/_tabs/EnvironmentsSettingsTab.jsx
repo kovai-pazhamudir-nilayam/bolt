@@ -1,17 +1,14 @@
 import { Form, Input, Modal } from 'antd'
 import { useState } from 'react'
-import EntityTable from './components/EntityTable'
-import { useDatabaseData } from './hooks/useDatabaseData'
+import EntityTable from '../../../components/EntityTable'
+import withNotification from '../../../hoc/withNotification'
 
-import { renderSuccessNotification } from '../../../helpers/success.helper'
-import { renderErrorNotification } from '../../../helpers/error.helper'
-
-const EnvironmentsSettings = () => {
+const EnvironmentsSettingsTabWOC = ({ renderSuccessNotification, renderErrorNotification }) => {
   const [isModalVisible, setIsModalVisible] = useState(false)
   const [editingItem, setEditingItem] = useState(null)
   const [searchText, setSearchText] = useState('')
   const [form] = Form.useForm()
-  const { environments, loading, loadAllData, notificationApi } = useDatabaseData()
+  const { environments, loading, loadAllData } = {}
 
   const columns = [
     { title: 'Code', dataIndex: 'code', key: 'code' },
@@ -39,24 +36,13 @@ const EnvironmentsSettings = () => {
   const handleDelete = async (item) => {
     try {
       await window.api.environments.delete(item.id)
-      renderSuccessNotification(
-        {
-          message: 'Environment deleted successfully!'
-        },
-        notificationApi
-      )
+      renderSuccessNotification({
+        message: 'Environment deleted successfully!'
+      })
       loadAllData()
     } catch (error) {
       console.error('Error deleting environment:', error)
-      renderErrorNotification(
-        [
-          {
-            title: 'Delete Failed',
-            message: error.message || 'Failed to delete environment'
-          }
-        ],
-        notificationApi
-      )
+      renderErrorNotification([error])
     }
   }
 
@@ -70,29 +56,18 @@ const EnvironmentsSettings = () => {
         await window.api.environments.add(values.code, values.name)
       }
 
-      renderSuccessNotification(
-        {
-          message: editingItem
-            ? 'Environment updated successfully!'
-            : 'Environment added successfully!'
-        },
-        notificationApi
-      )
+      renderSuccessNotification({
+        message: editingItem
+          ? 'Environment updated successfully!'
+          : 'Environment added successfully!'
+      })
 
       setIsModalVisible(false)
       form.resetFields()
       loadAllData()
     } catch (error) {
       console.error('Error saving environment:', error)
-      renderErrorNotification(
-        [
-          {
-            title: 'Save Failed',
-            message: error.message || 'Failed to save environment'
-          }
-        ],
-        notificationApi
-      )
+      renderErrorNotification(error)
     }
   }
 
@@ -149,5 +124,6 @@ const EnvironmentsSettings = () => {
     </>
   )
 }
+const EnvironmentsSettingsTab = withNotification(EnvironmentsSettingsTabWOC)
 
-export default EnvironmentsSettings
+export default EnvironmentsSettingsTab

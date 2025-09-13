@@ -1,19 +1,16 @@
 import { Form, Input, Modal, Select } from 'antd'
 import { useState } from 'react'
-import EntityTable from './components/EntityTable'
-import { useDatabaseData } from './hooks/useDatabaseData'
-import { renderSuccessNotification } from '../../../helpers/success.helper'
-import { renderErrorNotification } from '../../../helpers/error.helper'
+import EntityTable from '../../../components/EntityTable'
+import withNotification from '../../../hoc/withNotification'
 
 const { Option } = Select
 
-const CoreTokenConfigsSettings = () => {
+const CoreConfigsSettingsPageTabWOC = ({ renderSuccessNotification, renderErrorNotification }) => {
   const [isModalVisible, setIsModalVisible] = useState(false)
   const [editingItem, setEditingItem] = useState(null)
   const [searchText, setSearchText] = useState('')
   const [form] = Form.useForm()
-  const { companies, environments, coreTokenConfigs, loading, loadAllData, notificationApi } =
-    useDatabaseData()
+  const { companies = [], environments = [], coreTokenConfigs, loading, loadAllData, notificationApi } = {}
 
   const columns = [
     { title: 'Company', dataIndex: 'company_name', key: 'company_name' },
@@ -200,4 +197,6 @@ const CoreTokenConfigsSettings = () => {
   )
 }
 
-export default CoreTokenConfigsSettings
+const CoreConfigsSettingsPageTab = withNotification(CoreConfigsSettingsPageTabWOC)
+
+export default CoreConfigsSettingsPageTab

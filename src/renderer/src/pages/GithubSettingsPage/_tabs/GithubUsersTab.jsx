@@ -1,12 +1,12 @@
 import { Form, Input, Modal, Typography } from 'antd'
 import { useState } from 'react'
 import EntityTable from '../../../components/EntityTable'
-import { useDatabaseData } from './../_blocks/hooks/useDatabaseData'
+import { useDatabaseData } from '../_blocks/hooks/useDatabaseData'
 import { renderSuccessNotification } from '../../../helpers/success.helper'
 import { renderErrorNotification } from '../../../helpers/error.helper'
 const { Text } = Typography
 
-const GithubUsersSettings = () => {
+const GithubUsersTab = () => {
   const [isModalVisible, setIsModalVisible] = useState(false)
   const [editingItem, setEditingItem] = useState(null)
   const [searchText, setSearchText] = useState('')
@@ -155,4 +155,4 @@ const GithubUsersSettings = () => {
   )
 }
 
-export default GithubUsersSettings
+export default GithubUsersTab

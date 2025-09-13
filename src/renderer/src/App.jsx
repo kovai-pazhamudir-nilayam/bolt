@@ -78,11 +78,12 @@ function AppLayout({ openNotification, collapsed, setCollapsed, isDark, setIsDar
           onClick={({ key }) => {
             navigate(key)
           }}
-          items={ROUTES.map(({ path, label, icon: IconComponent }) => {
+          items={ROUTES.map(({ path, label, icon: IconComponent, hideInMenu }) => {
             return {
               key: path,
               icon: <IconComponent size={18} />,
-              label
+              label,
+              className: hideInMenu ? 'hide' : 'show'
             }
           })}
           style={{ background: isDark ? '#181818' : '#fff', color: isDark ? '#fff' : '#000' }}

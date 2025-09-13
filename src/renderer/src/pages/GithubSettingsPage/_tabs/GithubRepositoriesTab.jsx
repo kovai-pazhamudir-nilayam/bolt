@@ -6,7 +6,7 @@ import { RefreshCw } from 'lucide-react'
 import withNotification from '../../../hoc/withNotification'
 const { Option } = Select
 
-const GithubRepositoriesSettingsWOC = ({ renderErrorNotification, renderSuccessNotification }) => {
+const GithubRepositoriesTabWOC = ({ renderErrorNotification, renderSuccessNotification }) => {
   const [isModalVisible, setIsModalVisible] = useState(false)
   const [searchText, setSearchText] = useState('')
   const [form] = Form.useForm()
@@ -190,5 +190,5 @@ const GithubRepositoriesSettingsWOC = ({ renderErrorNotification, renderSuccessN
   )
 }
 
-const GithubRepositoriesSettings = withNotification(GithubRepositoriesSettingsWOC)
-export default GithubRepositoriesSettings
+const GithubRepositoriesTab = withNotification(GithubRepositoriesTabWOC)
+export default GithubRepositoriesTab

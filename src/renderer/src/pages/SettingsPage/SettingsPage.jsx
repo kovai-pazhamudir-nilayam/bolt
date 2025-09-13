@@ -2,10 +2,11 @@ import { Tabs } from 'antd'
 import { Building2, Cloud, Database } from 'lucide-react'
 // import CompaniesSettings from './SettingsPageTabs/CompaniesSettings'
 // import CoreTokenConfigsSettings from './_blocks/CoreTokenConfigsSettings'
-// import EnvironmentsSettings from './_blocks/EnvironmentsSettings'
 // import GcpProjectConfigsSettings from './_blocks/GcpProjectConfigsSettings'
 import PageHeader from './../../components/PageHeader/PageHeader'
+import EnvironmentsSettingsTab from './_tabs/EnvironmentsSettingsTab'
 import CompanyPageTab from './_tabs/CompanyPageTab'
+import CoreConfigsSettingsPageTab from './_tabs/CoreConfigsSettingsPageTab'
 
 const SettingsPage = () => {
   const tabItems = [
@@ -18,27 +19,27 @@ const SettingsPage = () => {
         </span>
       ),
       children: <CompanyPageTab />
+    },
+    {
+      key: 'environments',
+      label: (
+        <span>
+          <Database size={16} style={{ marginRight: 8 }} />
+          Environments
+        </span>
+      ),
+      children: <EnvironmentsSettingsTab />
+    },
+    {
+      key: 'core-configs',
+      label: (
+        <span>
+          <Database size={16} style={{ marginRight: 8 }} />
+          Core Configs
+        </span>
+      ),
+      children: <CoreConfigsSettingsPageTab />
     }
-    // {
-    //   key: 'environments',
-    //   label: (
-    //     <span>
-    //       <Database size={16} style={{ marginRight: 8 }} />
-    //       Environments
-    //     </span>
-    //   ),
-    //   children: <EnvironmentsSettings />
-    // },
-    // {
-    //   key: 'core-token-configs',
-    //   label: (
-    //     <span>
-    //       <Database size={16} style={{ marginRight: 8 }} />
-    //       Core Token Configs
-    //     </span>
-    //   ),
-    //   children: <CoreTokenConfigsSettings />
-    // },
     // {
     //   key: 'gcp-project-configs',
     //   label: (
@@ -54,7 +55,7 @@ const SettingsPage = () => {
   return (
     <div>
       <PageHeader
-        title="Settings Management"
+        title="Settings"
         description="Manage all database entities including companies, environments, users, and configurations."
       />
 

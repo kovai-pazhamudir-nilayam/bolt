@@ -9,7 +9,8 @@ import {
   Workflow,
   ServerCog,
   CloudUpload,
-  FileSearch
+  FileSearch,
+  ListChecks
 } from 'lucide-react'
 
 import './ToolsPage.less'
@@ -18,49 +19,55 @@ const TOOLS = [
   {
     name: 'Page Builder',
     description: 'Design and generate new application pages with templates.',
-    path: '/page-builder',
+    path: '/tools/page-builder',
     icon: LayoutDashboard
   },
   {
     name: 'UI Builder',
     description: 'Create and customize reusable UI components visually.',
-    path: '/ui-builder',
+    path: '/tools/ui-builder',
     icon: Palette
   },
   {
     name: 'Table Builder',
     description: 'Configure and generate data tables with sorting and filters.',
-    path: '/table-builder',
+    path: '/tools/table-builder',
     icon: Table
   },
   {
     name: 'Proxy Configurator',
     description: 'Manage and configure CC proxy rules for your app.',
-    path: '/proxy-builder',
+    path: '/tools/proxy-builder',
     icon: Network
   },
   {
     name: 'Task Manager DI',
     description: 'Orchestrate and manage dependency-injected background tasks.',
-    path: '/task-manager',
+    path: '/tools/task-manager-di',
     icon: Workflow
+  },
+  {
+    name: 'Task Manager Config',
+    description: 'Configure and orchestrate background tasks with dependency injection.',
+    path: '/tools/task-manager-config',
+    icon: ListChecks
   },
   {
     name: 'API Builder',
     description: 'Design, generate, and test REST APIs with schema validation.',
-    path: '/api-builder',
+    path: '/tools/api-builder',
     icon: ServerCog
   },
   {
     name: 'Push Logs to GCP',
     description: 'Upload and sync local logs securely to Google Cloud Platform.',
-    path: '/logs/push',
+    path: '/tools/logs-push',
     icon: CloudUpload
   },
   {
     name: 'Fetch Local Logs',
     description: 'Retrieve and view logs stored locally for debugging.',
-    path: '/logs/fetch',
+    path: '/tools/logs-fetch',
     icon: FileSearch
   }
 ]
@@ -76,7 +83,7 @@ const ToolsPage = () => {
           return (
             <Col className="tool_container" span={4} key={name}>
               <Link className="tool_link" to={path}>
-                <Card size='small' style={{ height: '100%' }}>
+                <Card size="small" style={{ height: '100%' }}>
                   <Row>
                     <Col span={24}>
                       <IconComponent className="tool_icon" size={40} />

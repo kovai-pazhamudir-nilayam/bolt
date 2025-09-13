@@ -8,7 +8,7 @@ import GitHubConfigsModal from '../_blocks/GitHubConfigsModal'
 
 const { githubConfigsRepo } = githubConfigsFactory()
 
-const GitHubConfigsSettingsWOC = ({ renderErrorNotification, renderSuccessNotification }) => {
+const GitHubConfigsTabWOC = ({ renderErrorNotification, renderSuccessNotification }) => {
   const [isModalVisible, setIsModalVisible] = useState(false)
   const [editingItem, setEditingItem] = useState(null)
   const [searchText, setSearchText] = useState('')
@@ -132,5 +132,5 @@ const GitHubConfigsSettingsWOC = ({ renderErrorNotification, renderSuccessNotifi
   )
 }
 
-const GitHubConfigsSettings = withNotification(GitHubConfigsSettingsWOC)
-export default GitHubConfigsSettings
+const GitHubConfigsTab = withNotification(GitHubConfigsTabWOC)
+export default GitHubConfigsTab

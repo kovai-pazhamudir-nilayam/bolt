@@ -1,9 +1,12 @@
 import { Tabs } from 'antd'
-import { Database, GitBranch, User } from 'lucide-react'
+import { BookKeyIcon, Database, GitBranch, ShieldPlus, TicketPlusIcon, User } from 'lucide-react'
 import PageHeader from './../../components/PageHeader/PageHeader'
-import GithubUsersSettings from './GithubSettingsPageTabs/GithubUsersSettings'
-import GitHubConfigsSettings from './GithubSettingsPageTabs/GitHubConfigsSettings'
-import GithubRepositoriesSettings from './GithubSettingsPageTabs/GithubRepositoriesSettings'
+import AddGithubRepoSecretTab from './_tabs/AddGithubRepoSecretTab'
+import AddGithubRepoTab from './_tabs/AddGithubRepoTab'
+import GithubAccessTab from './_tabs/GithubAccessTab'
+import GitHubConfigsTab from './_tabs/GitHubConfigsTab'
+import GithubRepositoriesTab from './_tabs/GithubRepositoriesTab'
+import GithubUsersTab from './_tabs/GithubUsersTab'
 
 const GithubSettingsPage = () => {
   const tabItems = [
@@ -15,7 +18,7 @@ const GithubSettingsPage = () => {
           GitHub Configs
         </span>
       ),
-      children: <GitHubConfigsSettings />
+      children: <GitHubConfigsTab />
     },
     {
       key: 'github-users',
@@ -25,7 +28,7 @@ const GithubSettingsPage = () => {
           GitHub Users
         </span>
       ),
-      children: <GithubUsersSettings />
+      children: <GithubUsersTab />
     },
     {
       key: 'github-Repositories',
@@ -35,7 +38,37 @@ const GithubSettingsPage = () => {
           GitHub Repositories
         </span>
       ),
-      children: <GithubRepositoriesSettings />
+      children: <GithubRepositoriesTab />
+    },
+    {
+      key: 'add-github-repo',
+      label: (
+        <span>
+          <TicketPlusIcon size={16} style={{ marginRight: 8 }} />
+          Add GitHub Repo
+        </span>
+      ),
+      children: <AddGithubRepoTab />
+    },
+    {
+      key: 'add-github-secret',
+      label: (
+        <span>
+          <BookKeyIcon size={16} style={{ marginRight: 8 }} />
+          Add GitHub Secret
+        </span>
+      ),
+      children: <AddGithubRepoSecretTab />
+    },
+    {
+      key: 'add-github-access',
+      label: (
+        <span>
+          <ShieldPlus size={16} style={{ marginRight: 8 }} />
+          Repo Access
+        </span>
+      ),
+      children: <GithubAccessTab />
     }
   ]
 
