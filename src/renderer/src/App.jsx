@@ -1,4 +1,4 @@
-import { Button, ConfigProvider, Layout, Menu, notification } from 'antd'
+import { Button, Col, ConfigProvider, Layout, Menu, notification, Row } from 'antd'
 import { Moon, Sun } from 'lucide-react'
 import { useState } from 'react'
 import { Route, BrowserRouter as Router, Routes, useLocation, useNavigate } from 'react-router-dom'
@@ -11,6 +11,7 @@ import MasterSelectionModal from './components/MasterSelectionModal'
 import { MasterDataProvider } from './context/masterDataContext'
 import { NotificationContext } from './context/notificationContext'
 import { darkTheme, lightTheme } from './theme/theme'
+import BackButton from './components/BackButton'
 // Custom theme tokens for menu states
 // const menuAccent = '#f67373'
 const { Header, Content, Sider } = Layout
@@ -129,6 +130,11 @@ function AppLayout({ openNotification, collapsed, setCollapsed, isDark, setIsDar
         >
           {isDark ? <Sun size={24} /> : <Moon size={24} />}
         </Button>
+        <Row>
+          <Col>
+            <BackButton />
+          </Col>
+        </Row>
         <Content
           style={{
             margin: '24px 16px',
