@@ -7,11 +7,10 @@ import './assets/main.css'
 import { ROUTES } from './routing'
 // import Versions from './components/Versions'
 import Footer from './components/Footer'
-import MasterSelectionModal from './components/MasterSelectionModal'
+import NavigationBar from './components/NavigationBar'
 import { MasterDataProvider } from './context/masterDataContext'
 import { NotificationContext } from './context/notificationContext'
 import { darkTheme, lightTheme } from './theme/theme'
-import BackButton from './components/BackButton'
 // Custom theme tokens for menu states
 // const menuAccent = '#f67373'
 const { Header, Content, Sider } = Layout
@@ -130,30 +129,35 @@ function AppLayout({ openNotification, collapsed, setCollapsed, isDark, setIsDar
         >
           {isDark ? <Sun size={24} /> : <Moon size={24} />}
         </Button>
-        <Row>
-          <Col>
-            <BackButton />
-          </Col>
-        </Row>
         <Content
           style={{
-            margin: '24px 16px',
-            padding: 24,
-            background: isDark ? '#181818' : '#fff',
-            color: isDark ? '#fff' : '#000',
-            borderRadius: 8
+            margin: '24px 16px'
           }}
         >
-          <Routes>
-            {ROUTES.map(({ path, element, hideInMenu }) => (
-              <Route
-                className={`${hideInMenu ? 'hide' : 'show'}`}
-                key={path}
-                path={path}
-                element={element}
-              />
-            ))}
-          </Routes>
+          <Row>
+            <Col>
+              <NavigationBar />
+            </Col>
+          </Row>
+          <div
+            style={{
+              padding: 24,
+              background: isDark ? '#181818' : '#fff',
+              color: isDark ? '#fff' : '#000',
+              borderRadius: 8
+            }}
+          >
+            <Routes>
+              {ROUTES.map(({ path, element, hideInMenu }) => (
+                <Route
+                  className={`${hideInMenu ? 'hide' : 'show'}`}
+                  key={path}
+                  path={path}
+                  element={element}
+                />
+              ))}
+            </Routes>
+          </div>
         </Content>
         <Layout.Footer
           style={{

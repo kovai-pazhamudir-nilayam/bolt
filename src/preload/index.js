@@ -45,18 +45,24 @@ const systemAPI = {
   selectFolder: async () => {
     return ipcRenderer.invoke('system:select-folder')
   },
-
-  runShellCommandStreamLog: (command, onLog, onEnd) => {
-    ipcRenderer.removeAllListeners('shell-command-log')
-    ipcRenderer.removeAllListeners('shell-command-end')
-    ipcRenderer.on('shell-command-log', (event, log) => {
-      onLog && onLog(log)
+  onTaskManagerLog: (callback) => {
+    ipcRenderer.on('taskManagerDI:log', (event, log) => {
+      callback(log)
     })
-    ipcRenderer.once('shell-command-end', (event, code) => {
-      onEnd && onEnd(code)
-    })
-    ipcRenderer.send('run-shell-command-stream', command)
   },
+
+  // runShellCommandStreamLog: (command, onLog, onEnd) => {
+  //   ipcRenderer.removeAllListeners('shell-command-log')
+  //   ipcRenderer.removeAllListeners('shell-command-end')
+  //   ipcRenderer.on('shell-command-log', (event, log) => {
+  //     onLog && onLog(log)
+  //   })
+  //   ipcRenderer.once('shell-command-end', (event, code) => {
+  //     onEnd && onEnd(code)
+  //   })
+  //   ipcRenderer.send('run-shell-command-stream', command)
+  // },
+
   generateTaskManagerCode: async ({ targetDir, values }) => {
     return ipcRenderer.invoke('generate:taskManagerDICode', { targetDir, values })
   },

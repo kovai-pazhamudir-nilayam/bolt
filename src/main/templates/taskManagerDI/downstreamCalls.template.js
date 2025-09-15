@@ -54,4 +54,4 @@ function TEMPLATE_Repo(fastify) {
   };
 }
 
-module.exports = TEMPLATE_repo;
+module.exports = TEMPLATE_Repo;

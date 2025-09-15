@@ -3,22 +3,8 @@
 import fs from 'fs-extra'
 import path from 'path'
 
-import { execSync } from 'child_process'
 import { camelCase } from 'lodash'
-import { fileURLToPath } from 'url'
-
-const __filename = fileURLToPath(import.meta.url)
-const __dirname = path.dirname(__filename)
-
-function getTemplateDir() {
-  if (process.env.NODE_ENV === 'development') {
-    // Dev: use src/main/templates directly
-    return path.join(process.cwd(), 'src', 'main', 'templates')
-  } else {
-    // Prod: templates bundled into resources
-    return path.join(process.resourcesPath, 'templates')
-  }
-}
+import { getTemplateDir, runShellCommandInStream, sendLog } from '../helpers/ipc.helper'
 
 const getSanatizeText = (input) => {
   const cleanedString = input.replace(/[^a-zA-Z\s]/g, '').trim()
@@ -43,7 +29,7 @@ const getNamesAndPaths = ({ targetDir, input }) => {
   const moduleDirPath = path.join(appDirPath, module_name)
   const downstreamDirPath = path.join(appDirPath, 'downstreamCalls')
   const downstreamTemplateFilePath = path.join(
-    __dirname,
+    getTemplateDir(),
     '..',
     'templates',
     'downstreamCalls.template.js'
@@ -72,31 +58,31 @@ const getNamesAndPaths = ({ targetDir, input }) => {
   }
 }
 
-function createDownstreamCallFile(downstreamDir, moduleName, templatePath) {
+function createDownstreamCallFile(downstreamDir, moduleName, templatePath, event) {
   const downstreamFilePath = path.join(downstreamDir, `${moduleName}.js`)
   let downstreamTemplate = fs.readFileSync(templatePath, 'utf8')
   downstreamTemplate = downstreamTemplate.replace(/TEMPLATE_/gi, moduleName)
   fs.writeFileSync(downstreamFilePath, downstreamTemplate)
-  console.log(`Created downstream call file: ${downstreamFilePath}`)
+  sendLog(event, `Created downstream call file: ${downstreamFilePath}`)
 }
 
-function createModuleFolder(moduleDirPath) {
+function createModuleFolder(moduleDirPath, event) {
   if (!fs.existsSync(moduleDirPath)) {
     fs.mkdirSync(moduleDirPath)
-    console.log(`Created module folder: ${moduleDirPath}`)
+    sendLog(event, `Created module folder: ${moduleDirPath}`)
   }
 }
 
-function createTaskFile(moduleDirPath, templatePath, taskFileName) {
+function createTaskFile(moduleDirPath, templatePath, taskFileName, event) {
   const taskFilePath = path.join(moduleDirPath, `${taskFileName}.js`)
   let templateContent = fs.readFileSync(templatePath, 'utf8')
   templateContent = templateContent.replace(/TEMPLATE_TASK_NAME/gi, taskFileName)
   fs.writeFileSync(taskFilePath, templateContent)
-  console.log(`Created task file: ${taskFilePath}`)
+  sendLog(event, `Created task file: ${taskFilePath}`)
 }
 
 const getExistingDownstreamFiles = () => {
-  const appDirPath = path.join(__dirname, '..', '..', 'src', 'app', 'downstreamCalls')
+  const appDirPath = path.join(getTemplateDir(), '..', '..', 'src', 'app', 'downstreamCalls')
 
   const files = fs
     .readdirSync(appDirPath, { withFileTypes: true })
@@ -107,7 +93,7 @@ const getExistingDownstreamFiles = () => {
   return files
 }
 
-function updateServiceConfiguration(appDir, moduleName, taskName, taskFileName) {
+async function updateServiceConfiguration(appDir, moduleName, taskName, taskFileName, event) {
   const serviceConfigPath = path.join(appDir, 'service.configuration.js')
   const serviceTransform = `
     module.exports = function(fileInfo, api) {
@@ -138,14 +124,17 @@ function updateServiceConfiguration(appDir, moduleName, taskName, taskFileName) 
       return root.toSource();
     };
   `
-  const serviceTransformPath = path.join(__dirname, 'serviceTransform.js')
+  const serviceTransformPath = path.join(getTemplateDir(), 'serviceTransform.js')
   fs.writeFileSync(serviceTransformPath, serviceTransform)
-  execSync(`npx jscodeshift -t ${serviceTransformPath} ${serviceConfigPath}`)
+  await runShellCommandInStream(
+    event,
+    `npx jscodeshift -t ${serviceTransformPath} ${serviceConfigPath}`
+  )
   fs.unlinkSync(serviceTransformPath)
-  console.log(`Updated SERVICE_MAPPING in ${serviceConfigPath}`)
+  sendLog(event, `Updated SERVICE_MAPPING in ${serviceConfigPath}`)
 }
 
-function updateSupportedTask(appDir, taskName, taskDescription) {
+async function updateSupportedTask(appDir, taskName, taskDescription, event) {
   const supportedTaskPath = path.join(appDir, 'supported.task.js')
   const supportedTaskTransform = `
     module.exports = function(fileInfo, api) {
@@ -165,14 +154,17 @@ function updateSupportedTask(appDir, taskName, taskDescription) {
       return root.toSource();
     };
   `
-  const supportedTaskTransformPath = path.join(__dirname, 'supportedTaskTransform.js')
+  const supportedTaskTransformPath = path.join(getTemplateDir(), 'supportedTaskTransform.js')
   fs.writeFileSync(supportedTaskTransformPath, supportedTaskTransform)
-  execSync(`npx jscodeshift -t ${supportedTaskTransformPath} ${supportedTaskPath}`)
+  await runShellCommandInStream(
+    event,
+    `npx jscodeshift -t ${supportedTaskTransformPath} ${supportedTaskPath}`
+  )
   fs.unlinkSync(supportedTaskTransformPath)
-  console.log(`Updated SUPPORTED_TASK in ${supportedTaskPath}`)
+  sendLog(event, `Updated SUPPORTED_TASK in ${supportedTaskPath}`)
 }
 
-const generateTaskManagerCode = ({ targetDir, values }) => {
+const generateTaskManagerCode = async ({ targetDir, values, event }) => {
   const input = values
   const moduleName = input.module_name
   const isNewModule = false
@@ -192,26 +184,26 @@ const generateTaskManagerCode = ({ targetDir, values }) => {
     createModuleFolder(moduleDirPath)
   }
 
-  createTaskFile(moduleDirPath, taskFileTemplatePath, taskFileName)
+  createTaskFile(moduleDirPath, taskFileTemplatePath, taskFileName, event)
 
-  updateServiceConfiguration(appDirPath, moduleName, taskName, taskFileName)
+  await updateServiceConfiguration(appDirPath, moduleName, taskName, taskFileName, event)
 
-  updateSupportedTask(appDirPath, taskName, input.task_description)
+  await updateSupportedTask(appDirPath, taskName, input.task_description, event)
 
   if (isNewModule && !getExistingDownstreamFiles().includes(`${moduleName}.js`)) {
-    createDownstreamCallFile(downstreamDirPath, moduleName, downstreamTemplateFilePath)
+    createDownstreamCallFile(downstreamDirPath, moduleName, downstreamTemplateFilePath, event)
   }
 
-  console.log('Automation complete.')
+  sendLog(event, 'Automation complete.')
 }
 
 export const registerTaskManagerDIHandler = (ipcMain) => {
   // Folder selection dialog
-  ipcMain.handle('generate:taskManagerDICode', async (_event, { targetDir, values }) => {
-    return generateTaskManagerCode({ targetDir, values })
+  ipcMain.handle('generate:taskManagerDICode', async (event, { targetDir, values }) => {
+    return await generateTaskManagerCode({ targetDir, values, event })
   })
 
-  ipcMain.handle('folder:getExistingDomainFolders', async (_event, targetDir) => {
+  ipcMain.handle('folder:getExistingDomainFolders', async (event, targetDir) => {
     const folders_needs_to_be_excluded = [
       'commons',
       'downstreamCalls',

@@ -1,3 +1,5 @@
+// import { ipcRenderer } from 'electron'
+
 const taskManagerDIAPI = {
   chooseLocation: () => {},
   generateTemplates: () => {},
@@ -6,8 +8,15 @@ const taskManagerDIAPI = {
 
 const taskManagerDIDB = {
   chooseLocation: () => window.systemAPI.selectFolder(),
-  generateCode: ({ targetDir, values }) =>
-    window.systemAPI.generateTaskManagerCode({ targetDir, values }),
+  generateCode: ({ targetDir, values, onLog }) => {
+    // ✅ subscribe to logs
+    if (onLog) {
+      window.systemAPI.onTaskManagerLog((log) => {
+        onLog(log) // forward logs to LogViewer
+      })
+    }
+    return window.systemAPI.generateTaskManagerCode({ targetDir, values })
+  },
   getExistingDomainFolders: (targetDir) => window.systemAPI.getExistingDomainFolders(targetDir)
 }
 
