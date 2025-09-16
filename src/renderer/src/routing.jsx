@@ -1,4 +1,14 @@
-import { Github, Settings as SettingsIcon, ToolCase } from 'lucide-react'
+import {
+  BookOpen,
+  Database,
+  DatabaseZap,
+  Github,
+  ImageUp,
+  ListCheck,
+  Settings as SettingsIcon,
+  ToolCase,
+  User
+} from 'lucide-react'
 import APIBuilderPage from './pages/APIBuilderPage/APIBuilderPage'
 import FetchLocalLogsPage from './pages/FetchLocalLogsPage/FetchLocalLogsPage'
 import GithubSettingsPage from './pages/GithubSettingsPage/GithubSettingsPage'
@@ -10,6 +20,12 @@ import TableBuilderPage from './pages/TableBuilderPage/TableBuilderPage'
 import TaskManagerConfigPage from './pages/TaskManagerConfigPage/TaskManagerConfigPage'
 import TaskManagerDIPage from './pages/TaskManagerDIPage/TaskManagerDIPage'
 import ToolsPage from './pages/ToolsPage/ToolsPage'
+import SavedDBQueryPage from './pages/SavedDBQueryPage/SavedDBQueryPage'
+import TaskListPage from './pages/TaskListPage/TaskListPage'
+import MediaProcessPage from './pages/MediaProcessPage/MediaProcessPage'
+import ProfilePage from './pages/ProfilePage/ProfilePage'
+import WelcomePage from './pages/WelcomePage/WelcomePage'
+import DBBackpupPage from './pages/DBBackpupPage/DBBackpupPage'
 
 export const ROUTES = [
   {
@@ -17,6 +33,13 @@ export const ROUTES = [
     path: '/tools',
     icon: ToolCase,
     element: <ToolsPage />
+  },
+  {
+    label: 'Welcome',
+    path: '/',
+    icon: ToolCase,
+    hideInMenu: true,
+    element: <WelcomePage />
   },
   {
     label: 'Task Manager DI',
@@ -88,9 +111,45 @@ export const ROUTES = [
     element: <GithubSettingsPage />
   },
   {
+    label: 'DB Query',
+    path: '/db-Query',
+    icon: DatabaseZap,
+    element: <SavedDBQueryPage />
+  },
+  {
+    label: 'Media Process',
+    path: '/media-process',
+    icon: ImageUp,
+    element: <MediaProcessPage />
+  },
+  {
+    label: 'Documentation',
+    path: '/documentation',
+    icon: BookOpen,
+    element: <SavedDBQueryPage />
+  },
+  {
+    label: 'Tasks',
+    path: '/task-list',
+    icon: ListCheck,
+    element: <TaskListPage />
+  },
+  {
     label: 'Settings',
     path: '/settings',
     icon: SettingsIcon,
     element: <SettingsPage />
+  },
+  {
+    label: 'DB Backup',
+    path: '/db-backup',
+    icon: Database,
+    element: <DBBackpupPage />
+  },
+  {
+    label: 'Profile',
+    path: '/profile',
+    icon: User,
+    element: <ProfilePage />
   }
 ]

@@ -2,9 +2,9 @@ import { Button, Form, Input, Modal } from 'antd'
 import { useEffect, useState } from 'react'
 import EntityTable from '../../../components/EntityTable'
 import withNotification from '../../../hoc/withNotification'
-import { companyFactory } from '../../../repos/company.repo'
+import { settingsFactory } from '../SettingsPage.repo'
 
-const { companyRepo } = companyFactory()
+const { companyRepo } = settingsFactory()
 
 const CompanyModal = ({ editing, handleCancel, onFinish, form }) => {
   return (
@@ -92,7 +92,7 @@ const columns = [
   }
 ]
 
-const CompanyPageTabWOC = ({ renderErrorNotification, renderSuccessNotification }) => {
+const CompanySettingsTabWOC = ({ renderErrorNotification, renderSuccessNotification }) => {
   const [open, setOpen] = useState(false)
   const [companies, setCompanies] = useState([])
   const [editing, setEditing] = useState(null)
@@ -185,6 +185,6 @@ const CompanyPageTabWOC = ({ renderErrorNotification, renderSuccessNotification 
   )
 }
 
-const CompanyPageTab = withNotification(CompanyPageTabWOC)
+const CompanySettingsTab = withNotification(CompanySettingsTabWOC)
 
-export default CompanyPageTab
+export default CompanySettingsTab

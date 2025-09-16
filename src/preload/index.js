@@ -1,5 +1,6 @@
 import { contextBridge, ipcRenderer } from 'electron'
 import { electronAPI } from '@electron-toolkit/preload'
+import { settingsApi } from './settings.preload'
 
 // GitHub Configs APIs
 
@@ -32,13 +33,6 @@ const githubUsers = {
   delete: async (id) => {
     return await ipcRenderer.invoke('/delete/github-user', id)
   }
-}
-
-// Companies APIs
-const company = {
-  getAll: () => ipcRenderer.invoke('company:getAll'),
-  upsert: (input) => ipcRenderer.invoke('company:upsert', input),
-  delete: (company_code) => ipcRenderer.invoke('company:delete', company_code)
 }
 
 const systemAPI = {
@@ -77,8 +71,6 @@ const dbApi = {
   githubConfigs,
   // GitHub Users management APIs
   githubUsers,
-  // Companies APIs
-  company,
   // Environments APIs
   environments: {
     getAll: async () => {
@@ -207,6 +199,7 @@ if (process.contextIsolated) {
     contextBridge.exposeInMainWorld('api', dbApi) // needs to remove this
     contextBridge.exposeInMainWorld('dbApi', dbApi)
     contextBridge.exposeInMainWorld('systemAPI', systemAPI)
+    contextBridge.exposeInMainWorld('settingsApi', settingsApi)
   } catch (error) {
     console.error(error)
   }
@@ -215,4 +208,5 @@ if (process.contextIsolated) {
   window.api = dbApi // needs to remove this
   window.dbApi = dbApi
   window.systemAPI = systemAPI
+  window.settingsApi = settingsApi
 }

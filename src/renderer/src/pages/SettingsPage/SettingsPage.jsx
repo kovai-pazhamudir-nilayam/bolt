@@ -5,7 +5,7 @@ import { Building2, Cloud, Database } from 'lucide-react'
 // import GcpProjectConfigsSettings from './_blocks/GcpProjectConfigsSettings'
 import PageHeader from './../../components/PageHeader/PageHeader'
 import EnvironmentsSettingsTab from './_tabs/EnvironmentsSettingsTab'
-import CompanyPageTab from './_tabs/CompanyPageTab'
+import CompanySettingsTab from './_tabs/CompanySettingsTab'
 import CoreConfigsSettingsPageTab from './_tabs/CoreConfigsSettingsPageTab'
 
 const SettingsPage = () => {
@@ -18,7 +18,7 @@ const SettingsPage = () => {
           Companies
         </span>
       ),
-      children: <CompanyPageTab />
+      children: <CompanySettingsTab />
     },
     {
       key: 'environments',
