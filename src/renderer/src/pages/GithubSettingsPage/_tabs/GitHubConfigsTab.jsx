@@ -3,10 +3,10 @@ import { Form } from 'antd'
 import { useEffect, useState } from 'react'
 import EntityTable from '../../../components/EntityTable'
 import withNotification from '../../../hoc/withNotification'
-import { githubConfigsFactory } from '../../../repos/githubConfigs.repo'
+import { githubSettingsPageFactory } from '../../../repos/githubSettingsPage.repo'
 import GitHubConfigsModal from '../_blocks/GitHubConfigsModal'
 
-const { githubConfigsRepo } = githubConfigsFactory()
+const { githubConfigsRepo } = githubSettingsPageFactory()
 
 const GitHubConfigsTabWOC = ({ renderErrorNotification, renderSuccessNotification }) => {
   const [isModalVisible, setIsModalVisible] = useState(false)
@@ -17,7 +17,6 @@ const GitHubConfigsTabWOC = ({ renderErrorNotification, renderSuccessNotificatio
   const [githubConfigsData, setGithubConfigsData] = useState([])
 
   const columns = [
-    { title: 'Company', dataIndex: 'company_name', key: 'company_name' },
     { title: 'Company Code', dataIndex: 'company_code', key: 'company_code' },
     {
       title: 'GitHub Token',
@@ -31,7 +30,7 @@ const GitHubConfigsTabWOC = ({ renderErrorNotification, renderSuccessNotificatio
   async function fetchData() {
     try {
       setLoading(true)
-      const data = await githubConfigsRepo.getGitHubConfig()
+      const data = await githubConfigsRepo.getAll()
       setGithubConfigsData(data)
     } catch (errors) {
       renderErrorNotification(errors)
@@ -74,7 +73,7 @@ const GitHubConfigsTabWOC = ({ renderErrorNotification, renderSuccessNotificatio
 
   const handleSave = async (values) => {
     try {
-      await githubConfigsRepo.addGithubConfig(values)
+      await githubConfigsRepo.upsert(values)
 
       renderSuccessNotification({
         message: editingItem

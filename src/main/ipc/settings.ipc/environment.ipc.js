@@ -3,7 +3,8 @@ export const registerEnvironmentHandler = (ipcMain, configDb) => {
     return configDb.knex('environment').select('*')
   }
 
-  async function upsertEnvironment(event, { env_code, env_name }) {
+  async function upsertEnvironment(event, input) {
+    const { env_code, env_name } = input
     return configDb
       .knex('environment')
       .insert({

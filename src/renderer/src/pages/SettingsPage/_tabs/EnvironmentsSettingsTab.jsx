@@ -2,7 +2,7 @@ import { Button, Form, Input, Modal } from 'antd'
 import { useEffect, useState } from 'react'
 import EntityTable from '../../../components/EntityTable'
 import withNotification from '../../../hoc/withNotification'
-import { settingsFactory } from '../SettingsPage.repo'
+import { settingsFactory } from '../../../repos/SettingsPage.repo'
 
 const { environmentRepo } = settingsFactory()
 

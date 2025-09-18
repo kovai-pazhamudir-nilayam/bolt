@@ -1,23 +1,7 @@
 import { contextBridge, ipcRenderer } from 'electron'
 import { electronAPI } from '@electron-toolkit/preload'
 import { settingsApi } from './settings.preload'
-
-// GitHub Configs APIs
-
-const githubConfigs = {
-  getAll: async () => {
-    return await ipcRenderer.invoke('db:getConfigs')
-  },
-  add: async (companyId, githubToken, owner) => {
-    return await ipcRenderer.invoke('db:addConfig', companyId, githubToken, owner)
-  },
-  update: async (id, companyId, githubToken, owner) => {
-    return await ipcRenderer.invoke('db:updateConfig', id, companyId, githubToken, owner)
-  },
-  delete: async (id) => {
-    return await ipcRenderer.invoke('db:deleteConfig', id)
-  }
-}
+import { githubSettingsApi } from './githubSettings.preload'
 
 // GitHub Users management APIs
 const githubUsers = {
@@ -67,9 +51,6 @@ const systemAPI = {
 
 // Custom APIs for renderer
 const dbApi = {
-  // GitHub Configs APIs
-  githubConfigs,
-  // GitHub Users management APIs
   githubUsers,
   // Environments APIs
   environments: {
@@ -200,6 +181,7 @@ if (process.contextIsolated) {
     contextBridge.exposeInMainWorld('dbApi', dbApi)
     contextBridge.exposeInMainWorld('systemAPI', systemAPI)
     contextBridge.exposeInMainWorld('settingsApi', settingsApi)
+    contextBridge.exposeInMainWorld('githubSettingsApi', githubSettingsApi)
   } catch (error) {
     console.error(error)
   }
@@ -209,4 +191,5 @@ if (process.contextIsolated) {
   window.dbApi = dbApi
   window.systemAPI = systemAPI
   window.settingsApi = settingsApi
+  window.githubSettingsApi = githubSettingsApi
 }

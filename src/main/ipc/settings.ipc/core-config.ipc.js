@@ -3,7 +3,8 @@ export const registeCoreConfigHandler = (ipcMain, configDb) => {
     return configDb.knex('core-config').select('*')
   }
 
-  async function upsertCompany(event, { company_code, company_name, company_logo }) {
+  async function upsertCompany(event, input) {
+    const { company_code, company_name, company_logo } = input
     return configDb
       .knex('core-config')
       .insert({
