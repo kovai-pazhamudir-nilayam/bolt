@@ -2,6 +2,7 @@ import { contextBridge, ipcRenderer } from 'electron'
 import { electronAPI } from '@electron-toolkit/preload'
 import { settingsApi } from './settings.preload'
 import { githubSettingsApi } from './githubSettings.preload'
+import { taskApi } from './task.prelod'
 
 const systemAPI = {
   selectFolder: async () => {
@@ -165,6 +166,7 @@ if (process.contextIsolated) {
     contextBridge.exposeInMainWorld('systemAPI', systemAPI)
     contextBridge.exposeInMainWorld('settingsApi', settingsApi)
     contextBridge.exposeInMainWorld('githubSettingsApi', githubSettingsApi)
+    contextBridge.exposeInMainWorld('taskApi', taskApi)
   } catch (error) {
     console.error(error)
   }
@@ -175,4 +177,5 @@ if (process.contextIsolated) {
   window.systemAPI = systemAPI
   window.settingsApi = settingsApi
   window.githubSettingsApi = githubSettingsApi
+  window.taskApi = taskApi
 }

@@ -8,6 +8,7 @@ import { registerSystemHandler } from './ipc/system.ipc.js'
 import { registerTaskManagerDIHandler } from './ipc/taskManagerDI.ipc.js'
 import { registerSettingsHandler } from './ipc/settings.ipc/settings.ipc.js'
 import { registerGithubSettingsHandler } from './ipc/githubSettings.ipc/githubSettings.ipc'
+import { registerTaskHandler } from './ipc/task.ipc'
 
 function createWindow() {
   // Create the browser window.
@@ -64,6 +65,7 @@ app.whenReady().then(async () => {
   // Register all IPC Handler
   registerGithubSettingsHandler(ipcMain, configDb)
   registerSettingsHandler(ipcMain, configDb)
+  registerTaskHandler(ipcMain, configDb)
   registerSystemHandler(ipcMain)
   registerTaskManagerDIHandler(ipcMain)
 
