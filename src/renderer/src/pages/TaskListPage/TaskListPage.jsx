@@ -1,8 +1,11 @@
 // TaskPage.jsx
-import { Button, Card, Col, DatePicker, Form, Input, Row, Segmented, Space, Table, Tag } from 'antd'
+import { Button, Card, Col, Row, Segmented, Space, Table, Tag } from 'antd'
 import dayjs from 'dayjs'
 import { useEffect, useState } from 'react'
+import PageHeader from '../../components/PageHeader/PageHeader'
 import { tasksFactory } from '../../repos/taskPage.repo'
+import { Plus } from 'lucide-react'
+import AddTaskListModal from './_blocks/AddTaskListModal'
 
 const { taskRepo } = tasksFactory()
 
@@ -14,8 +17,8 @@ const statusColors = {
 
 function TaskListPage() {
   const [tasks, setTasks] = useState([])
-  const [loading, setLoading] = useState(false)
-  const [viewMode, setViewMode] = useState('table') // "table" | "card"
+  const [isModalVisible, setIsModalVisible] = useState(false)
+  const [viewMode, setViewMode] = useState('card') // "table" | "card"
 
   const fetchTasks = async () => {
     const list = await taskRepo.getAll()
@@ -26,56 +29,38 @@ function TaskListPage() {
     fetchTasks()
   }, [])
 
-  const onFinish = async (values) => {
-    setLoading(true)
-    await taskRepo.create({
-      title: values.title,
-      description: values.description,
-      company_code: values.company,
-      reminder_at: values.reminder ? values.reminder.toISOString() : null
-    })
-    setLoading(false)
-    fetchTasks()
-  }
-
   const updateStatus = async (taskId, status) => {
     await taskRepo.update(taskId, status)
     fetchTasks()
   }
 
   return (
-    <div className="p-4">
-      <h2>Task Manager</h2>
-
-      {/* Task Form */}
-      <Form onFinish={onFinish} layout="vertical" className="mb-4">
-        <Form.Item name="title" label="Task Title" rules={[{ required: true }]}>
-          <Input />
-        </Form.Item>
-        <Form.Item name="description" label="Description">
-          <Input.TextArea />
-        </Form.Item>
-        <Form.Item name="company" label="Company" rules={[{ required: true }]}>
-          <Input />
-        </Form.Item>
-        <Form.Item name="reminder" label="Reminder Date">
-          <DatePicker showTime />
-        </Form.Item>
-        <Button type="primary" htmlType="submit" loading={loading}>
-          Add Task
-        </Button>
-      </Form>
-
-      {/* View Switch */}
-      <Segmented
-        options={[
-          { label: 'Table View', value: 'table' },
-          { label: 'Card View', value: 'card' }
-        ]}
-        value={viewMode}
-        onChange={setViewMode}
-        style={{ marginBottom: 16 }}
+    <div>
+      <PageHeader
+        title="Task Manager"
+        description="Your workspace to plan, manage, and complete tasks effortlessly."
       />
+
+      {isModalVisible && <AddTaskListModal onCancel={() => setIsModalVisible(false)} />}
+
+      <Row justify={'space-between'}>
+        <Col>
+          <Segmented
+            options={[
+              { label: 'Table View', value: 'table' },
+              { label: 'Card View', value: 'card' }
+            ]}
+            value={viewMode}
+            onChange={setViewMode}
+            style={{ marginBottom: 16 }}
+          />
+        </Col>
+        <Col>
+          <Button icon={<Plus size={16} />} type="primary" onClick={() => setIsModalVisible(true)}>
+            Add New Task
+          </Button>
+        </Col>
+      </Row>
 
       {/* Table Layout */}
       {viewMode === 'table' && (
