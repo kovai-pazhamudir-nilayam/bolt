@@ -2,7 +2,7 @@ import { Button, Form, Input, Modal, Select } from 'antd'
 const { Option } = Select
 
 const GitHubConfigsModal = ({ editingItem, handleCancel, handleSave, companies }) => {
-  const [form] = Form.useForm()
+    const [form] = Form.useForm()
   return (
     <Modal
       title={editingItem ? 'Edit GitHub Config' : 'Add New GitHub Config'}

@@ -5,6 +5,12 @@ const githubConfigsAPI = {
   delete: () => {}
 }
 
+const githubUsersAPI = {
+  getAll: () => {},
+  upsert: () => {},
+  delete: () => {}
+}
+
 /**  Local DB implementation  */
 const githubConfigsDB = {
   getAll: () => {
@@ -18,12 +24,24 @@ const githubConfigsDB = {
   }
 }
 
+const githubUsersDB = {
+  getAll: () => {
+    return window.githubSettingsApi.githubUser.getAll()
+  },
+  upsert: (input) => {
+    return window.githubSettingsApi.githubUser.upsert(input)
+  },
+  delete: () => {
+    return window.githubSettingsApi.githubUser.delete()
+  }
+}
+
 const githubSettingsPageFactory = () => {
   const mode = window.runtimeConfig?.mode || 'local'
   if (mode === 'api') {
-    return { githubConfigsRepo: githubConfigsAPI }
+    return { githubConfigsRepo: githubConfigsAPI, githubUsersRepo: githubUsersAPI }
   }
-  return { githubConfigsRepo: githubConfigsDB }
+  return { githubConfigsRepo: githubConfigsDB, githubUsersRepo: githubUsersDB }
 }
 
 export { githubSettingsPageFactory }

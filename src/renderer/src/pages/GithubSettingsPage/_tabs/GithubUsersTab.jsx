@@ -6,28 +6,28 @@ import { renderSuccessNotification } from '../../../helpers/success.helper'
 import { renderErrorNotification } from '../../../helpers/error.helper'
 const { Text } = Typography
 
+const GithubUsersTabcolumns = [
+  { title: 'Name', dataIndex: 'name', key: 'name' },
+  {
+    title: 'GitHub Handle',
+    dataIndex: 'github_handle',
+    key: 'github_handle',
+    render: (text) => <Text code>@{text}</Text>
+  },
+  {
+    title: 'Created',
+    dataIndex: 'created_at',
+    key: 'created_at',
+    render: (text) => new Date(text).toLocaleDateString()
+  }
+]
+
 const GithubUsersTab = () => {
   const [isModalVisible, setIsModalVisible] = useState(false)
   const [editingItem, setEditingItem] = useState(null)
   const [searchText, setSearchText] = useState('')
   const [form] = Form.useForm()
   const { githubUsers, loading, loadAllData, notificationApi } = useDatabaseData()
-
-  const columns = [
-    { title: 'Name', dataIndex: 'name', key: 'name' },
-    {
-      title: 'GitHub Handle',
-      dataIndex: 'github_handle',
-      key: 'github_handle',
-      render: (text) => <Text code>@{text}</Text>
-    },
-    {
-      title: 'Created',
-      dataIndex: 'created_at',
-      key: 'created_at',
-      render: (text) => new Date(text).toLocaleDateString()
-    }
-  ]
 
   const handleAdd = () => {
     setEditingItem(null)
@@ -115,7 +115,7 @@ const GithubUsersTab = () => {
     <>
       <EntityTable
         data={githubUsers}
-        columns={columns}
+        columns={GithubUsersTabcolumns}
         loading={loading}
         onAdd={handleAdd}
         onEdit={handleEdit}
