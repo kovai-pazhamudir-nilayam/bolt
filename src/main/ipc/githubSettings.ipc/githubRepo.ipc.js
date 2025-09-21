@@ -24,6 +24,7 @@ export const registerGithubRepoHandler = (ipcMain, configDb) => {
   async function deleteGithubRepo(event, github_repo) {
     return configDb.knex('github_repo').where({ github_repo }).del()
   }
+
   async function syncGithubRepo(event, company_code) {
     try {
       const cfg = await configDb
@@ -76,8 +77,60 @@ export const registerGithubRepoHandler = (ipcMain, configDb) => {
     }
   }
 
+  async function githubRepoAccess(event, input) {
+    const { company_code, access_level = 'pull', repo_name, github_handle } = input
+    try {
+      const cfg = await configDb
+        .knex('github_config')
+        .select('github_token', 'owner')
+        .where({ company_code: company_code })
+        .first()
+
+      const headers = {
+        Accept: 'application/vnd.github+json',
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${cfg.github_token}`,
+        'User-Agent': 'bolt-app'
+      }
+
+      const body = JSON.stringify({
+        permission: access_level
+      })
+      const url = `https://api.github.com/repos/${cfg.owner}/${repo_name}/collaborators/${github_handle}`
+
+      const response = await fetch(url, {
+        method: 'PUT',
+        headers,
+        body
+      })
+
+      if (response.status === 201) {
+        return {
+          success: true,
+          message: `Invitation sent to ${github_handle}`
+        }
+      } else if (response.status === 204) {
+        return {
+          success: true,
+          message: `${github_handle} already has access`
+        }
+      } else {
+        const error = await response.json()
+        return {
+          success: false,
+          message: `Error inviting user:, ${error.response?.data} || ${error.message}`
+        }
+      }
+      // return response
+    } catch (error) {
+      console.error('Error adding repo access:', error)
+      throw error
+    }
+  }
+
   ipcMain.handle('githubRepo:getAll', getGithubRepo)
   ipcMain.handle('githubRepo:upsert', upsertGithubRepo)
   ipcMain.handle('githubRepo:delete', deleteGithubRepo)
   ipcMain.handle('githubRepo:sync', syncGithubRepo)
+  ipcMain.handle('githubRepo:access', githubRepoAccess)
 }

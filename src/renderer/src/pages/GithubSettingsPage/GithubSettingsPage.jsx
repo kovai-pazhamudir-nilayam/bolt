@@ -1,9 +1,8 @@
 import { Tabs } from 'antd'
-import { BookKeyIcon, Database, GitBranch, ShieldPlus, TicketPlusIcon, User } from 'lucide-react'
+import { BookKeyIcon, Database, GitBranch, TicketPlusIcon, User } from 'lucide-react'
 import PageHeader from './../../components/PageHeader/PageHeader'
 import AddGithubRepoSecretTab from './_tabs/AddGithubRepoSecretTab'
 import AddGithubRepoTab from './_tabs/AddGithubRepoTab'
-import GithubAccessTab from './_tabs/GithubAccessTab'
 import GitHubConfigsTab from './_tabs/GitHubConfigsTab'
 import GithubRepositoriesTab from './_tabs/GithubRepositoriesTab'
 import GithubUsersTab from './_tabs/GithubUsersTab'
@@ -59,16 +58,6 @@ const GithubSettingsPage = () => {
         </span>
       ),
       children: <AddGithubRepoSecretTab />
-    },
-    {
-      key: 'add-github-access',
-      label: (
-        <span>
-          <ShieldPlus size={16} style={{ marginRight: 8 }} />
-          Repo Access
-        </span>
-      ),
-      children: <GithubAccessTab />
     }
   ]
 

@@ -1,3 +1,4 @@
+/* eslint-disable react/prop-types */
 import { Button, Col, Input, Row, Space, Table } from 'antd'
 import { Edit, Plus, Trash, Search } from 'lucide-react'
 import { useState, useEffect } from 'react'
@@ -13,6 +14,7 @@ const EntityTable = ({
   onDelete,
   searchText,
   onSearchChange,
+  extraActions = null,
   emptyText = 'No items found. Click "Add New" to get started.'
 }) => {
   const [filteredData, setFilteredData] = useState(data)
@@ -39,6 +41,21 @@ const EntityTable = ({
       width: 120,
       render: (_, record) => (
         <Space>
+          {extraActions &&
+            extraActions.map(({ text, onClick, icon }) => {
+              const IconCompnent = icon
+              return (
+                <Button
+                  key={text}
+                  type="primary"
+                  size="small"
+                  icon={<IconCompnent size={14} />}
+                  onClick={() => onClick(record)}
+                >
+                  {text}
+                </Button>
+              )
+            })}
           <Button
             type="primary"
             size="small"

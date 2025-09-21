@@ -15,7 +15,8 @@ const githubRepo = {
   getAll: () => ipcRenderer.invoke('githubRepo:getAll'),
   upsert: (input) => ipcRenderer.invoke('githubRepo:upsert', input),
   delete: (company_code) => ipcRenderer.invoke('githubRepo:delete', company_code),
-  sync: (company_code) => ipcRenderer.invoke('githubRepo:sync', company_code)
+  sync: (company_code) => ipcRenderer.invoke('githubRepo:sync', company_code),
+  access: (input) => ipcRenderer.invoke('githubRepo:access', input)
 }
 
 const githubSettingsApi = {

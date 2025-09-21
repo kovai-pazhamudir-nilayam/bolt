@@ -56,6 +56,9 @@ const githubRepositoriesDB = {
   },
   sync: (company_code) => {
     return window.githubSettingsApi.githubRepo.sync(company_code)
+  },
+  access: (input) => {
+    return window.githubSettingsApi.githubRepo.access(input)
   }
 }
 
