@@ -59,6 +59,9 @@ const githubRepositoriesDB = {
   },
   access: (input) => {
     return window.githubSettingsApi.githubRepo.access(input)
+  },
+  create: (input) => {
+    return window.githubSettingsApi.githubRepo.create(input)
   }
 }
 

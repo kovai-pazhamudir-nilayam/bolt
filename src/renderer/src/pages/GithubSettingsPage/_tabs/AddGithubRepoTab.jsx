@@ -6,11 +6,10 @@ import FastifyWhiteIcon from '../../../assets/fastify-white.svg'
 import FastifyBlackIcon from '../../../assets/fastify-black.svg'
 import NestIcon from '../../../assets/nestjs-logo.svg'
 import { githubSettingsPageFactory } from '../../../repos/githubSettingsPage.repo'
-import { data } from 'react-router-dom'
 const { Option } = Select
 
 const { companyRepo } = settingsFactory()
-const { githubConfigsRepo } = githubSettingsPageFactory()
+const { githubConfigsRepo, githubRepositoriesRepo } = githubSettingsPageFactory()
 
 const AddGithubRepoTabWOC = ({ renderErrorNotification, renderSuccessNotification }) => {
   const [form] = Form.useForm()
@@ -21,8 +20,8 @@ const AddGithubRepoTabWOC = ({ renderErrorNotification, renderSuccessNotificatio
     githubConfigs: []
   })
 
-  const onFinish = (values) => {
-    const { company_code, template_repo_type } = values
+  const onFinish = async (values) => {
+    const { company_code, template_repo_type, repo_name } = values
     const githubConfigForCompany = datasource.githubConfigs.filter(
       (company) => company.company_code === company_code
     )[0]
@@ -42,7 +41,35 @@ const AddGithubRepoTabWOC = ({ renderErrorNotification, renderSuccessNotificatio
       })
       return
     }
-    console.log(values)
+
+    const input = {
+      company_code,
+      template_repo,
+      repo_name
+    }
+
+    try {
+      setLoading(true)
+      const { success, message } = await githubRepositoriesRepo.create(input)
+      if (success) {
+        renderSuccessNotification({
+          message
+        })
+        fetchData()
+      } else {
+        renderErrorNotification({
+          message
+        })
+      }
+    } catch (error) {
+      renderErrorNotification({
+        title: 'Access Failed',
+        message: error.message || 'Failed to sync repositories'
+      })
+    } finally {
+      setRepoForAccess(null)
+      setLoading(false)
+    }
   }
 
   const fetchData = async () => {
@@ -123,7 +150,7 @@ const AddGithubRepoTabWOC = ({ renderErrorNotification, renderSuccessNotificatio
             />
           </Form.Item>
           <Form.Item>
-            <Button type="primary" htmlType="submit">
+            <Button loading={loading} type="primary" htmlType="submit">
               Submit
             </Button>
           </Form.Item>

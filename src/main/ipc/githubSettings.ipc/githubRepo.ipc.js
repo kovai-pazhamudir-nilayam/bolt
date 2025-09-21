@@ -128,9 +128,59 @@ export const registerGithubRepoHandler = (ipcMain, configDb) => {
     }
   }
 
+  async function createGithubRepo(event, input) {
+    const { company_code, template_repo, repo_name } = input
+    try {
+      const cfg = await configDb
+        .knex('github_config')
+        .select('github_token', 'owner')
+        .where({ company_code: company_code })
+        .first()
+
+      const headers = {
+        Accept: 'application/vnd.github+json',
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${cfg.github_token}`,
+        'User-Agent': 'bolt-app'
+      }
+
+      const body = JSON.stringify({
+        owner: cfg.owner,
+        name: repo_name,
+        description: `This is a new repo created from a template - ${template_repo}`,
+        private: true
+      })
+      const url = `https://api.github.com/repos/${cfg.owner}/${template_repo}/generate`
+
+      const response = await fetch(url, {
+        method: 'POST',
+        headers,
+        body
+      })
+
+      if (response.ok) {
+        return {
+          success: true,
+          message: `${repo_name} created successfully in ${cfg.owner}`
+        }
+      } else {
+        const error = await response.json()
+        return {
+          success: false,
+          message: `Error creating repo:, ${error.response?.data} || ${error.message}`
+        }
+      }
+      // return response
+    } catch (error) {
+      console.error('Error creating repo:', error)
+      throw error
+    }
+  }
+
   ipcMain.handle('githubRepo:getAll', getGithubRepo)
   ipcMain.handle('githubRepo:upsert', upsertGithubRepo)
   ipcMain.handle('githubRepo:delete', deleteGithubRepo)
   ipcMain.handle('githubRepo:sync', syncGithubRepo)
   ipcMain.handle('githubRepo:access', githubRepoAccess)
+  ipcMain.handle('githubRepo:create', createGithubRepo)
 }
