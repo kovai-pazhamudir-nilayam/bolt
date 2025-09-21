@@ -69,7 +69,6 @@ app.whenReady().then(async () => {
   registerSystemHandler(ipcMain)
   registerTaskManagerDIHandler(ipcMain)
 
-  // registerSystemHandler(ipcMain)
   // registerCompanyHandler(ipcMain, configDb)
   // registerEnvironmentHandler(ipcMain, configDb)
   // registerCoreTokenConfigHandler(ipcMain, configDb)

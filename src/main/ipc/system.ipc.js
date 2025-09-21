@@ -7,16 +7,16 @@ import { dialog } from 'electron'
 
 export const registerSystemHandler = (ipcMain) => {
   // Shell command execution
-  ipcMain.on('run-shell-command-stream', (event, command) => {
+  ipcMain.on('terminal:run', (event, command) => {
     const child = spawn(command, { shell: true })
     child.stdout.on('data', (data) => {
-      event.sender.send('shell-command-log', data.toString())
+      event.sender.send('terminal:log', data.toString())
     })
     child.stderr.on('data', (data) => {
-      event.sender.send('shell-command-log', data.toString())
+      event.sender.send('terminal:log', data.toString())
     })
     child.on('close', (code) => {
-      event.sender.send('shell-command-end', code)
+      event.sender.send('terminal:end', code)
     })
   })
 
