@@ -1,12 +1,14 @@
-import { Form, Input, Modal, Typography } from 'antd'
-import { useState } from 'react'
+import { Button, Form, Input, Modal, Typography } from 'antd'
+import { useEffect, useState } from 'react'
 import EntityTable from '../../../components/EntityTable'
-import { useDatabaseData } from '../_blocks/hooks/useDatabaseData'
-import { renderSuccessNotification } from '../../../helpers/success.helper'
 import { renderErrorNotification } from '../../../helpers/error.helper'
+import { renderSuccessNotification } from '../../../helpers/success.helper'
+import { githubSettingsPageFactory } from '../../../repos/githubSettingsPage.repo'
 const { Text } = Typography
 
-const GithubUsersTabcolumns = [
+const { githubUsersRepo } = githubSettingsPageFactory()
+
+const githubUsersTabcolumns = [
   { title: 'Name', dataIndex: 'name', key: 'name' },
   {
     title: 'GitHub Handle',
@@ -25,9 +27,12 @@ const GithubUsersTabcolumns = [
 const GithubUsersTab = () => {
   const [isModalVisible, setIsModalVisible] = useState(false)
   const [editingItem, setEditingItem] = useState(null)
+  const [loading, setLoading] = useState(false)
   const [searchText, setSearchText] = useState('')
   const [form] = Form.useForm()
-  const { githubUsers, loading, loadAllData, notificationApi } = useDatabaseData()
+  const [datasource, setDatasource] = useState({
+    githubUsers: []
+  })
 
   const handleAdd = () => {
     setEditingItem(null)
@@ -41,63 +46,52 @@ const GithubUsersTab = () => {
     setIsModalVisible(true)
   }
 
-  const handleDelete = async (item) => {
+  async function fetchData() {
     try {
-      await window.api.githubUsers.delete(item.id)
-      renderSuccessNotification(
-        {
-          message: 'GitHub user deleted successfully!'
-        },
-        notificationApi
-      )
-      loadAllData()
-    } catch (error) {
-      console.error('Error deleting user:', error)
-      renderErrorNotification(
-        [
-          {
-            title: 'Delete Failed',
-            message: error.message || 'Failed to delete GitHub user'
-          }
-        ],
-        notificationApi
-      )
+      setLoading(true)
+      const [githubUsers] = await Promise.all([githubUsersRepo.getAll()])
+      setDatasource({
+        githubUsers
+      })
+    } catch (errors) {
+      renderErrorNotification(errors)
+    } finally {
+      setLoading(false)
     }
   }
 
-  const handleSave = async () => {
+  useEffect(() => {
+    fetchData()
+  }, [])
+
+  const handleDelete = async (item) => {
     try {
-      const values = await form.validateFields()
+      await window.api.githubUsers.delete(item.id)
+      renderSuccessNotification({
+        message: 'GitHub user deleted successfully!'
+      })
+      fetchData()
+    } catch (error) {
+      console.error('Error deleting user:', error)
+      renderErrorNotification(error)
+    }
+  }
 
-      if (editingItem) {
-        await window.api.githubUsers.update(editingItem.id, values.name, values.github_handle)
-      } else {
-        await window.api.githubUsers.add(values.name, values.github_handle)
-      }
-
-      renderSuccessNotification(
-        {
-          message: editingItem
-            ? 'GitHub user updated successfully!'
-            : 'GitHub user added successfully!'
-        },
-        notificationApi
-      )
+  const onFinish = async (values) => {
+    try {
+      await githubUsersRepo.upsert(values)
+      renderSuccessNotification({
+        message: editingItem
+          ? 'GitHub user updated successfully!'
+          : 'GitHub user added successfully!'
+      })
 
       setIsModalVisible(false)
       form.resetFields()
-      loadAllData()
+      fetchData()
     } catch (error) {
       console.error('Error saving GitHub user:', error)
-      renderErrorNotification(
-        [
-          {
-            title: 'Save Failed',
-            message: error.message || 'Failed to save GitHub user'
-          }
-        ],
-        notificationApi
-      )
+      renderErrorNotification(error)
     }
   }
 
@@ -114,8 +108,8 @@ const GithubUsersTab = () => {
   return (
     <>
       <EntityTable
-        data={githubUsers}
-        columns={GithubUsersTabcolumns}
+        data={datasource.githubUsers}
+        columns={githubUsersTabcolumns}
         loading={loading}
         onAdd={handleAdd}
         onEdit={handleEdit}
@@ -125,32 +119,39 @@ const GithubUsersTab = () => {
         emptyText="No users found. Click 'Add New' to get started."
       />
 
-      <Modal
-        title={editingItem ? 'Edit GitHub User' : 'Add New GitHub User'}
-        open={isModalVisible}
-        onOk={handleSave}
-        onCancel={handleCancel}
-        okText="Save"
-        cancelText="Cancel"
-        width={600}
-      >
-        <Form form={form} layout="vertical" requiredMark={false}>
-          <Form.Item
-            name="name"
-            label="Name"
-            rules={[{ required: true, message: 'Please enter user name' }]}
-          >
-            <Input placeholder="User's full name" />
-          </Form.Item>
-          <Form.Item
-            name="github_handle"
-            label="GitHub Handle"
-            rules={[{ required: true, message: 'Please enter GitHub handle' }]}
-          >
-            <Input placeholder="GitHub username" />
-          </Form.Item>
-        </Form>
-      </Modal>
+      {isModalVisible && (
+        <Modal
+          title={editingItem ? 'Edit GitHub User' : 'Add New GitHub User'}
+          open={true}
+          onCancel={handleCancel}
+          okText="Save"
+          cancelText="Cancel"
+          width={600}
+          footer={null}
+        >
+          <Form onFinish={onFinish} form={form} layout="vertical" requiredMark={false}>
+            <Form.Item
+              name="name"
+              label="Name"
+              rules={[{ required: true, message: 'Please enter user name' }]}
+            >
+              <Input placeholder="User's full name" />
+            </Form.Item>
+            <Form.Item
+              name="github_handle"
+              label="GitHub Handle"
+              rules={[{ required: true, message: 'Please enter GitHub handle' }]}
+            >
+              <Input placeholder="GitHub username" />
+            </Form.Item>
+            <Form.Item>
+              <Button type="primary" htmlType="submit">
+                Submit
+              </Button>
+            </Form.Item>
+          </Form>
+        </Modal>
+      )}
     </>
   )
 }

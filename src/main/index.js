@@ -68,7 +68,6 @@ app.whenReady().then(async () => {
   registerTaskManagerDIHandler(ipcMain)
 
   // registerSystemHandler(ipcMain)
-  // registerGithubUserHandler(ipcMain, configDb)
   // registerCompanyHandler(ipcMain, configDb)
   // registerEnvironmentHandler(ipcMain, configDb)
   // registerCoreTokenConfigHandler(ipcMain, configDb)

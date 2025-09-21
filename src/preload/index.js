@@ -3,22 +3,6 @@ import { electronAPI } from '@electron-toolkit/preload'
 import { settingsApi } from './settings.preload'
 import { githubSettingsApi } from './githubSettings.preload'
 
-// GitHub Users management APIs
-const githubUsers = {
-  getAll: async () => {
-    return await ipcRenderer.invoke('/get/github-user')
-  },
-  add: async (name, githubHandle) => {
-    return await ipcRenderer.invoke('/add/github-user', name, githubHandle)
-  },
-  update: async (id, name, githubHandle) => {
-    return await ipcRenderer.invoke('/update/github-user', id, name, githubHandle)
-  },
-  delete: async (id) => {
-    return await ipcRenderer.invoke('/delete/github-user', id)
-  }
-}
-
 const systemAPI = {
   selectFolder: async () => {
     return ipcRenderer.invoke('system:select-folder')
@@ -51,7 +35,6 @@ const systemAPI = {
 
 // Custom APIs for renderer
 const dbApi = {
-  githubUsers,
   // Environments APIs
   environments: {
     getAll: async () => {
@@ -177,8 +160,8 @@ const dbApi = {
 if (process.contextIsolated) {
   try {
     contextBridge.exposeInMainWorld('electron', electronAPI)
-    contextBridge.exposeInMainWorld('api', dbApi) // needs to remove this
-    contextBridge.exposeInMainWorld('dbApi', dbApi)
+    // contextBridge.exposeInMainWorld('api', dbApi) // needs to remove this
+    // contextBridge.exposeInMainWorld('dbApi', dbApi)
     contextBridge.exposeInMainWorld('systemAPI', systemAPI)
     contextBridge.exposeInMainWorld('settingsApi', settingsApi)
     contextBridge.exposeInMainWorld('githubSettingsApi', githubSettingsApi)
@@ -187,8 +170,8 @@ if (process.contextIsolated) {
   }
 } else {
   window.electron = electronAPI
-  window.api = dbApi // needs to remove this
-  window.dbApi = dbApi
+  // window.api = dbApi // needs to remove this
+  // window.dbApi = dbApi
   window.systemAPI = systemAPI
   window.settingsApi = settingsApi
   window.githubSettingsApi = githubSettingsApi

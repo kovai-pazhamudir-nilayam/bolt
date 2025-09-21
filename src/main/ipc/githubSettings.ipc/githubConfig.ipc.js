@@ -1,5 +1,5 @@
 export const registerGithubConfigHandler = (ipcMain, configDb) => {
-  async function getGithubConfigs() {
+  async function getGithubConfig() {
     return configDb.knex('github_config').select('*')
   }
 
@@ -27,7 +27,7 @@ export const registerGithubConfigHandler = (ipcMain, configDb) => {
     return configDb.knex('github_config').where({ company_code }).del()
   }
 
-  ipcMain.handle('githubConfig:getAll', getGithubConfigs)
+  ipcMain.handle('githubConfig:getAll', getGithubConfig)
   ipcMain.handle('githubConfig:upsert', upsertGithubConfig)
   ipcMain.handle('githubConfig:delete', deleteGithubConfig)
 }

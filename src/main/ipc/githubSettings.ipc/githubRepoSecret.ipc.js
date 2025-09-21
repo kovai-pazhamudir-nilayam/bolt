@@ -1,7 +1,5 @@
 export const registerGithubUserHandler = (ipcMain, configDb) => {
   async function getGithubUser() {
-    console.log("---------------");
-    
     return configDb.knex('github_user').select('*')
   }
 
@@ -27,7 +25,7 @@ export const registerGithubUserHandler = (ipcMain, configDb) => {
     return configDb.knex('github_user').where({ github_handle }).del()
   }
 
-  ipcMain.handle('githubUser:getAll', getGithubUser)
-  ipcMain.handle('githubUser:upsert', upsertGithubUser)
-  ipcMain.handle('githubUser:delete', deleteGithubUser)
+  ipcMain.handle('githubSecret:getAll', getGithubUser)
+  ipcMain.handle('githubSecret:upsert', upsertGithubUser)
+  ipcMain.handle('githubSecret:delete', deleteGithubUser)
 }
