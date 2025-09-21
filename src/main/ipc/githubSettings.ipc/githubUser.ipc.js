@@ -1,7 +1,5 @@
 export const registerGithubUserHandler = (ipcMain, configDb) => {
   async function getGithubUser() {
-    console.log("---------------");
-    
     return configDb.knex('github_user').select('*')
   }
 

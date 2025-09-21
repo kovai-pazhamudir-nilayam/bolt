@@ -7,7 +7,7 @@ import { ConfigDatabase } from './database/ConfigDatabase.js'
 import { registerSystemHandler } from './ipc/system.ipc.js'
 import { registerTaskManagerDIHandler } from './ipc/taskManagerDI.ipc.js'
 import { registerSettingsHandler } from './ipc/settings.ipc/settings.ipc.js'
-import { registerGithubConfigHandler } from './ipc/githubSettings.ipc/githubConfig.ipc.js'
+import { registerGithubSettingsHandler } from './ipc/githubSettings.ipc/githubSettings.ipc'
 
 function createWindow() {
   // Create the browser window.
@@ -62,7 +62,7 @@ app.whenReady().then(async () => {
   })
 
   // Register all IPC Handler
-  registerGithubConfigHandler(ipcMain, configDb)
+  registerGithubSettingsHandler(ipcMain, configDb)
   registerSettingsHandler(ipcMain, configDb)
   registerSystemHandler(ipcMain)
   registerTaskManagerDIHandler(ipcMain)

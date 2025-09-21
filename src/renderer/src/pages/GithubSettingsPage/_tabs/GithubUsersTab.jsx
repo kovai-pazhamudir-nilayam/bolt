@@ -1,8 +1,7 @@
 import { Button, Form, Input, Modal, Typography } from 'antd'
 import { useEffect, useState } from 'react'
+import withNotification from '../../../hoc/withNotification'
 import EntityTable from '../../../components/EntityTable'
-import { renderErrorNotification } from '../../../helpers/error.helper'
-import { renderSuccessNotification } from '../../../helpers/success.helper'
 import { githubSettingsPageFactory } from '../../../repos/githubSettingsPage.repo'
 const { Text } = Typography
 
@@ -24,7 +23,7 @@ const githubUsersTabcolumns = [
   }
 ]
 
-const GithubUsersTab = () => {
+const GithubUsersTabWOC = ({ renderErrorNotification, renderSuccessNotification }) => {
   const [isModalVisible, setIsModalVisible] = useState(false)
   const [editingItem, setEditingItem] = useState(null)
   const [loading, setLoading] = useState(false)
@@ -49,14 +48,13 @@ const GithubUsersTab = () => {
   async function fetchData() {
     try {
       setLoading(true)
-      const [githubUsers] = await Promise.all([githubUsersRepo.getAll()])
+      const githubUsers = await githubUsersRepo.getAll()
+      setLoading(false)
       setDatasource({
         githubUsers
       })
     } catch (errors) {
       renderErrorNotification(errors)
-    } finally {
-      setLoading(false)
     }
   }
 
@@ -155,5 +153,7 @@ const GithubUsersTab = () => {
     </>
   )
 }
+
+const GithubUsersTab = withNotification(GithubUsersTabWOC)
 
 export default GithubUsersTab
