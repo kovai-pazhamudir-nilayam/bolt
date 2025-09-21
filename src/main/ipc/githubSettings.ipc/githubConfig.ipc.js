@@ -4,21 +4,15 @@ export const registerGithubConfigHandler = (ipcMain, configDb) => {
   }
 
   async function upsertGithubConfig(event, input) {
-    const { company_code, github_token, owner } = input
-
     return configDb
       .knex('github_config')
       .insert({
-        company_code,
-        github_token,
-        owner,
+        ...input,
         updated_at: configDb.knex.fn.now()
       })
       .onConflict('company_code')
       .merge({
-        company_code,
-        github_token,
-        owner,
+        ...input,
         updated_at: configDb.knex.fn.now()
       })
   }

@@ -2,7 +2,7 @@ import { Button, Form, Input, Modal, Select } from 'antd'
 const { Option } = Select
 
 const GitHubConfigsModal = ({ editingItem, handleCancel, handleSave, companies }) => {
-    const [form] = Form.useForm()
+  const [form] = Form.useForm()
   return (
     <Modal
       title={editingItem ? 'Edit GitHub Config' : 'Add New GitHub Config'}
@@ -46,6 +46,20 @@ const GitHubConfigsModal = ({ editingItem, handleCancel, handleSave, companies }
           rules={[{ required: true, message: 'Please enter GitHub owner' }]}
         >
           <Input placeholder="organization or username" />
+        </Form.Item>
+        <Form.Item
+          name="fastify_template"
+          label="Fastify Template"
+          rules={[{ required: true, message: 'Please enter Fastify Template' }]}
+        >
+          <Input placeholder="Enter Fastify Template" />
+        </Form.Item>
+        <Form.Item
+          name="nestjs_template"
+          label="Nest Template"
+          rules={[{ required: true, message: 'Please enter Nest Template' }]}
+        >
+          <Input placeholder="Enter Nest Template" />
         </Form.Item>
         <Form.Item>
           <Button type="primary" htmlType="submit">
