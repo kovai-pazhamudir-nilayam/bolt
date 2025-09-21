@@ -4,9 +4,11 @@ import { useEffect, useState } from 'react'
 import EntityTable from '../../../components/EntityTable'
 import withNotification from '../../../hoc/withNotification'
 import { githubSettingsPageFactory } from '../../../repos/githubSettingsPage.repo'
+import { settingsFactory } from '../../../repos/SettingsPage.repo'
 import GitHubConfigsModal from '../_blocks/GitHubConfigsModal'
 
 const { githubConfigsRepo } = githubSettingsPageFactory()
+const { companyRepo } = settingsFactory()
 
 const GitHubConfigsTabWOC = ({ renderErrorNotification, renderSuccessNotification }) => {
   const [isModalVisible, setIsModalVisible] = useState(false)
@@ -14,7 +16,10 @@ const GitHubConfigsTabWOC = ({ renderErrorNotification, renderSuccessNotificatio
   const [searchText, setSearchText] = useState('')
   const [form] = Form.useForm()
   const [loading, setLoading] = useState(false)
-  const [githubConfigsData, setGithubConfigsData] = useState([])
+  const [datasource, setDatasource] = useState({
+    companies: [],
+    githubConfigsData: []
+  })
 
   const columns = [
     { title: 'Company Code', dataIndex: 'company_code', key: 'company_code' },
@@ -30,8 +35,16 @@ const GitHubConfigsTabWOC = ({ renderErrorNotification, renderSuccessNotificatio
   async function fetchData() {
     try {
       setLoading(true)
-      const data = await githubConfigsRepo.getAll()
-      setGithubConfigsData(data)
+
+      const [allGithubConfigs, allCompanies] = await Promise.all([
+        githubConfigsRepo.getAll(),
+        companyRepo.getAll()
+      ])
+
+      setDatasource({
+        githubConfigsData: allGithubConfigs,
+        companies: allCompanies
+      })
     } catch (errors) {
       renderErrorNotification(errors)
     } finally {
@@ -107,7 +120,7 @@ const GitHubConfigsTabWOC = ({ renderErrorNotification, renderSuccessNotificatio
     <>
       <EntityTable
         rowKey="github_config_id"
-        data={githubConfigsData}
+        data={datasource.githubConfigsData}
         columns={columns}
         loading={loading}
         onAdd={handleAdd}
@@ -123,8 +136,7 @@ const GitHubConfigsTabWOC = ({ renderErrorNotification, renderSuccessNotificatio
           editingItem={editingItem}
           handleCancel={handleCancel}
           handleSave={handleSave}
-          // companies={companies }
-          companies={[]}
+          companies={datasource.companies}
         />
       )}
     </>

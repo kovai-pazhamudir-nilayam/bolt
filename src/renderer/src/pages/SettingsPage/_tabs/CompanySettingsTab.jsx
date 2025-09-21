@@ -23,7 +23,7 @@ const CompanyModal = ({ editing, handleCancel, onFinish, form }) => {
           label="Company Code"
           rules={[{ required: true, message: 'Please enter company code' }]}
         >
-          <Input placeholder="e.g., KPN, IBO" />
+          <Input disabled={editing} placeholder="e.g., KPN, IBO" />
         </Form.Item>
         <Form.Item
           name="company_name"

@@ -14,11 +14,7 @@ const GitHubConfigsModal = ({ editingItem, handleCancel, handleSave, companies }
       width={600}
     >
       <Form
-        initialValues={{
-          company_code: 'KPN',
-          github_token: 'sdfg',
-          owner: 'owner'
-        }}
+        initialValues={editingItem}
         onFinish={handleSave}
         form={form}
         layout="vertical"
@@ -29,10 +25,10 @@ const GitHubConfigsModal = ({ editingItem, handleCancel, handleSave, companies }
           label="Company"
           rules={[{ required: true, message: 'Please select company' }]}
         >
-          <Select placeholder="Select company">
+          <Select disabled={editingItem} placeholder="Select company">
             {companies.map((company) => (
-              <Option key={company.id} value={company.id}>
-                {company.name}
+              <Option key={company.company_code} value={company.company_code}>
+                {company.company_code}
               </Option>
             ))}
           </Select>
