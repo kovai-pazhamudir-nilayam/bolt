@@ -1,55 +1,138 @@
-import { Images, Bell, LayoutDashboard, Settings as SettingsIcon, Database, GitBranch, Shield } from 'lucide-react'
-import Notifications from './pages/Notifications'
+import {
+  BookOpen,
+  Database,
+  DatabaseZap,
+  Github,
+  ImageUp,
+  ListCheck,
+  Settings as SettingsIcon,
+  ToolCase,
+  User
+} from 'lucide-react'
+import APIBuilderPage from './pages/APIBuilderPage/APIBuilderPage'
+import FetchLocalLogsPage from './pages/FetchLocalLogsPage/FetchLocalLogsPage'
+import GithubSettingsPage from './pages/GithubSettingsPage/GithubSettingsPage'
+import PageBuilderPage from './pages/PageBuilderPage/PageBuilderPage'
+import ProxyConfiguratorPage from './pages/ProxyConfiguratorPage/ProxyConfiguratorPage'
+import PushLogsToGCPPage from './pages/PushLogsToGCPPage/PushLogsToGCPPage'
 import SettingsPage from './pages/SettingsPage/SettingsPage'
-import GithubSettings from './pages/SettingsPage/GithubSettings'
-import MediaPage from './pages/MediaPage'
-import BackupPage from './pages/BackupPage'
-import GithubAccessPage from './pages/GithubAccessPage'
+import TableBuilderPage from './pages/TableBuilderPage/TableBuilderPage'
+import TaskManagerConfigPage from './pages/TaskManagerConfigPage/TaskManagerConfigPage'
+import TaskManagerDIPage from './pages/TaskManagerDIPage/TaskManagerDIPage'
+import ToolsPage from './pages/ToolsPage/ToolsPage'
+import SavedDBQueryPage from './pages/SavedDBQueryPage/SavedDBQueryPage'
+import TaskListPage from './pages/TaskListPage/TaskListPage'
+import MediaProcessPage from './pages/MediaProcessPage/MediaProcessPage'
+import ProfilePage from './pages/ProfilePage/ProfilePage'
+import WelcomePage from './pages/WelcomePage/WelcomePage'
+import DBBackpupPage from './pages/DBBackpupPage/DBBackpupPage'
 
 export const ROUTES = [
   {
+    label: 'Tools',
+    path: '/tools',
+    icon: ToolCase,
+    element: <ToolsPage />
+  },
+  {
+    label: 'Welcome',
     path: '/',
-    label: 'Dashboard',
-    icon: LayoutDashboard,
-    element: (
-      <div style={{ display: 'flex', gap: 24, flexWrap: 'wrap' }}>
-        <div
-          style={{
-            flex: 1,
-            minWidth: 240,
-            background: '#222',
-            padding: 16,
-            borderRadius: 8
-          }}
-        >
-          <h2 style={{ color: '#fff' }}>Widget 1</h2>
-          <p style={{ color: '#fff' }}>This is a sample widget.</p>
-        </div>
-        <div
-          style={{
-            flex: 1,
-            minWidth: 240,
-            background: '#222',
-            padding: 16,
-            borderRadius: 8
-          }}
-        >
-          dsd
-        </div>
-      </div>
-    )
+    icon: ToolCase,
+    hideInMenu: true,
+    element: <WelcomePage />
   },
   {
-    label: 'Media',
-    path: '/media-procesing',
-    icon: Images,
-    element: <MediaPage />
+    label: 'Task Manager DI',
+    path: '/tools/task-manager-di',
+    icon: ToolCase,
+    hideInMenu: true,
+    element: <TaskManagerDIPage />
   },
   {
-    label: 'My Notification',
-    path: '/notifications',
-    icon: Bell,
-    element: <Notifications />
+    label: 'Page Builder',
+    path: '/tools/page-builder',
+    icon: ToolCase,
+    hideInMenu: true,
+    element: <PageBuilderPage />
+  },
+  {
+    label: 'UI Builder',
+    path: '/tools/ui-builder',
+    icon: ToolCase,
+    hideInMenu: true,
+    element: <PageBuilderPage />
+  },
+  {
+    label: 'Table Builder',
+    path: '/tools/table-builder',
+    icon: ToolCase,
+    hideInMenu: true,
+    element: <TableBuilderPage />
+  },
+  {
+    label: 'Proxy Configurator',
+    path: '/tools/table-builder',
+    icon: ToolCase,
+    hideInMenu: true,
+    element: <ProxyConfiguratorPage />
+  },
+  {
+    label: 'Task Manager Config',
+    path: '/tools/task-manager-config',
+    icon: ToolCase,
+    hideInMenu: true,
+    element: <TaskManagerConfigPage />
+  },
+  {
+    label: 'API Builder',
+    path: '/tools/api-builder',
+    icon: ToolCase,
+    hideInMenu: true,
+    element: <APIBuilderPage />
+  },
+  {
+    label: 'Push Logs to GCP',
+    path: '/tools/logs-push',
+    icon: ToolCase,
+    hideInMenu: true,
+    element: <PushLogsToGCPPage />
+  },
+  {
+    label: 'Fetch Local Logs',
+    path: '/tools/logs-fetch',
+    icon: ToolCase,
+    hideInMenu: true,
+    element: <FetchLocalLogsPage />
+  },
+  {
+    label: 'GitHub Settings',
+    path: '/github-settings',
+    icon: Github,
+    element: <GithubSettingsPage />
+  },
+  {
+    label: 'DB Query',
+    path: '/db-Query',
+    icon: DatabaseZap,
+    element: <SavedDBQueryPage />
+  },
+  {
+    label: 'Media Process',
+    path: '/media-process',
+    icon: ImageUp,
+    element: <MediaProcessPage />
+  },
+  {
+    label: 'Documentation',
+    path: '/documentation',
+    icon: BookOpen,
+    element: <SavedDBQueryPage />
+  },
+  {
+    label: 'Tasks',
+    path: '/task-list',
+    icon: ListCheck,
+    element: <TaskListPage />
   },
   {
     label: 'Settings',
@@ -58,21 +141,15 @@ export const ROUTES = [
     element: <SettingsPage />
   },
   {
-    label: 'GitHub Settings',
-    path: '/github-settings',
-    icon: GitBranch,
-    element: <GithubSettings />
-  },
-  {
-    label: 'GitHub Access',
-    path: '/github-access',
-    icon: Shield,
-    element: <GithubAccessPage />
-  },
-  {
-    label: 'Backup',
-    path: '/backup',
+    label: 'DB Backup',
+    path: '/db-backup',
     icon: Database,
-    element: <BackupPage />
+    element: <DBBackpupPage />
+  },
+  {
+    label: 'Profile',
+    path: '/profile',
+    icon: User,
+    element: <ProfilePage />
   }
 ]

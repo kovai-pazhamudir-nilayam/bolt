@@ -1,19 +1,13 @@
+import { electronApp, is, optimizer } from '@electron-toolkit/utils'
 import { app, BrowserWindow, ipcMain } from 'electron'
 import { join } from 'path'
-import { electronApp, optimizer, is } from '@electron-toolkit/utils'
 
 // Import IPC Handler
-import { registerSystemHandler } from './ipc/system.ipc.js'
-import { registerGithubUserHandler } from './ipc/githubUser.ipc.js'
-import { registerCompanyHandler } from './ipc/company.ipc.js'
-import { registerEnvironmentHandler } from './ipc/environment.ipc.js'
-import { registerCoreTokenConfigHandler } from './ipc/coreTokenConfig.ipc.js'
-import { registerGcpProjectConfigHandler } from './ipc/gcpProjectConfig.ipc.js'
-import { registerGithubConfigHandler } from './ipc/githubConfig.ipc.js'
-import { registerGithubRepoHandler } from './ipc/githubRepo.ipc.js'
-import { registerGithubRepoAccessHandler } from './ipc/githubRepoAccess.ipc.js'
-import { registerBackupHandler } from './ipc/backup.ipc.js'
 import { ConfigDatabase } from './database/ConfigDatabase.js'
+import { registerSystemHandler } from './ipc/system.ipc.js'
+import { registerTaskManagerDIHandler } from './ipc/taskManagerDI.ipc.js'
+import { registerSettingsHandler } from './ipc/settings.ipc/settings.ipc.js'
+import { registerGithubSettingsHandler } from './ipc/githubSettings.ipc/githubSettings.ipc'
 
 function createWindow() {
   // Create the browser window.
@@ -68,16 +62,19 @@ app.whenReady().then(async () => {
   })
 
   // Register all IPC Handler
+  registerGithubSettingsHandler(ipcMain, configDb)
+  registerSettingsHandler(ipcMain, configDb)
   registerSystemHandler(ipcMain)
-  registerGithubUserHandler(ipcMain, configDb)
-  registerCompanyHandler(ipcMain, configDb)
-  registerEnvironmentHandler(ipcMain, configDb)
-  registerCoreTokenConfigHandler(ipcMain, configDb)
-  registerGcpProjectConfigHandler(ipcMain, configDb)
-  registerGithubConfigHandler(ipcMain, configDb)
-  registerGithubRepoHandler(ipcMain, configDb)
-  registerBackupHandler(ipcMain, configDb)
-  registerGithubRepoAccessHandler(ipcMain, configDb)
+  registerTaskManagerDIHandler(ipcMain)
+
+  // registerSystemHandler(ipcMain)
+  // registerCompanyHandler(ipcMain, configDb)
+  // registerEnvironmentHandler(ipcMain, configDb)
+  // registerCoreTokenConfigHandler(ipcMain, configDb)
+  // registerGcpProjectConfigHandler(ipcMain, configDb)
+  // registerGithubRepoHandler(ipcMain, configDb)
+  // registerBackupHandler(ipcMain, configDb)
+  // registerGithubRepoAccessHandler(ipcMain, configDb)
 
   createWindow()
 

@@ -9,18 +9,8 @@ export const renderErrorNotification = (errors = [], api) => {
   if (!api) return
 
   errors?.forEach((errorMessage) => {
-    let description = '[CS]'
-
-    if (errorMessage.rawErrors) {
-      description = errorMessage.rawErrors
-        .map((rawErr) => {
-          const mess = rawErr.description || rawErr.message || rawErr.title || 'Unknown Error'
-          return mess
-        })
-        .join(' | ')
-    }
-
     const errorTitle = errorMessage.title ? errorMessage.title : 'Internal Server Error'
+    const description = errorMessage.message ? errorMessage.message : 'No message'
 
     api.error({
       message: `${errorTitle} - ${description}`,

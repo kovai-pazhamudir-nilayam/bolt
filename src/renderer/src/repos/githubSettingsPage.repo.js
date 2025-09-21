@@ -1,0 +1,78 @@
+/**  API implementation  */
+const githubConfigsAPI = {
+  getAll: () => {},
+  upsert: () => {},
+  delete: () => {}
+}
+
+const githubUsersAPI = {
+  getAll: () => {},
+  upsert: () => {},
+  delete: () => {}
+}
+
+/**  API implementation  */
+const githubRepositoriesAPI = {
+  getAll: () => {},
+  upsert: () => {},
+  delete: () => {}
+}
+
+/**  Local DB implementation  */
+const githubConfigsDB = {
+  getAll: () => {
+    return window.githubSettingsApi.githubConfig.getAll()
+  },
+  upsert: (input) => {
+    return window.githubSettingsApi.githubConfig.upsert(input)
+  },
+  delete: () => {
+    return window.githubSettingsApi.githubConfig.delete()
+  }
+}
+
+const githubUsersDB = {
+  getAll: () => {
+    return window.githubSettingsApi.githubUser.getAll()
+  },
+  upsert: (input) => {
+    return window.githubSettingsApi.githubUser.upsert(input)
+  },
+  delete: () => {
+    return window.githubSettingsApi.githubUser.delete()
+  }
+}
+
+/**  Local DB implementation  */
+const githubRepositoriesDB = {
+  getAll: () => {
+    return window.githubSettingsApi.githubRepo.getAll()
+  },
+  upsert: (input) => {
+    return window.githubSettingsApi.githubRepo.upsert(input)
+  },
+  delete: () => {
+    return window.githubSettingsApi.githubRepo.delete()
+  },
+  sync: (company_code) => {
+    return window.githubSettingsApi.githubRepo.sync(company_code)
+  }
+}
+
+const githubSettingsPageFactory = () => {
+  const mode = window.runtimeConfig?.mode || 'local'
+  if (mode === 'api') {
+    return {
+      githubConfigsRepo: githubConfigsAPI,
+      githubUsersRepo: githubUsersAPI,
+      githubRepositoriesRepo: githubRepositoriesAPI
+    }
+  }
+  return {
+    githubConfigsRepo: githubConfigsDB,
+    githubUsersRepo: githubUsersDB,
+    githubRepositoriesRepo: githubRepositoriesDB
+  }
+}
+
+export { githubSettingsPageFactory }

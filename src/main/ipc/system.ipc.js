@@ -21,7 +21,7 @@ export const registerSystemHandler = (ipcMain) => {
   })
 
   // Folder selection dialog
-  ipcMain.handle('select-folder', async () => {
+  ipcMain.handle('system:select-folder', async () => {
     const result = await dialog.showOpenDialog({
       properties: ['openDirectory']
     })

@@ -1,4 +1,4 @@
-import { Button, ConfigProvider, Layout, Menu, notification } from 'antd'
+import { Button, Col, ConfigProvider, Layout, Menu, notification, Row } from 'antd'
 import { Moon, Sun } from 'lucide-react'
 import { useState } from 'react'
 import { Route, BrowserRouter as Router, Routes, useLocation, useNavigate } from 'react-router-dom'
@@ -7,7 +7,7 @@ import './assets/main.css'
 import { ROUTES } from './routing'
 // import Versions from './components/Versions'
 import Footer from './components/Footer'
-import MasterSelectionModal from './components/MasterSelectionModal'
+import NavigationBar from './components/NavigationBar'
 import { MasterDataProvider } from './context/masterDataContext'
 import { NotificationContext } from './context/notificationContext'
 import { darkTheme, lightTheme } from './theme/theme'
@@ -66,7 +66,7 @@ function AppLayout({ openNotification, collapsed, setCollapsed, isDark, setIsDar
         collapsible
         collapsed={collapsed}
         onCollapse={setCollapsed}
-        style={{ background: isDark ? '#181818' : '#f8f8f8' }}
+        style={{ background: isDark ? '#181818' : '#fff' }}
       >
         <div style={{ height: 64, margin: 16, textAlign: 'center' }}>
           <img src={logo} alt="logo" style={{ width: 148 }} />
@@ -78,14 +78,15 @@ function AppLayout({ openNotification, collapsed, setCollapsed, isDark, setIsDar
           onClick={({ key }) => {
             navigate(key)
           }}
-          items={ROUTES.map(({ path, label, icon: IconComponent }) => {
+          items={ROUTES.map(({ path, label, icon: IconComponent, hideInMenu }) => {
             return {
               key: path,
               icon: <IconComponent size={18} />,
-              label
+              label,
+              className: hideInMenu ? 'hide' : 'show'
             }
           })}
-          style={{ background: isDark ? '#181818' : '#f8f8f8', color: isDark ? '#fff' : '#000' }}
+          style={{ background: isDark ? '#181818' : '#fff', color: isDark ? '#fff' : '#000' }}
         />
       </Sider>
       <Layout>
@@ -100,10 +101,10 @@ function AppLayout({ openNotification, collapsed, setCollapsed, isDark, setIsDar
             justifyContent: 'space-between'
           }}
         >
-          <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
+          {/* <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
             <span>Bolt Dashboard</span>
             <MasterSelectionModal />
-          </div>
+          </div> */}
         </Header>
         {/* Floating Theme Toggle Button */}
         <Button
@@ -130,18 +131,33 @@ function AppLayout({ openNotification, collapsed, setCollapsed, isDark, setIsDar
         </Button>
         <Content
           style={{
-            margin: '24px 16px',
-            padding: 24,
-            background: isDark ? '#181818' : '#f8f8f8',
-            color: isDark ? '#fff' : '#000',
-            borderRadius: 8
+            margin: '24px 16px'
           }}
         >
-          <Routes>
-            {ROUTES.map(({ path, element }) => (
-              <Route key={path} path={path} element={element} />
-            ))}
-          </Routes>
+          <Row>
+            <Col>
+              <NavigationBar />
+            </Col>
+          </Row>
+          <div
+            style={{
+              padding: 24,
+              background: isDark ? '#181818' : '#fff',
+              color: isDark ? '#fff' : '#000',
+              borderRadius: 8
+            }}
+          >
+            <Routes>
+              {ROUTES.map(({ path, element, hideInMenu }) => (
+                <Route
+                  className={`${hideInMenu ? 'hide' : 'show'}`}
+                  key={path}
+                  path={path}
+                  element={element}
+                />
+              ))}
+            </Routes>
+          </div>
         </Content>
         <Layout.Footer
           style={{

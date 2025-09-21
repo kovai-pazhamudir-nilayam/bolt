@@ -1,10 +1,12 @@
 import { Tabs } from 'antd'
 import { Building2, Cloud, Database } from 'lucide-react'
-import CompaniesSettings from './_blocks/CompaniesSettings'
-import CoreTokenConfigsSettings from './_blocks/CoreTokenConfigsSettings'
-import EnvironmentsSettings from './_blocks/EnvironmentsSettings'
-import GcpProjectConfigsSettings from './_blocks/GcpProjectConfigsSettings'
+// import CompaniesSettings from './SettingsPageTabs/CompaniesSettings'
+// import CoreTokenConfigsSettings from './_blocks/CoreTokenConfigsSettings'
+// import GcpProjectConfigsSettings from './_blocks/GcpProjectConfigsSettings'
 import PageHeader from './../../components/PageHeader/PageHeader'
+import EnvironmentsSettingsTab from './_tabs/EnvironmentsSettingsTab'
+import CompanySettingsTab from './_tabs/CompanySettingsTab'
+import CoreConfigsSettingsPageTab from './_tabs/CoreConfigsSettingsPageTab'
 
 const SettingsPage = () => {
   const tabItems = [
@@ -16,7 +18,7 @@ const SettingsPage = () => {
           Companies
         </span>
       ),
-      children: <CompaniesSettings />
+      children: <CompanySettingsTab />
     },
     {
       key: 'environments',
@@ -26,34 +28,34 @@ const SettingsPage = () => {
           Environments
         </span>
       ),
-      children: <EnvironmentsSettings />
+      children: <EnvironmentsSettingsTab />
     },
     {
-      key: 'core-token-configs',
+      key: 'core-configs',
       label: (
         <span>
           <Database size={16} style={{ marginRight: 8 }} />
-          Core Token Configs
+          Core Configs
         </span>
       ),
-      children: <CoreTokenConfigsSettings />
-    },
-    {
-      key: 'gcp-project-configs',
-      label: (
-        <span>
-          <Cloud size={16} style={{ marginRight: 8 }} />
-          GCP Project Configs
-        </span>
-      ),
-      children: <GcpProjectConfigsSettings />
+      children: <CoreConfigsSettingsPageTab />
     }
+    // {
+    //   key: 'gcp-project-configs',
+    //   label: (
+    //     <span>
+    //       <Cloud size={16} style={{ marginRight: 8 }} />
+    //       GCP Project Configs
+    //     </span>
+    //   ),
+    //   children: <GcpProjectConfigsSettings />
+    // }
   ]
 
   return (
     <div>
       <PageHeader
-        title="Settings Management"
+        title="Settings"
         description="Manage all database entities including companies, environments, users, and configurations."
       />
 

@@ -1,16 +1,12 @@
-import axiosInstance, { X_CHANNEL_ID } from "./axios";
+import axiosInstance, { X_CHANNEL_ID } from './axios'
 
 const ERROR_CONSTANTS = {
-  GENERIC_ERROR: "Something went wrong, Please try again!",
-};
+  GENERIC_ERROR: 'Something went wrong, Please try again!'
+}
 
 const getErrorMessageListFromApiResponse = (error) => {
-  return (
-    error?.response?.data?.errors || [
-      { message: ERROR_CONSTANTS.GENERIC_ERROR },
-    ]
-  );
-};
+  return error?.response?.data?.errors || [{ message: ERROR_CONSTANTS.GENERIC_ERROR }]
+}
 
 const axiosCall = async ({
   url,
@@ -18,9 +14,9 @@ const axiosCall = async ({
   body = undefined,
   headers = {},
   params = {},
-  responseType = undefined,
+  responseType = undefined
 }) => {
-  let http = axiosInstance;
+  let http = axiosInstance
 
   try {
     const { data, status } = await http.request({
@@ -29,24 +25,24 @@ const axiosCall = async ({
       data: body,
       params: {
         channel: X_CHANNEL_ID,
-        ...params,
+        ...params
       },
       headers,
-      responseType,
-    });
-    return { data, status, errors: [] };
+      responseType
+    })
+    return { data, status, errors: [] }
   } catch (error) {
-    const errorList = getErrorMessageListFromApiResponse(error);
-    return { data: null, status: error?.response?.status, errors: errorList };
+    const errorList = getErrorMessageListFromApiResponse(error)
+    return { data: null, status: error?.response?.status, errors: errorList }
   }
-};
+}
 
 const httpClient = {
-  get: (args) => axiosCall({ ...args, method: "GET" }),
-  post: (args) => axiosCall({ ...args, method: "POST" }),
-  put: (args) => axiosCall({ ...args, method: "PUT" }),
-  delete: (args) => axiosCall({ ...args, method: "DELETE" }),
-  patch: (args) => axiosCall({ ...args, method: "PATCH" }),
-};
+  get: (args) => axiosCall({ ...args, method: 'GET' }),
+  post: (args) => axiosCall({ ...args, method: 'POST' }),
+  put: (args) => axiosCall({ ...args, method: 'PUT' }),
+  delete: (args) => axiosCall({ ...args, method: 'DELETE' }),
+  patch: (args) => axiosCall({ ...args, method: 'PATCH' })
+}
 
-export default httpClient;
+export default httpClient
