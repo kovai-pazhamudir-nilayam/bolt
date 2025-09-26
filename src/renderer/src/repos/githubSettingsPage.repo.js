@@ -65,6 +65,18 @@ const githubRepositoriesDB = {
   }
 }
 
+const githubSecretDB = {
+  getAll: () => {
+    return window.githubSettingsApi.githubSecret.getAll()
+  },
+  upsert: (input) => {
+    return window.githubSettingsApi.githubSecret.upsert(input)
+  },
+  delete: () => {
+    return window.githubSettingsApi.githubSecret.delete()
+  }
+}
+
 const githubSettingsPageFactory = () => {
   const mode = window.runtimeConfig?.mode || 'local'
   if (mode === 'api') {
@@ -77,7 +89,8 @@ const githubSettingsPageFactory = () => {
   return {
     githubConfigsRepo: githubConfigsDB,
     githubUsersRepo: githubUsersDB,
-    githubRepositoriesRepo: githubRepositoriesDB
+    githubRepositoriesRepo: githubRepositoriesDB,
+    githubSecretRepo: githubSecretDB
   }
 }
 

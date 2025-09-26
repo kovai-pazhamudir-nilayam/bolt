@@ -11,6 +11,7 @@ const githubUser = {
   upsert: (input) => ipcRenderer.invoke('githubUser:upsert', input),
   delete: (company_code) => ipcRenderer.invoke('githubUser:delete', company_code)
 }
+
 const githubRepo = {
   getAll: () => ipcRenderer.invoke('githubRepo:getAll'),
   upsert: (input) => ipcRenderer.invoke('githubRepo:upsert', input),
@@ -20,10 +21,17 @@ const githubRepo = {
   create: (input) => ipcRenderer.invoke('githubRepo:create', input)
 }
 
+const githubSecret = {
+  getAll: () => ipcRenderer.invoke('githubSecret:getAll'),
+  upsert: (input) => ipcRenderer.invoke('githubSecret:upsert', input),
+  delete: (company_code) => ipcRenderer.invoke('githubSecret:delete', company_code)
+}
+
 const githubSettingsApi = {
   githubConfig,
   githubUser,
-  githubRepo
+  githubRepo,
+  githubSecret
 }
 
 export { githubSettingsApi }

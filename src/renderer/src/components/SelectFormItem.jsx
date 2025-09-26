@@ -1,7 +1,7 @@
 import { Form, Select } from 'antd'
 const { Option } = Select
 
-const SelectFormItem = ({ items, name, label }) => {
+const SelectFormItem = ({ items, name, label, disabled = false }) => {
   return (
     <Form.Item
       name={name}
@@ -9,6 +9,7 @@ const SelectFormItem = ({ items, name, label }) => {
       rules={[{ required: true, message: `Please select ${label}` }]}
     >
       <Select
+        disabled={disabled}
         showSearch
         filterOption={(input, option) =>
           (option?.key ?? '').toLowerCase().includes(input.toLowerCase()) ||

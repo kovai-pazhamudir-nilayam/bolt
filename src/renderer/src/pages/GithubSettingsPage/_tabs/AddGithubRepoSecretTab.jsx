@@ -1,4 +1,4 @@
-import { Button, Form, Modal, Select, Typography } from 'antd'
+import { Button, Form, Modal, Typography } from 'antd'
 import { useEffect, useState } from 'react'
 import EntityTable from '../../../components/EntityTable'
 import InputFormItem from '../../../components/InputFormItem'
@@ -9,9 +9,9 @@ import { settingsFactory } from '../../../repos/SettingsPage.repo'
 const { Text } = Typography
 
 const { companyRepo } = settingsFactory()
-const { githubConfigsRepo, githubRepositoriesRepo } = githubSettingsPageFactory()
+const { githubSecretRepo } = githubSettingsPageFactory()
 
-const githubUsersTabcolumns = [
+const githubSecretsTabColumns = [
   { title: 'Company', dataIndex: 'company_code', key: 'company_code' },
   {
     title: 'Secret Name',
@@ -41,7 +41,7 @@ const AddGithubRepoSecretTabWOC = ({ renderErrorNotification, renderSuccessNotif
   const [form] = Form.useForm()
   const [datasource, setDatasource] = useState({
     companies: [],
-    githubConfigs: []
+    githubSecrets: []
   })
 
   const handleAdd = () => {
@@ -59,14 +59,14 @@ const AddGithubRepoSecretTabWOC = ({ renderErrorNotification, renderSuccessNotif
   async function fetchData() {
     setLoading(true)
     try {
-      const [allCompanies, allGithubConfigs] = await Promise.all([
+      const [allCompanies, githubSecrets] = await Promise.all([
         companyRepo.getAll(),
-        githubConfigsRepo.getAll()
+        githubSecretRepo.getAll()
       ])
 
       setDatasource({
         companies: allCompanies,
-        githubConfigs: allGithubConfigs
+        githubSecrets: githubSecrets
       })
     } catch (error) {
       renderErrorNotification({
@@ -85,22 +85,21 @@ const AddGithubRepoSecretTabWOC = ({ renderErrorNotification, renderSuccessNotif
     try {
       await window.api.githubUsers.delete(item.id)
       renderSuccessNotification({
-        message: 'GitHub user deleted successfully!'
+        message: 'GitHub secret deleted successfully!'
       })
       fetchData()
     } catch (error) {
-      console.error('Error deleting user:', error)
-      renderErrorNotification(error)
+      renderErrorNotification(error.message)
     }
   }
 
   const onFinish = async (values) => {
     try {
-      await githubUsersRepo.upsert(values)
+      await githubSecretRepo.upsert(values)
       renderSuccessNotification({
         message: editingItem
-          ? 'GitHub user updated successfully!'
-          : 'GitHub user added successfully!'
+          ? 'GitHub Secret updated successfully!'
+          : 'GitHub Secret added successfully!'
       })
 
       setIsModalVisible(false)
@@ -125,8 +124,8 @@ const AddGithubRepoSecretTabWOC = ({ renderErrorNotification, renderSuccessNotif
   return (
     <>
       <EntityTable
-        data={datasource.githubUsers}
-        columns={githubUsersTabcolumns}
+        data={datasource.githubSecrets}
+        columns={githubSecretsTabColumns}
         loading={loading}
         onAdd={handleAdd}
         onEdit={handleEdit}
@@ -147,8 +146,13 @@ const AddGithubRepoSecretTabWOC = ({ renderErrorNotification, renderSuccessNotif
           footer={null}
         >
           <Form onFinish={onFinish} form={form} layout="vertical" requiredMark={false}>
-            <SelectFormItem items={datasource.companies} name="company_code" label="Company" />
-            <InputFormItem name="secret_key" label="Secret Key" />
+            <SelectFormItem
+              disabled={editingItem}
+              items={datasource.companies}
+              name="company_code"
+              label="Company"
+            />
+            <InputFormItem disabled={editingItem} name="secret_name" label="Secret Name" />
             <InputFormItem isTextArea name="secret_value" label="Secret Value" />
             <Form.Item>
               <Button type="primary" htmlType="submit">

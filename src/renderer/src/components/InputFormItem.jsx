@@ -1,6 +1,6 @@
 import { Form, Input } from 'antd'
 
-const InputFormItem = ({ name, label, isTextArea = false }) => {
+const InputFormItem = ({ name, label, isTextArea = false, disabled = false }) => {
   return (
     <Form.Item
       name={name}
@@ -8,9 +8,9 @@ const InputFormItem = ({ name, label, isTextArea = false }) => {
       rules={[{ required: true, message: `Please enter ${label}` }]}
     >
       {isTextArea ? (
-        <Input.TextArea placeholder={`Enter ${label}`} rows={4} />
+        <Input.TextArea disabled={disabled} placeholder={`Enter ${label}`} rows={4} />
       ) : (
-        <Input placeholder={`Enter ${label}`} />
+        <Input disabled={disabled} placeholder={`Enter ${label}`} />
       )}
     </Form.Item>
   )
