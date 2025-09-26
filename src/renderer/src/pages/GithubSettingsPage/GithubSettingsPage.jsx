@@ -10,14 +10,14 @@ import GithubUsersTab from './_tabs/GithubUsersTab'
 const GithubSettingsPage = () => {
   const tabItems = [
     {
-      key: 'github-configs',
+      key: 'github-Repositories',
       label: (
         <span>
-          <Database size={16} style={{ marginRight: 8 }} />
-          GitHub Configs
+          <GitBranch size={16} style={{ marginRight: 8 }} />
+          GitHub Repositories
         </span>
       ),
-      children: <GitHubConfigsTab />
+      children: <GithubRepositoriesTab />
     },
     {
       key: 'github-users',
@@ -30,14 +30,14 @@ const GithubSettingsPage = () => {
       children: <GithubUsersTab />
     },
     {
-      key: 'github-Repositories',
+      key: 'github-configs',
       label: (
         <span>
-          <GitBranch size={16} style={{ marginRight: 8 }} />
-          GitHub Repositories
+          <Database size={16} style={{ marginRight: 8 }} />
+          GitHub Configs
         </span>
       ),
-      children: <GithubRepositoriesTab />
+      children: <GitHubConfigsTab />
     },
     {
       key: 'add-github-repo',
