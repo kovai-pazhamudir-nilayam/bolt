@@ -1,4 +1,4 @@
-import { Tabs } from 'antd'
+import CustomTabs from '../../components/CustomTabs/CustomTabs'
 import { Building2, Cloud, Database } from 'lucide-react'
 // import CompaniesSettings from './SettingsPageTabs/CompaniesSettings'
 // import CoreTokenConfigsSettings from './_blocks/CoreTokenConfigsSettings'
@@ -59,7 +59,7 @@ const SettingsPage = () => {
         description="Manage all database entities including companies, environments, users, and configurations."
       />
 
-      <Tabs items={tabItems} size="large" />
+      <CustomTabs items={tabItems} size="large" />
     </div>
   )
 }

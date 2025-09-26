@@ -1,4 +1,4 @@
-import { Tabs } from 'antd'
+import CustomTabs from '../../components/CustomTabs/CustomTabs'
 import { BookKeyIcon, Database, GitBranch, TicketPlusIcon, User } from 'lucide-react'
 import PageHeader from './../../components/PageHeader/PageHeader'
 import AddGithubRepoSecretTab from './_tabs/AddGithubRepoSecretTab'
@@ -68,7 +68,7 @@ const GithubSettingsPage = () => {
         description="Manage GitHub configs, users, and repositories per company."
       />
 
-      <Tabs items={tabItems} size="large" />
+      <CustomTabs items={tabItems} size="large" />
     </div>
   )
 }
