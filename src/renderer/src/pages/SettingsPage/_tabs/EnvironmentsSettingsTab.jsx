@@ -1,3 +1,5 @@
+/* eslint-disable react/prop-types */
+
 import { Button, Form, Input, Modal } from 'antd'
 import { useEffect, useState } from 'react'
 import EntityTable from '../../../components/EntityTable'
