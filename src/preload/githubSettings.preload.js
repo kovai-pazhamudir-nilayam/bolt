@@ -9,7 +9,7 @@ const githubConfig = {
 const githubUser = {
   getAll: () => ipcRenderer.invoke('githubUser:getAll'),
   upsert: (input) => ipcRenderer.invoke('githubUser:upsert', input),
-  delete: (company_code) => ipcRenderer.invoke('githubUser:delete', company_code)
+  delete: (github_handle) => ipcRenderer.invoke('githubUser:delete', github_handle)
 }
 
 const githubRepo = {

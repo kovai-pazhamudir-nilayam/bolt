@@ -38,8 +38,8 @@ const githubUsersDB = {
   upsert: (input) => {
     return window.githubSettingsApi.githubUser.upsert(input)
   },
-  delete: () => {
-    return window.githubSettingsApi.githubUser.delete()
+  delete: (github_handle) => {
+    return window.githubSettingsApi.githubUser.delete(github_handle)
   }
 }
 

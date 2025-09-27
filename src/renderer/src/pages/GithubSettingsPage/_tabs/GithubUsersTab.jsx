@@ -1,8 +1,10 @@
-import { Button, Form, Input, Modal, Typography } from 'antd'
+/* eslint-disable react/prop-types */
+import { Typography } from 'antd'
 import { useEffect, useState } from 'react'
-import withNotification from '../../../hoc/withNotification'
 import EntityTable from '../../../components/EntityTable'
+import withNotification from '../../../hoc/withNotification'
 import { githubSettingsPageFactory } from '../../../repos/githubSettingsPage.repo'
+import AddGitHubUserModal from '../_blocks/AddGitHubUserModal'
 const { Text } = Typography
 
 const { githubUsersRepo } = githubSettingsPageFactory()
@@ -28,20 +30,17 @@ const GithubUsersTabWOC = ({ renderErrorNotification, renderSuccessNotification 
   const [editingItem, setEditingItem] = useState(null)
   const [loading, setLoading] = useState(false)
   const [searchText, setSearchText] = useState('')
-  const [form] = Form.useForm()
   const [datasource, setDatasource] = useState({
     githubUsers: []
   })
 
   const handleAdd = () => {
     setEditingItem(null)
-    form.resetFields()
     setIsModalVisible(true)
   }
 
   const handleEdit = (item) => {
     setEditingItem(item)
-    form.setFieldsValue(item)
     setIsModalVisible(true)
   }
 
@@ -64,14 +63,16 @@ const GithubUsersTabWOC = ({ renderErrorNotification, renderSuccessNotification 
 
   const handleDelete = async (item) => {
     try {
-      await window.api.githubUsers.delete(item.id)
+      await githubUsersRepo.delete(item.github_handle)
       renderSuccessNotification({
         message: 'GitHub user deleted successfully!'
       })
       fetchData()
     } catch (error) {
       console.error('Error deleting user:', error)
-      renderErrorNotification(error)
+      renderErrorNotification({
+        message: error.message || 'Error deleting GitHub user'
+      })
     }
   }
 
@@ -85,17 +86,17 @@ const GithubUsersTabWOC = ({ renderErrorNotification, renderSuccessNotification 
       })
 
       setIsModalVisible(false)
-      form.resetFields()
       fetchData()
     } catch (error) {
       console.error('Error saving GitHub user:', error)
-      renderErrorNotification(error)
+      renderErrorNotification({
+        message: error.message || 'Error saving GitHub user'
+      })
     }
   }
 
   const handleCancel = () => {
     setIsModalVisible(false)
-    form.resetFields()
     setEditingItem(null)
   }
 
@@ -118,37 +119,12 @@ const GithubUsersTabWOC = ({ renderErrorNotification, renderSuccessNotification 
       />
 
       {isModalVisible && (
-        <Modal
-          title={editingItem ? 'Edit GitHub User' : 'Add New GitHub User'}
-          open={true}
-          onCancel={handleCancel}
-          okText="Save"
-          cancelText="Cancel"
-          width={600}
-          footer={null}
-        >
-          <Form onFinish={onFinish} form={form} layout="vertical" requiredMark={false}>
-            <Form.Item
-              name="name"
-              label="Name"
-              rules={[{ required: true, message: 'Please enter user name' }]}
-            >
-              <Input placeholder="User's full name" />
-            </Form.Item>
-            <Form.Item
-              name="github_handle"
-              label="GitHub Handle"
-              rules={[{ required: true, message: 'Please enter GitHub handle' }]}
-            >
-              <Input placeholder="GitHub username" />
-            </Form.Item>
-            <Form.Item>
-              <Button type="primary" htmlType="submit">
-                Submit
-              </Button>
-            </Form.Item>
-          </Form>
-        </Modal>
+        <AddGitHubUserModal
+          handleCancel={handleCancel}
+          onFinish={onFinish}
+          editingItem={editingItem}
+          values={editingItem || {}}
+        />
       )}
     </>
   )
