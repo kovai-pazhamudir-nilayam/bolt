@@ -89,8 +89,9 @@ export const registerGithubRepoHandler = (ipcMain, configDb) => {
       })
   }
 
-  async function deleteGithubRepo(_event, github_repo) {
-    return configDb.knex('github_repo').where({ github_repo }).del()
+  async function deleteGithubRepo(_event, input) {
+    const { company_code, repo_name } = input
+    return configDb.knex('github_repo').where({ company_code }).andWhere({ repo_name }).del()
   }
 
   async function syncGithubRepo(_event, company_code) {

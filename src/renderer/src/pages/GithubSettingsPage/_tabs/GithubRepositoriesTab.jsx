@@ -1,13 +1,14 @@
 /* eslint-disable react/prop-types */
-import { Button, Form, Input, message, Modal, Select } from 'antd'
-import { RefreshCw, ShieldPlus, Square, SquareAsterisk } from 'lucide-react'
+import { Button, Select } from 'antd'
+import { RefreshCw, ShieldPlus, SquareAsterisk } from 'lucide-react'
 import { useEffect, useState } from 'react'
 import EntityTable from '../../../components/EntityTable'
 import withNotification from '../../../hoc/withNotification'
 import { githubSettingsPageFactory } from '../../../repos/githubSettingsPage.repo'
 import { settingsFactory } from '../../../repos/SettingsPage.repo'
-import GitHubRepoAccessModal from '../_blocks/GitHubRepoAccessModal'
+import AddNewGithubRepoModal from '../_blocks/AddNewGithubRepoModal'
 import AddSecretToGitHubRepoModal from '../_blocks/AddSecretToGitHubRepoModal'
+import GitHubRepoAccessModal from '../_blocks/GitHubRepoAccessModal'
 const { Option } = Select
 
 const { githubRepositoriesRepo, githubUsersRepo, githubSecretRepo } = githubSettingsPageFactory()
@@ -23,7 +24,6 @@ const GithubRepositoriesTabWOC = ({ renderErrorNotification, renderSuccessNotifi
   const [repoForAccess, setRepoForAccess] = useState(null)
   const [repoForSecret, setRepoForSecret] = useState(null)
   const [searchText, setSearchText] = useState('')
-  const [form] = Form.useForm()
 
   const [datasource, setDatasource] = useState({
     companies: [],
@@ -62,19 +62,20 @@ const GithubRepositoriesTabWOC = ({ renderErrorNotification, renderSuccessNotifi
   }, [])
 
   const handleAdd = () => {
-    form.resetFields()
     setIsModalVisible(true)
   }
 
   const handleDelete = async (item) => {
     try {
-      await githubRepositoriesRepo.delete(item.id)
+      await githubRepositoriesRepo.delete(item)
       renderSuccessNotification({
         message: 'Repository deleted successfully!'
       })
       fetchData()
     } catch (error) {
-      renderErrorNotification(error)
+      renderErrorNotification({
+        message: error.message || 'Failed to delete repository'
+      })
     }
   }
 
@@ -85,7 +86,6 @@ const GithubRepositoriesTabWOC = ({ renderErrorNotification, renderSuccessNotifi
         message: 'Repository added successfully!'
       })
       setIsModalVisible(false)
-      form.resetFields()
       fetchData()
     } catch (error) {
       console.error('Error saving repo:', error)
@@ -93,11 +93,6 @@ const GithubRepositoriesTabWOC = ({ renderErrorNotification, renderSuccessNotifi
         message: error.message
       })
     }
-  }
-
-  const handleCancel = () => {
-    setIsModalVisible(false)
-    form.resetFields()
   }
 
   const handleSearchChange = (e) => {
@@ -235,44 +230,13 @@ const GithubRepositoriesTabWOC = ({ renderErrorNotification, renderSuccessNotifi
       />
 
       {isModalVisible && (
-        <Modal
-          title={'Add New Repository'}
-          open={true}
-          onCancel={handleCancel}
-          okText="Save"
-          cancelText="Cancel"
-          width={600}
-          footer={null}
-        >
-          <Form onFinish={onFinish} form={form} layout="vertical" requiredMark={false}>
-            <Form.Item
-              name="company_code"
-              label="Company"
-              rules={[{ required: true, message: 'Please select company' }]}
-            >
-              <Select placeholder="Select company">
-                {datasource.companies.map((company) => (
-                  <Option key={company.company_code} value={company.company_code}>
-                    {company.company_code}
-                  </Option>
-                ))}
-              </Select>
-            </Form.Item>
-            <Form.Item
-              name="repo_name"
-              label="Repository Name"
-              rules={[{ required: true, message: 'Please enter repository name' }]}
-            >
-              <Input placeholder="repository-name" />
-            </Form.Item>
-            <Form.Item>
-              <Button type="primary" htmlType="submit">
-                Submit
-              </Button>
-            </Form.Item>
-          </Form>
-        </Modal>
+        <AddNewGithubRepoModal
+          handleCancel={() => setIsModalVisible(false)}
+          datasource={datasource}
+          onFinish={onFinish}
+        />
       )}
+
       {repoForAccess && (
         <GitHubRepoAccessModal
           values={repoForAccess}
@@ -281,6 +245,7 @@ const GithubRepositoriesTabWOC = ({ renderErrorNotification, renderSuccessNotifi
           onFinish={handleGithubAccess}
         />
       )}
+
       {repoForSecret && (
         <AddSecretToGitHubRepoModal
           values={repoForSecret}

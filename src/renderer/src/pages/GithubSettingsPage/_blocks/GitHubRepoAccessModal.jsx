@@ -1,3 +1,4 @@
+/* eslint-disable react/prop-types */
 import { Button, Form, Modal } from 'antd'
 import InputFormItem from '../../../components/InputFormItem'
 import SelectFormItem from '../../../components/SelectFormItem'

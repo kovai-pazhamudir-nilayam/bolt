@@ -51,8 +51,8 @@ const githubRepositoriesDB = {
   upsert: (input) => {
     return window.githubSettingsApi.githubRepo.upsert(input)
   },
-  delete: () => {
-    return window.githubSettingsApi.githubRepo.delete()
+  delete: (input) => {
+    return window.githubSettingsApi.githubRepo.delete(input)
   },
   sync: (company_code) => {
     return window.githubSettingsApi.githubRepo.sync(company_code)

@@ -56,14 +56,16 @@ const EntityTable = ({
                 </Button>
               )
             })}
-          <Button
-            type="primary"
-            size="small"
-            icon={<Edit size={14} />}
-            onClick={() => onEdit(record)}
-          >
-            Edit
-          </Button>
+          {onEdit && (
+            <Button
+              type="primary"
+              size="small"
+              icon={<Edit size={14} />}
+              onClick={() => onEdit(record)}
+            >
+              Edit
+            </Button>
+          )}
           <Popconfirm
             title="Are you sure?"
             okText="Yes"
