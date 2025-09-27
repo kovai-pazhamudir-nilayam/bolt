@@ -148,10 +148,12 @@ const AddGithubRepoSecretTabWOC = ({ renderErrorNotification, renderSuccessNotif
           <Form onFinish={onFinish} form={form} layout="vertical" requiredMark={false}>
             <SelectFormItem
               disabled={editingItem}
-              items={datasource.companies}
+              options={datasource.companies}
               name="company_code"
               label="Company"
+              transform={'COMPANIES'}
             />
+
             <InputFormItem disabled={editingItem} name="secret_name" label="Secret Name" />
             <InputFormItem isTextArea name="secret_value" label="Secret Value" />
             <Form.Item>

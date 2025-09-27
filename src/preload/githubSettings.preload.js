@@ -18,7 +18,8 @@ const githubRepo = {
   delete: (company_code) => ipcRenderer.invoke('githubRepo:delete', company_code),
   sync: (company_code) => ipcRenderer.invoke('githubRepo:sync', company_code),
   access: (input) => ipcRenderer.invoke('githubRepo:access', input),
-  create: (input) => ipcRenderer.invoke('githubRepo:create', input)
+  create: (input) => ipcRenderer.invoke('githubRepo:create', input),
+  secret: (input) => ipcRenderer.invoke('githubRepo:secret', input)
 }
 
 const githubSecret = {

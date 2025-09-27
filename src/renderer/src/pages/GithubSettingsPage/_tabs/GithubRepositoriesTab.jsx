@@ -1,5 +1,5 @@
 /* eslint-disable react/prop-types */
-import { Button, Form, Input, Modal, Select } from 'antd'
+import { Button, Form, Input, message, Modal, Select } from 'antd'
 import { RefreshCw, ShieldPlus, Square, SquareAsterisk } from 'lucide-react'
 import { useEffect, useState } from 'react'
 import EntityTable from '../../../components/EntityTable'
@@ -7,28 +7,29 @@ import withNotification from '../../../hoc/withNotification'
 import { githubSettingsPageFactory } from '../../../repos/githubSettingsPage.repo'
 import { settingsFactory } from '../../../repos/SettingsPage.repo'
 import GitHubRepoAccessModal from '../_blocks/GitHubRepoAccessModal'
+import AddSecretToGitHubRepoModal from '../_blocks/AddSecretToGitHubRepoModal'
 const { Option } = Select
 
-const { githubRepositoriesRepo, githubUsersRepo } = githubSettingsPageFactory()
+const { githubRepositoriesRepo, githubUsersRepo, githubSecretRepo } = githubSettingsPageFactory()
 const { companyRepo } = settingsFactory()
 
 const columns = [
   { title: 'Company', dataIndex: 'company_code', key: 'company_code' },
-  { title: 'Repository', dataIndex: 'repo_name', key: 'repo_  name' }
+  { title: 'Repository', dataIndex: 'repo_name', key: 'repo_name' }
 ]
-
-
 
 const GithubRepositoriesTabWOC = ({ renderErrorNotification, renderSuccessNotification }) => {
   const [isModalVisible, setIsModalVisible] = useState(false)
   const [repoForAccess, setRepoForAccess] = useState(null)
+  const [repoForSecret, setRepoForSecret] = useState(null)
   const [searchText, setSearchText] = useState('')
   const [form] = Form.useForm()
 
   const [datasource, setDatasource] = useState({
     companies: [],
     repos: [],
-    users: []
+    users: [],
+    secrets: []
   })
 
   const [loading, setLoading] = useState(false)
@@ -36,16 +37,18 @@ const GithubRepositoriesTabWOC = ({ renderErrorNotification, renderSuccessNotifi
   const fetchData = async () => {
     setLoading(true)
     try {
-      const [allRepos, allCompanies, allGithubUsers] = await Promise.all([
+      const [allRepos, allCompanies, allGithubUsers, allGithubSecrets] = await Promise.all([
         githubRepositoriesRepo.getAll(),
         companyRepo.getAll(),
-        githubUsersRepo.getAll()
+        githubUsersRepo.getAll(),
+        githubSecretRepo.getAll()
       ])
 
       setDatasource({
         repos: allRepos,
         companies: allCompanies,
-        users: allGithubUsers
+        users: allGithubUsers,
+        secrets: allGithubSecrets
       })
     } catch (error) {
       renderErrorNotification(error)
@@ -98,7 +101,7 @@ const GithubRepositoriesTabWOC = ({ renderErrorNotification, renderSuccessNotifi
   }
 
   const handleSearchChange = (e) => {
-    setRepoForAccess(e)
+    setSearchText(e.target.value)
   }
 
   const [syncCompanyId, setSyncCompanyId] = useState(null)
@@ -158,7 +161,33 @@ const GithubRepositoriesTabWOC = ({ renderErrorNotification, renderSuccessNotifi
     }
   }
 
-  const onAddSecretClick = (value) => {}
+  const handleGithubSecret = async (values) => {
+    try {
+      setLoading(true)
+      const { success, message } = await githubRepositoriesRepo.secret(values)
+      if (success) {
+        renderSuccessNotification({
+          message
+        })
+        fetchData()
+      } else {
+        renderErrorNotification({
+          message
+        })
+      }
+    } catch (error) {
+      renderErrorNotification({
+        message: error.message || 'Failed to add secret to repository'
+      })
+    } finally {
+      setRepoForSecret(null)
+      setLoading(false)
+    }
+  }
+
+  const onAddSecretClick = (value) => {
+    setRepoForSecret(value)
+  }
 
   return (
     <>
@@ -250,6 +279,14 @@ const GithubRepositoriesTabWOC = ({ renderErrorNotification, renderSuccessNotifi
           datasource={datasource}
           onCancel={() => setRepoForAccess(null)}
           onFinish={handleGithubAccess}
+        />
+      )}
+      {repoForSecret && (
+        <AddSecretToGitHubRepoModal
+          values={repoForSecret}
+          datasource={datasource}
+          onCancel={() => setRepoForSecret(null)}
+          onFinish={handleGithubSecret}
         />
       )}
     </>

@@ -62,6 +62,9 @@ const githubRepositoriesDB = {
   },
   create: (input) => {
     return window.githubSettingsApi.githubRepo.create(input)
+  },
+  secret: (input) => {
+    return window.githubSettingsApi.githubRepo.secret(input)
   }
 }
 

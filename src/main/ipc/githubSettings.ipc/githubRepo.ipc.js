@@ -1,9 +1,77 @@
+import sodium from 'sodium-native'
+
+// Step 1: Fetch the repository's public key
+async function getPublicKey({ repo, owner, github_token }) {
+  const response = await fetch(
+    `https://api.github.com/repos/${owner}/${repo}/actions/secrets/public-key`,
+    {
+      method: 'GET',
+      headers: {
+        Authorization: `Bearer ${github_token}`,
+        Accept: 'application/vnd.github.v3+json'
+      }
+    }
+  )
+
+  if (!response.ok) {
+    throw new Error(`Failed to fetch public key: ${response.statusText}`)
+  }
+
+  return response.json()
+}
+
+// Step 2: Encrypt the secret using LibSodium
+function encryptSecret(publicKey, secretValue) {
+  const keyBytes = Buffer.from(publicKey, 'base64')
+  const messageBytes = Buffer.from(secretValue)
+  const encryptedBytes = Buffer.alloc(messageBytes.length + sodium.crypto_box_SEALBYTES)
+
+  sodium.crypto_box_seal(encryptedBytes, messageBytes, keyBytes)
+
+  return encryptedBytes.toString('base64')
+}
+
+// Step 3: Send the encrypted secret to GitHub
+async function addSecret({
+  publicKey,
+  keyId,
+  repo,
+  owner,
+  github_token,
+  secret_name,
+  secret_value
+}) {
+  const encryptedValue = encryptSecret(publicKey, secret_value)
+
+  const response = await fetch(
+    `https://api.github.com/repos/${owner}/${repo}/actions/secrets/${secret_name}`,
+    {
+      method: 'PUT',
+      headers: {
+        Authorization: `Bearer ${github_token}`,
+        Accept: 'application/vnd.github.v3+json',
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        encrypted_value: encryptedValue,
+        key_id: keyId
+      })
+    }
+  )
+
+  if (!response.ok) {
+    throw new Error(`Error adding secret: ${response.statusText}`)
+  }
+
+  console.log(`✅ Secret ${secret_name} added successfully!`)
+}
+
 export const registerGithubRepoHandler = (ipcMain, configDb) => {
   async function getGithubRepo() {
     return configDb.knex('github_repo').select('*')
   }
 
-  async function upsertGithubRepo(event, input) {
+  async function upsertGithubRepo(_event, input) {
     const { company_code, repo_name } = input
 
     return configDb
@@ -21,11 +89,11 @@ export const registerGithubRepoHandler = (ipcMain, configDb) => {
       })
   }
 
-  async function deleteGithubRepo(event, github_repo) {
+  async function deleteGithubRepo(_event, github_repo) {
     return configDb.knex('github_repo').where({ github_repo }).del()
   }
 
-  async function syncGithubRepo(event, company_code) {
+  async function syncGithubRepo(_event, company_code) {
     try {
       const cfg = await configDb
         .knex('github_config')
@@ -43,16 +111,26 @@ export const registerGithubRepoHandler = (ipcMain, configDb) => {
         'User-Agent': 'bolt-app'
       }
 
-      async function fetchAll(url) {
-        const res = await fetch(url, { headers })
-        if (res.status === 404) return null
-        if (!res.ok) throw new Error(`GitHub API error: ${res.status}`)
-        return await res.json()
+      async function fetchAllRepos(url) {
+        let page = 1
+        let allRepos = []
+
+        while (true) {
+          const updatedUrl = `${url}?per_page=100&page=${page}`
+          const res = await fetch(updatedUrl, { headers })
+          if (!res.ok) throw new Error(`GitHub error ${res.status}`)
+          const repos = await res.json()
+          if (repos.length === 0) break // no more pages
+          allRepos = allRepos.concat(repos)
+          page++
+        }
+
+        return allRepos
       }
 
-      let repos = await fetchAll(`https://api.github.com/orgs/${cfg.owner}/repos?per_page=100`)
+      let repos = await fetchAllRepos(`https://api.github.com/orgs/${cfg.owner}/repos`)
       if (repos === null) {
-        repos = await fetchAll(`https://api.github.com/users/${cfg.owner}/repos?per_page=100`)
+        repos = await fetchAllRepos(`https://api.github.com/users/${cfg.owner}/repos`)
       }
 
       if (!Array.isArray(repos)) {
@@ -77,7 +155,7 @@ export const registerGithubRepoHandler = (ipcMain, configDb) => {
     }
   }
 
-  async function githubRepoAccess(event, input) {
+  async function githubRepoAccess(_event, input) {
     const { company_code, access_level = 'pull', repo_name, github_handle } = input
     try {
       const cfg = await configDb
@@ -128,7 +206,7 @@ export const registerGithubRepoHandler = (ipcMain, configDb) => {
     }
   }
 
-  async function createGithubRepo(event, input) {
+  async function createGithubRepo(_event, input) {
     const { company_code, template_repo, repo_name } = input
     try {
       const cfg = await configDb
@@ -177,10 +255,50 @@ export const registerGithubRepoHandler = (ipcMain, configDb) => {
     }
   }
 
+  async function addSecretToGithubRepo(_event, input) {
+    const { company_code, repo_name, secrets } = input
+    try {
+      const cfg = await configDb
+        .knex('github_config')
+        .select('github_token', 'owner')
+        .where({ company_code: company_code })
+        .first()
+
+      try {
+        const { key, key_id } = await getPublicKey({
+          repo: repo_name,
+          owner: cfg.owner,
+          github_token: cfg.github_token
+        })
+
+        secrets.forEach(async (secret) => {
+          const { secret_name, secret_value } = secret
+          await addSecret({
+            publicKey: key,
+            keyId: key_id,
+            repo: repo_name,
+            owner: cfg.owner,
+            github_token: cfg.github_token,
+            secret_name,
+            secret_value
+          })
+        })
+      } catch (error) {
+        console.error(`❌ Error: ${error.message}`)
+      }
+      return { success: true, message: 'Secrets added successfully' }
+      // return response
+    } catch (error) {
+      console.error('Error Adding Secrets:', error)
+      throw error
+    }
+  }
+
   ipcMain.handle('githubRepo:getAll', getGithubRepo)
   ipcMain.handle('githubRepo:upsert', upsertGithubRepo)
   ipcMain.handle('githubRepo:delete', deleteGithubRepo)
   ipcMain.handle('githubRepo:sync', syncGithubRepo)
   ipcMain.handle('githubRepo:access', githubRepoAccess)
   ipcMain.handle('githubRepo:create', createGithubRepo)
+  ipcMain.handle('githubRepo:secret', addSecretToGithubRepo)
 }
