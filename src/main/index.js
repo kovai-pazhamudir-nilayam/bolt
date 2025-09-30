@@ -71,14 +71,6 @@ app.whenReady().then(async () => {
   registerTaskManagerDIHandler(ipcMain)
   registerToolsHandler(ipcMain)
 
-  // registerCompanyHandler(ipcMain, configDb)
-  // registerEnvironmentHandler(ipcMain, configDb)
-  // registerCoreTokenConfigHandler(ipcMain, configDb)
-  // registerGcpProjectConfigHandler(ipcMain, configDb)
-  // registerGithubRepoHandler(ipcMain, configDb)
-  // registerBackupHandler(ipcMain, configDb)
-  // registerGithubRepoAccessHandler(ipcMain, configDb)
-
   createWindow()
 
   app.on('activate', function () {
