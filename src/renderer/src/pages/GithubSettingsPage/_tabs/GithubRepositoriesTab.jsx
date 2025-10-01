@@ -15,8 +15,30 @@ const { githubRepositoriesRepo, githubUsersRepo, githubSecretRepo } = githubSett
 const { companyRepo } = settingsFactory()
 
 const columns = [
-  { title: 'Company', dataIndex: 'company_code', key: 'company_code' },
-  { title: 'Repository', dataIndex: 'repo_name', key: 'repo_name' }
+  {
+    title: 'Company',
+    dataIndex: 'company_code',
+    key: 'company_code',
+    onFilter: (value, record) => record.address.startsWith(value),
+    filterSearch: true,
+    filters: [
+      {
+        text: 'London',
+        value: 'London'
+      },
+      {
+        text: 'New York',
+        value: 'New York'
+      }
+    ]
+  },
+  {
+    title: 'Repository',
+    dataIndex: 'repo_name',
+    key: 'repo_name',
+    onFilter: (value, record) => record.address.startsWith(value),
+    filterSearch: true
+  }
 ]
 
 const GithubRepositoriesTabWOC = ({ renderErrorNotification, renderSuccessNotification }) => {
