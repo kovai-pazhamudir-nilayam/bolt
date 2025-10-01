@@ -3,6 +3,7 @@ import {
   Database,
   DatabaseZap,
   Github,
+  HardDrive,
   ImageUp,
   ListCheck,
   Settings as SettingsIcon,
@@ -10,22 +11,23 @@ import {
   User
 } from 'lucide-react'
 import APIBuilderPage from './pages/APIBuilderPage/APIBuilderPage'
+import ConnectRedisPage from './pages/ConnectRedisPage/ConnectRedisPage'
+import DBBackpupPage from './pages/DBBackpupPage/DBBackpupPage'
 import FetchLocalLogsPage from './pages/FetchLocalLogsPage/FetchLocalLogsPage'
 import GithubSettingsPage from './pages/GithubSettingsPage/GithubSettingsPage'
+import MediaProcessPage from './pages/MediaProcessPage/MediaProcessPage'
 import PageBuilderPage from './pages/PageBuilderPage/PageBuilderPage'
+import ProfilePage from './pages/ProfilePage/ProfilePage'
 import ProxyConfiguratorPage from './pages/ProxyConfiguratorPage/ProxyConfiguratorPage'
 import PushLogsToGCPPage from './pages/PushLogsToGCPPage/PushLogsToGCPPage'
+import SavedDBQueryPage from './pages/SavedDBQueryPage/SavedDBQueryPage'
 import SettingsPage from './pages/SettingsPage/SettingsPage'
 import TableBuilderPage from './pages/TableBuilderPage/TableBuilderPage'
+import TaskListPage from './pages/TaskListPage/TaskListPage'
 import TaskManagerConfigPage from './pages/TaskManagerConfigPage/TaskManagerConfigPage'
 import TaskManagerDIPage from './pages/TaskManagerDIPage/TaskManagerDIPage'
 import ToolsPage from './pages/ToolsPage/ToolsPage'
-import SavedDBQueryPage from './pages/SavedDBQueryPage/SavedDBQueryPage'
-import TaskListPage from './pages/TaskListPage/TaskListPage'
-import MediaProcessPage from './pages/MediaProcessPage/MediaProcessPage'
-import ProfilePage from './pages/ProfilePage/ProfilePage'
 import WelcomePage from './pages/WelcomePage/WelcomePage'
-import DBBackpupPage from './pages/DBBackpupPage/DBBackpupPage'
 
 export const ROUTES = [
   {
@@ -123,6 +125,12 @@ export const ROUTES = [
     element: <MediaProcessPage />
   },
   {
+    label: 'Redis',
+    path: '/connect-redis',
+    icon: HardDrive,
+    element: <ConnectRedisPage />
+  },
+  {
     label: 'Documentation',
     path: '/documentation',
     icon: BookOpen,
@@ -153,4 +161,3 @@ export const ROUTES = [
     element: <ProfilePage />
   }
 ]
-
