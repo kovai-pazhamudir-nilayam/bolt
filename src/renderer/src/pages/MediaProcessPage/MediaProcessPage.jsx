@@ -10,8 +10,8 @@ const ITEMS = ['PRODUCT', 'CATEGORY', 'BRAND']
 const MediaProcessPage = () => {
   const [folderPath, setFolderPath] = useState('')
   const [logs, setLogs] = useState([])
-  const [uploading, setUploading] = useState(false)
   const logRef = useRef(null)
+  const [uploading, setUploading] = useState(false)
 
   const onFinish = async () => {
     if (!folderPath) {

@@ -1,9 +1,10 @@
+/* eslint-disable react/prop-types */
 import { Button, Form } from 'antd'
 
-const SubmitBtnForm = () => {
+const SubmitBtnForm = ({ loading = false }) => {
   return (
     <Form.Item>
-      <Button type="primary" htmlType="submit">
+      <Button loading={loading} type="primary" htmlType="submit">
         Submit
       </Button>
     </Form.Item>
