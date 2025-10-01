@@ -1,4 +1,5 @@
-import { Button, Form, Modal, Typography } from 'antd'
+/* eslint-disable react/prop-types */
+import { Form, Modal, Typography } from 'antd'
 import { useEffect, useState } from 'react'
 import EntityTable from '../../../components/EntityTable'
 import InputFormItem from '../../../components/InputFormItem'
@@ -6,6 +7,7 @@ import SelectFormItem from '../../../components/SelectFormItem'
 import withNotification from '../../../hoc/withNotification'
 import { githubSettingsPageFactory } from '../../../repos/githubSettingsPage.repo'
 import { settingsFactory } from '../../../repos/SettingsPage.repo'
+import SubmitBtnForm from '../../../components/SubmitBtnForm'
 const { Text } = Typography
 
 const { companyRepo } = settingsFactory()
@@ -156,11 +158,7 @@ const AddGithubRepoSecretTabWOC = ({ renderErrorNotification, renderSuccessNotif
 
             <InputFormItem disabled={editingItem} name="secret_name" label="Secret Name" />
             <InputFormItem isTextArea name="secret_value" label="Secret Value" />
-            <Form.Item>
-              <Button type="primary" htmlType="submit">
-                Submit
-              </Button>
-            </Form.Item>
+            <SubmitBtnForm />
           </Form>
         </Modal>
       )}

@@ -22,12 +22,22 @@ const environmentDB = {
   delete: (env_code) => window.settingsApi.environment.delete(env_code)
 }
 
+const gcpProjectConfigDB = {
+  getAll: () => window.settingsApi.gcpProjectConfig.getAll(),
+  upsert: (input) => window.settingsApi.gcpProjectConfig.upsert(input),
+  delete: (input) => window.settingsApi.gcpProjectConfig.delete(input)
+}
+
 const settingsFactory = () => {
   const mode = window.runtimeConfig?.mode || 'local'
   if (mode === 'api') {
     return { companyRepo: companyAPI, environmentRepo: environmentAPI }
   }
-  return { companyRepo: companyDB, environmentRepo: environmentDB }
+  return {
+    companyRepo: companyDB,
+    environmentRepo: environmentDB,
+    gcpProjectConfigRepo: gcpProjectConfigDB
+  }
 }
 
 export { settingsFactory }

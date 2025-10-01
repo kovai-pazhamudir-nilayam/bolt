@@ -7,6 +7,7 @@ import PageHeader from './../../components/PageHeader/PageHeader'
 import EnvironmentsSettingsTab from './_tabs/EnvironmentsSettingsTab'
 import CompanySettingsTab from './_tabs/CompanySettingsTab'
 import CoreConfigsSettingsPageTab from './_tabs/CoreConfigsSettingsPageTab'
+import GcpProjectConfigsSettingsTab from './_tabs/GcpProjectConfigsSettingsTab'
 
 const SettingsPage = () => {
   const tabItems = [
@@ -39,17 +40,17 @@ const SettingsPage = () => {
         </span>
       ),
       children: <CoreConfigsSettingsPageTab />
+    },
+    {
+      key: 'gcp-project-configs',
+      label: (
+        <span>
+          <Cloud size={16} style={{ marginRight: 8 }} />
+          GCP Project Configs
+        </span>
+      ),
+      children: <GcpProjectConfigsSettingsTab />
     }
-    // {
-    //   key: 'gcp-project-configs',
-    //   label: (
-    //     <span>
-    //       <Cloud size={16} style={{ marginRight: 8 }} />
-    //       GCP Project Configs
-    //     </span>
-    //   ),
-    //   children: <GcpProjectConfigsSettings />
-    // }
   ]
 
   return (

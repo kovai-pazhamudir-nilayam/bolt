@@ -15,6 +15,12 @@ const getTransformedItems = ({ transform, options }) => {
         value: option.github_handle,
         key: option.github_handle
       }))
+    case 'ENVIRONMENTS':
+      return options.map((option) => ({
+        label: option.env_code,
+        value: option.env_code,
+        key: option.env_code
+      }))
     default:
       return options
   }
