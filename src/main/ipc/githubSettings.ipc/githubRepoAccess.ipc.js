@@ -3,7 +3,7 @@ export const registerGithubUserHandler = (ipcMain, configDb) => {
     return configDb.knex('github_user').select('*')
   }
 
-  async function upsertGithubUser(event, input) {
+  async function upsertGithubUser(_event, input) {
     const { github_handle, name } = input
 
     return configDb
@@ -21,7 +21,7 @@ export const registerGithubUserHandler = (ipcMain, configDb) => {
       })
   }
 
-  async function deleteGithubUser(event, github_handle) {
+  async function deleteGithubUser(_event, github_handle) {
     return configDb.knex('github_user').where({ github_handle }).del()
   }
 

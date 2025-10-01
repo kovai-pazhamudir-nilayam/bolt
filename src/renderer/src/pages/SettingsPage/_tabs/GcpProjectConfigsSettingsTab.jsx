@@ -15,7 +15,13 @@ const gcpProjectConfigTableColumns = [
   { title: 'Environment', dataIndex: 'env_code', key: 'env_code' },
   { title: 'GCP Project', dataIndex: 'gcp_project', key: 'gcp_project' },
   { title: 'GCP Cluster', dataIndex: 'gcp_cluster', key: 'gcp_cluster' },
-  { title: 'GCP Region', dataIndex: 'gcp_region', key: 'gcp_region' }
+  { title: 'GCP Region', dataIndex: 'gcp_region', key: 'gcp_region' },
+  {
+    title: 'Redis Config?',
+    render: (item) => {
+      return item?.redis_host ? 'Yes' : 'No'
+    }
+  }
 ]
 
 const GcpProjectConfigsSettingsTabWOC = ({
@@ -168,6 +174,12 @@ const GcpProjectConfigsSettingsTabWOC = ({
             <InputFormItem name="gcp_project" label="GCP Project" />
             <InputFormItem name="gcp_cluster" label="GCP Cluster" />
             <InputFormItem name="gcp_region" label="GCP Region" />
+            <InputFormItem isOptional={true} name="redis_host" label="Redis Host (Optional)" />
+            <InputFormItem
+              isOptional={true}
+              name="redis_password"
+              label="Redis Password (Optional)"
+            />
             <SubmitBtnForm />
           </Form>
         </Modal>

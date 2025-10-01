@@ -1,11 +1,18 @@
+/* eslint-disable react/prop-types */
 import { Form, Input } from 'antd'
 
-const InputFormItem = ({ name, label, isTextArea = false, disabled = false }) => {
+const InputFormItem = ({
+  name,
+  label,
+  isTextArea = false,
+  disabled = false,
+  isOptional = false
+}) => {
   return (
     <Form.Item
       name={name}
       label={label}
-      rules={[{ required: true, message: `Please enter ${label}` }]}
+      rules={[{ required: !isOptional, message: `Please enter ${label}` }]}
     >
       {isTextArea ? (
         <Input.TextArea disabled={disabled} placeholder={`Enter ${label}`} rows={4} />
