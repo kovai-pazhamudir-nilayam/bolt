@@ -14,6 +14,7 @@ const environment = {
 
 const gcpProjectConfig = {
   getAll: () => ipcRenderer.invoke('gcp-project-config:getAll'),
+  getOne: (input) => ipcRenderer.invoke('gcp-project-config:getOne', input),
   upsert: (input) => ipcRenderer.invoke('gcp-project-config:upsert', input),
   delete: (input) => ipcRenderer.invoke('gcp-project-config:delete', input)
 }

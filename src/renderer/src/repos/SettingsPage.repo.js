@@ -24,6 +24,7 @@ const environmentDB = {
 
 const gcpProjectConfigDB = {
   getAll: () => window.settingsApi.gcpProjectConfig.getAll(),
+  getOne: (input) => window.settingsApi.gcpProjectConfig.getOne(input),
   upsert: (input) => window.settingsApi.gcpProjectConfig.upsert(input),
   delete: (input) => window.settingsApi.gcpProjectConfig.delete(input)
 }
