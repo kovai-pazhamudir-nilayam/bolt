@@ -1,4 +1,3 @@
-
 import { Form, Input } from 'antd'
 
 const InputFormItem = ({
@@ -6,7 +5,8 @@ const InputFormItem = ({
   label,
   isTextArea = false,
   disabled = false,
-  isOptional = false
+  isOptional = false,
+  placeholder = `Enter ${label}`
 }) => {
   return (
     <Form.Item
@@ -15,9 +15,9 @@ const InputFormItem = ({
       rules={[{ required: !isOptional, message: `Please enter ${label}` }]}
     >
       {isTextArea ? (
-        <Input.TextArea disabled={disabled} placeholder={`Enter ${label}`} rows={4} />
+        <Input.TextArea disabled={disabled} placeholder={placeholder} rows={4} />
       ) : (
-        <Input disabled={disabled} placeholder={`Enter ${label}`} />
+        <Input disabled={disabled} placeholder={placeholder} />
       )}
     </Form.Item>
   )

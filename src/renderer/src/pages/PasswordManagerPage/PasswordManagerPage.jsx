@@ -2,162 +2,22 @@ import { Button, Form, Input, Modal, Select, Tag, Tooltip } from 'antd'
 import { Copy, ExternalLink, Eye, EyeOff } from 'lucide-react'
 import { useEffect, useState } from 'react'
 import EntityTable from '../../components/EntityTable'
+import SubmitBtnForm from '../../components/SubmitBtnForm'
 import withNotification from '../../hoc/withNotification'
-import { settingsFactory } from '../../repos/SettingsPage.repo'
+import { passwordManagerFactory } from '../../repos/PasswordManagerPage.repo'
+import InputFormItem from '../../components/InputFormItem'
 
-const { passwordManagerRepo } = settingsFactory()
+const { passwordManagerRepo } = passwordManagerFactory()
 
-const PasswordManagerModal = ({ editing, handleCancel, onFinish, form }) => {
-  return (
-    <Modal
-      title={editing ? 'Edit Password Entry' : 'Add New Password Entry'}
-      open={true}
-      footer={null}
-      onCancel={handleCancel}
-      okText="Save"
-      cancelText="Cancel"
-      width={600}
-    >
-      <Form form={form} onFinish={onFinish} layout="vertical" requiredMark={false}>
-        <Form.Item
-          name="title"
-          label="Title"
-          rules={[{ required: true, message: 'Please enter a title' }]}
-        >
-          <Input placeholder="e.g., Gmail, GitHub, Company Portal" />
-        </Form.Item>
-
-        <Form.Item
-          name="company_url"
-          label="URL"
-          rules={[
-            {
-              validator: (_, value) => {
-                if (!value) return Promise.resolve()
-                try {
-                  new URL(value)
-                  return Promise.resolve()
-                } catch {
-                  return Promise.reject('Invalid URL format')
-                }
-              }
-            }
-          ]}
-        >
-          <Input placeholder="https://example.com" />
-        </Form.Item>
-
-        <Form.Item
-          name="type"
-          label="Type"
-          rules={[{ required: true, message: 'Please select a type' }]}
-        >
-          <Select placeholder="Select type">
-            <Select.Option value="Personal">Personal</Select.Option>
-            <Select.Option value="Official">Official</Select.Option>
-          </Select>
-        </Form.Item>
-
-        <Form.Item
-          name="username"
-          label="Username"
-          rules={[{ required: true, message: 'Please enter username' }]}
-        >
-          <Input placeholder="Enter username or email" />
-        </Form.Item>
-
-        <Form.Item
-          name="password"
-          label="Password"
-          rules={[{ required: true, message: 'Please enter password' }]}
-        >
-          <Input.Password placeholder="Enter password" />
-        </Form.Item>
-
-        <Form.Item name="notes" label="Notes">
-          <Input.TextArea placeholder="Additional notes (optional)" rows={3} />
-        </Form.Item>
-
-        <Form.Item>
-          <Button type="primary" htmlType="submit">
-            Submit
-          </Button>
-        </Form.Item>
-      </Form>
-    </Modal>
-  )
-}
-
-const PasswordManagerPageWOC = ({ renderErrorNotification, renderSuccessNotification }) => {
-  const [open, setOpen] = useState(false)
-  const [passwordEntries, setPasswordEntries] = useState([])
-  const [editing, setEditing] = useState(null)
-  const [searchText, setSearchText] = useState('')
-  const [loading, setLoading] = useState(false)
-  const [form] = Form.useForm()
-  const [showPasswords, setShowPasswords] = useState({})
-
-  const loadData = async () => {
-    const data = await passwordManagerRepo.getAll()
-    setPasswordEntries(data)
-  }
-
-  useEffect(() => {
-    setLoading(true)
-    loadData()
-    setLoading(false)
-  }, [])
-
-  const handleAdd = () => {
-    setEditing(null)
-    form.resetFields()
-    setOpen(true)
-  }
-
-  const handleEdit = (item) => {
-    setEditing(item)
-    form.setFieldsValue(item)
-    setOpen(true)
-  }
-
-  const handleDelete = async (item) => {
-    try {
-      await passwordManagerRepo.delete(item.id)
-      loadData()
-      renderSuccessNotification({
-        message: 'Password entry deleted successfully!'
-      })
-    } catch (error) {
-      renderErrorNotification(error)
-    }
-  }
-
-  const handleCancel = () => {
-    setOpen(false)
-    form.resetFields()
-    setEditing(null)
-  }
-
-  const handleSearchChange = (e) => {
-    setSearchText(e.target.value)
-  }
-
-  const onFinish = async (values) => {
-    try {
-      if (editing) {
-        await passwordManagerRepo.update({ ...values, id: editing.id })
-      } else {
-        await passwordManagerRepo.create(values)
-      }
-      setOpen(false)
-      setEditing(null)
-      form.resetFields()
-      loadData()
-      renderSuccessNotification({
-        message: `Password entry ${editing ? 'updated' : 'created'} successfully!`
-      })
-    } catch (error) {
-      renderErrorNotification(error)
+const getPasswordManagerColumns = ({
+  renderSuccessNotification,
+  renderErrorNotification,
+  togglePasswordVisibility,
+  showPasswords
+}) => {
+  const openExternalUrl = (url) => {
+    if (url) {
+      window.shellAPI.openExternal(url)
     }
   }
 
@@ -169,22 +29,9 @@ const PasswordManagerPageWOC = ({ renderErrorNotification, renderSuccessNotifica
       })
     } catch (error) {
       renderErrorNotification({
-        message: 'Failed to copy to clipboard'
+        message: error.message || 'Failed to copy to clipboard'
       })
     }
-  }
-
-  const openExternalUrl = (url) => {
-    if (url) {
-      window.shellAPI.openExternal(url)
-    }
-  }
-
-  const togglePasswordVisibility = (id) => {
-    setShowPasswords((prev) => ({
-      ...prev,
-      [id]: !prev[id]
-    }))
   }
 
   const columns = [
@@ -198,7 +45,7 @@ const PasswordManagerPageWOC = ({ renderErrorNotification, renderSuccessNotifica
       title: 'URL',
       dataIndex: 'company_url',
       key: 'company_url',
-      render: (text, record) => (
+      render: (text) => (
         <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
           <span style={{ flex: 1, overflow: 'hidden', textOverflow: 'ellipsis' }}>
             {text || 'No URL'}
@@ -226,7 +73,7 @@ const PasswordManagerPageWOC = ({ renderErrorNotification, renderSuccessNotifica
       title: 'Username',
       dataIndex: 'username',
       key: 'username',
-      render: (text, record) => (
+      render: (text) => (
         <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
           <span style={{ flex: 1, overflow: 'hidden', textOverflow: 'ellipsis' }}>{text}</span>
           <Tooltip title="Copy username">
@@ -276,12 +123,153 @@ const PasswordManagerPageWOC = ({ renderErrorNotification, renderSuccessNotifica
     }
   ]
 
+  return columns
+}
+
+const PasswordManagerModal = ({ editing, handleCancel, onFinish }) => {
+  return (
+    <Modal
+      title={editing ? 'Edit Password Entry' : 'Add New Password Entry'}
+      open={true}
+      footer={null}
+      onCancel={handleCancel}
+      okText="Save"
+      cancelText="Cancel"
+      width={600}
+    >
+      <Form initialValues={editing} onFinish={onFinish} layout="vertical" requiredMark={false}>
+        <InputFormItem
+          name="title"
+          label="Title"
+          placeholder="e.g., Gmail, GitHub, Company Portal"
+        />
+
+        <Form.Item
+          name="company_url"
+          label="URL"
+          rules={[
+            {
+              validator: (_, value) => {
+                if (!value) return Promise.resolve()
+                try {
+                  new URL(value)
+                  return Promise.resolve()
+                } catch {
+                  return Promise.reject('Invalid URL format')
+                }
+              }
+            }
+          ]}
+        >
+          <Input placeholder="https://example.com" />
+        </Form.Item>
+
+        <Form.Item
+          name="type"
+          label="Type"
+          rules={[{ required: true, message: 'Please select a type' }]}
+        >
+          <Select placeholder="Select type">
+            <Select.Option value="Personal">Personal</Select.Option>
+            <Select.Option value="Official">Official</Select.Option>
+          </Select>
+        </Form.Item>
+
+        <InputFormItem name="username" label="Username" />
+
+        <InputFormItem name="password" label="Password" />
+
+        <InputFormItem
+          name="notes"
+          label="Notes"
+          isTextArea={true}
+          placeholder="Additional notes (optional)"
+        />
+
+        <SubmitBtnForm />
+      </Form>
+    </Modal>
+  )
+}
+
+const PasswordManagerPageWOC = ({ renderErrorNotification, renderSuccessNotification }) => {
+  const [passwordEntries, setPasswordEntries] = useState([])
+  const [editing, setEditing] = useState(null)
+  const [searchText, setSearchText] = useState('')
+  const [loading, setLoading] = useState(false)
+  const [showPasswords, setShowPasswords] = useState({})
+
+  const loadData = async () => {
+    const data = await passwordManagerRepo.getAll()
+    setPasswordEntries(data)
+  }
+
+  useEffect(() => {
+    setLoading(true)
+    loadData()
+    setLoading(false)
+  }, [])
+
+  const handleAdd = () => {
+    setEditing({})
+  }
+
+  const handleEdit = (item) => {
+    setEditing(item)
+  }
+
+  const handleDelete = async (item) => {
+    try {
+      await passwordManagerRepo.delete(item.id)
+      loadData()
+      renderSuccessNotification({
+        message: 'Password entry deleted successfully!'
+      })
+    } catch (error) {
+      renderErrorNotification(error)
+    }
+  }
+
+  const handleCancel = () => {
+    setEditing(null)
+  }
+
+  const handleSearchChange = (e) => {
+    setSearchText(e.target.value)
+  }
+
+  const onFinish = async (values) => {
+    try {
+      const dataToSave = editing ? { ...values, id: editing.id } : values
+      await passwordManagerRepo.upsert(dataToSave)
+      setEditing(null)
+      loadData()
+      renderSuccessNotification({
+        message: `Password entry ${editing ? 'updated' : 'created'} successfully!`
+      })
+    } catch (error) {
+      renderErrorNotification(error)
+    }
+  }
+
+  const togglePasswordVisibility = (id) => {
+    setShowPasswords((prev) => ({
+      ...prev,
+      [id]: !prev[id]
+    }))
+  }
+
   return (
     <>
       <EntityTable
         rowKey="id"
         data={passwordEntries}
-        columns={columns}
+        columns={getPasswordManagerColumns({
+          renderSuccessNotification,
+          renderErrorNotification,
+          togglePasswordVisibility,
+          showPasswords
+        })}
         loading={loading}
         onAdd={handleAdd}
         onEdit={handleEdit}
@@ -291,13 +279,8 @@ const PasswordManagerPageWOC = ({ renderErrorNotification, renderSuccessNotifica
         emptyText="No password entries found. Click 'Add New' to get started."
       />
 
-      {open && (
-        <PasswordManagerModal
-          editing={editing}
-          handleCancel={handleCancel}
-          onFinish={onFinish}
-          form={form}
-        />
+      {editing && (
+        <PasswordManagerModal editing={editing} handleCancel={handleCancel} onFinish={onFinish} />
       )}
     </>
   )
