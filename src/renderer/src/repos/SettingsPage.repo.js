@@ -29,6 +29,14 @@ const gcpProjectConfigDB = {
   delete: (input) => window.settingsAPI.gcpProjectConfig.delete(input)
 }
 
+const passwordManagerDB = {
+  getAll: () => window.settingsAPI.passwordManager.getAll(),
+  getById: (id) => window.settingsAPI.passwordManager.getById(id),
+  create: (input) => window.settingsAPI.passwordManager.create(input),
+  update: (input) => window.settingsAPI.passwordManager.update(input),
+  delete: (id) => window.settingsAPI.passwordManager.delete(id)
+}
+
 const settingsFactory = () => {
   const mode = window.runtimeConfig?.mode || 'local'
   if (mode === 'api') {
@@ -37,7 +45,8 @@ const settingsFactory = () => {
   return {
     companyRepo: companyDB,
     environmentRepo: environmentDB,
-    gcpProjectConfigRepo: gcpProjectConfigDB
+    gcpProjectConfigRepo: gcpProjectConfigDB,
+    passwordManagerRepo: passwordManagerDB
   }
 }
 

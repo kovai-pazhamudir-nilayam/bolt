@@ -5,6 +5,7 @@ import {
   Github,
   HardDrive,
   ImageUp,
+  Key,
   ListCheck,
   Settings as SettingsIcon,
   Ticket,
@@ -19,6 +20,7 @@ import GithubSettingsPage from './pages/GithubSettingsPage/GithubSettingsPage'
 import MediaProcessPage from './pages/MediaProcessPage/MediaProcessPage'
 import OsTicketPage from './pages/OsTicketPage/OsTicketPage'
 import PageBuilderPage from './pages/PageBuilderPage/PageBuilderPage'
+import PasswordManagerPage from './pages/PasswordManagerPage/PasswordManagerPage'
 import ProfilePage from './pages/ProfilePage/ProfilePage'
 import ProxyConfiguratorPage from './pages/ProxyConfiguratorPage/ProxyConfiguratorPage'
 import PushLogsToGCPPage from './pages/PushLogsToGCPPage/PushLogsToGCPPage'
@@ -156,6 +158,12 @@ export const ROUTES = [
     path: '/db-backup',
     icon: Database,
     element: <DBBackpupPage />
+  },
+  {
+    label: 'Password Manager',
+    path: '/password-manager',
+    icon: Key,
+    element: <PasswordManagerPage />
   },
   {
     label: 'Profile',
