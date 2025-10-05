@@ -19,13 +19,6 @@ function App() {
   const [api, contextHolder] = notification.useNotification()
   const [collapsed, setCollapsed] = useState(false)
   const [isDark, setIsDark] = useState(false)
-  const openNotification = () => {
-    api.info({
-      message: 'Notification',
-      description: 'This is a sample notification.',
-      placement: 'topRight'
-    })
-  }
 
   // Merge custom menu accent color into theme
   const customTheme = isDark ? darkTheme : lightTheme
@@ -36,13 +29,14 @@ function App() {
         {contextHolder}
         <NotificationContext.Provider value={api}>
           <Router>
-            <AppLayout
-              openNotification={openNotification}
-              collapsed={collapsed}
-              setCollapsed={setCollapsed}
-              isDark={isDark}
-              setIsDark={setIsDark}
-            />
+            <div data-theme={isDark ? 'dark' : 'light'}>
+              <AppLayout
+                collapsed={collapsed}
+                setCollapsed={setCollapsed}
+                isDark={isDark}
+                setIsDark={setIsDark}
+              />
+            </div>
           </Router>
         </NotificationContext.Provider>
       </ConfigProvider>
@@ -50,7 +44,7 @@ function App() {
   )
 }
 
-function AppLayout({ openNotification, collapsed, setCollapsed, isDark, setIsDark }) {
+function AppLayout({ collapsed, setCollapsed, isDark, setIsDark }) {
   const navigate = useNavigate()
   const location = useLocation()
   // Map path to menu key

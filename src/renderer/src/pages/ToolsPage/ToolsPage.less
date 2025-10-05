@@ -20,3 +20,18 @@
     }
   }
 }
+
+/* Dark mode support for ToolsPage */
+[data-theme="dark"] .ToolsPage {
+  .tool_description {
+    color: #999;
+  }
+  .tool_link {
+    &:hover {
+      .tool_name,
+      .tool_icon {
+        color: #f67373;
+      }
+    }
+  }
+}

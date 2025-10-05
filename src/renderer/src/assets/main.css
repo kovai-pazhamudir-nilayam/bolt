@@ -31,6 +31,22 @@
   --color-text: var(--ev-c-text-1);
 }
 
+/* Dark mode styles */
+[data-theme="dark"] {
+  --color-background: var(--ev-c-black);
+  --color-background-soft: var(--ev-c-black-soft);
+  --color-background-mute: var(--ev-c-black-mute);
+  --color-text: var(--ev-c-text-1);
+}
+
+/* Light mode styles */
+[data-theme="light"] {
+  --color-background: var(--ev-c-white);
+  --color-background-soft: var(--ev-c-white-soft);
+  --color-background-mute: var(--ev-c-white-mute);
+  --color-text: #1b1b1f;
+}
+
 *,
 *::before,
 *::after {
@@ -69,4 +85,185 @@ body {
 
 .hide {
   display: none !important;
+}
+
+/* Dark mode button fixes */
+[data-theme="dark"] .ant-btn {
+  background: #1f1f1f;
+  border-color: #434343;
+  color: #ffffff;
+}
+
+[data-theme="dark"] .ant-btn:hover {
+  background: #2a2a2a;
+  border-color: #595959;
+  color: #ffffff !important;
+}
+
+/* Ensure primary buttons maintain black text on hover */
+[data-theme="dark"] .ant-btn-primary,
+[data-theme="dark"] .ant-btn-primary:hover,
+[data-theme="dark"] .ant-btn-primary:focus,
+[data-theme="dark"] .ant-btn-primary:active {
+  color: #000000 !important;
+}
+
+/* Ensure danger buttons maintain black text on hover */
+[data-theme="dark"] .ant-btn-danger,
+[data-theme="dark"] .ant-btn-danger:hover,
+[data-theme="dark"] .ant-btn-danger:focus,
+[data-theme="dark"] .ant-btn-danger:active {
+  color: #000000 !important;
+}
+
+[data-theme="dark"] .ant-btn-primary {
+  background: #ffffff;
+  border-color: #ffffff;
+}
+
+[data-theme="dark"] .ant-btn-primary:hover {
+  background: #f0f0f0;
+  border-color: #f0f0f0;
+}
+
+[data-theme="dark"] .ant-btn-danger {
+  background: #ffffff;
+  border-color: #ffffff;
+}
+
+[data-theme="dark"] .ant-btn-danger:hover {
+  background: #f0f0f0;
+  border-color: #f0f0f0;
+}
+
+/* Dark mode card fixes */
+[data-theme="dark"] .ant-card {
+  background: #1f1f1f;
+  border-color: #434343;
+  color: #ffffff;
+}
+
+[data-theme="dark"] .ant-card-head {
+  background: #262626;
+  border-bottom-color: #434343;
+  color: #ffffff;
+}
+
+[data-theme="dark"] .ant-card-body {
+  color: #ffffff;
+}
+
+/* Dark mode form fixes */
+[data-theme="dark"] .ant-input {
+  background: #1f1f1f;
+  border-color: #434343;
+  color: #ffffff;
+}
+
+[data-theme="dark"] .ant-input:hover {
+  border-color: #595959;
+}
+
+[data-theme="dark"] .ant-input:focus {
+  border-color: #ffffff;
+  box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.2);
+}
+
+[data-theme="dark"] .ant-select-selector {
+  background: #1f1f1f !important;
+  border-color: #434343 !important;
+  color: #ffffff !important;
+}
+
+[data-theme="dark"] .ant-select-selection-item {
+  color: #ffffff !important;
+}
+
+/* Dark mode table fixes */
+[data-theme="dark"] .ant-table {
+  background: #1f1f1f;
+  color: #ffffff;
+}
+
+[data-theme="dark"] .ant-table-thead > tr > th {
+  background: #262626;
+  border-bottom-color: #434343;
+  color: #ffffff;
+}
+
+[data-theme="dark"] .ant-table-tbody > tr > td {
+  border-bottom-color: #434343;
+  color: #ffffff;
+}
+
+[data-theme="dark"] .ant-table-tbody > tr:hover > td {
+  background: #262626;
+}
+
+/* Dark mode modal fixes */
+[data-theme="dark"] .ant-modal-content {
+  background: #1f1f1f;
+  color: #ffffff;
+}
+
+[data-theme="dark"] .ant-modal-header {
+  background: #262626;
+  border-bottom-color: #434343;
+  color: #ffffff;
+}
+
+[data-theme="dark"] .ant-modal-title {
+  color: #ffffff;
+}
+
+/* Dark mode dropdown fixes */
+[data-theme="dark"] .ant-dropdown-menu {
+  background: #1f1f1f;
+  border-color: #434343;
+}
+
+[data-theme="dark"] .ant-dropdown-menu-item {
+  color: #ffffff;
+}
+
+[data-theme="dark"] .ant-dropdown-menu-item:hover {
+  background: #262626;
+  color: #ffffff;
+}
+
+/* Dark mode segmented control fixes */
+[data-theme="dark"] .ant-segmented {
+  background: #262626;
+  border-color: #434343;
+}
+
+[data-theme="dark"] .ant-segmented-item {
+  color: #ffffff;
+}
+
+[data-theme="dark"] .ant-segmented-item-selected {
+  background: #ffffff;
+  color: #000000;
+}
+
+/* Dark mode tag fixes */
+[data-theme="dark"] .ant-tag {
+  background: #262626;
+  border-color: #434343;
+  color: #ffffff;
+}
+
+/* Dark mode popconfirm fixes */
+[data-theme="dark"] .ant-popover-content {
+  background: #1f1f1f;
+  color: #ffffff;
+}
+
+[data-theme="dark"] .ant-popover-arrow::before {
+  background: #1f1f1f;
+}
+
+/* Dark mode space fixes */
+[data-theme="dark"] .ant-space {
+  color: #ffffff;
 }

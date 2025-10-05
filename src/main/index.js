@@ -1,5 +1,5 @@
 import { electronApp, is, optimizer } from '@electron-toolkit/utils'
-import { app, BrowserWindow, ipcMain } from 'electron'
+import { app, BrowserWindow, ipcMain, screen } from 'electron'
 import { join } from 'path'
 
 // Import IPC Handler
@@ -8,14 +8,20 @@ import { registerSystemHandler } from './ipc/system.ipc.js'
 import { registerTaskManagerDIHandler } from './ipc/taskManagerDI.ipc.js'
 import { registerSettingsHandler } from './ipc/settings.ipc/settings.ipc.js'
 import { registerGithubSettingsHandler } from './ipc/githubSettings.ipc/githubSettings.ipc'
+import { registerPasswordManagerHandler } from './ipc/passwordManager.ipc'
 import { registerTaskHandler } from './ipc/task.ipc'
 import { registerToolsHandler } from './ipc/tools.ipc/tools.ipc'
 import { registerShellHandler } from './ipc/shell.ipc'
 import { registerWebviewHandler } from './ipc/webview.ipc'
 
 function createWindow() {
+  // Get the primary display dimensions
+  const { width, height } = screen.getPrimaryDisplay().workAreaSize
+
   // Create the browser window.
   const mainWindow = new BrowserWindow({
+    width: width,
+    height: height,
     fullscreen: false,
     show: false,
     autoHideMenuBar: true,
@@ -70,6 +76,7 @@ app.whenReady().then(async () => {
 
   // Register all IPC Handler
   registerGithubSettingsHandler(ipcMain, configDb)
+  registerPasswordManagerHandler(ipcMain, configDb)
   registerSettingsHandler(ipcMain, configDb)
   registerTaskHandler(ipcMain, configDb)
   registerSystemHandler(ipcMain)

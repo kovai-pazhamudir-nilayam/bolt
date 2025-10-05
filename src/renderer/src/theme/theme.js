@@ -14,10 +14,18 @@ const darkTheme = {
   },
   components: {
     Button: {
-      colorPrimary: '#fff',
-      colorBgContainer: '#111',
-      colorText: '#fff',
-      colorBorder: '#fff'
+      colorPrimary: '#ffffff',
+      colorBgContainer: '#1f1f1f',
+      colorText: '#ffffff',
+      colorBorder: '#ffffff',
+      colorPrimaryHover: '#f0f0f0',
+      colorPrimaryActive: '#ffffff',
+      colorTextDisabled: '#666666',
+      colorBgContainerDisabled: '#1a1a1a',
+      colorBorderDisabled: '#333333',
+      colorPrimaryText: '#000000',
+      colorPrimaryTextHover: '#000000',
+      colorPrimaryTextActive: '#000000'
     },
     Layout: {
       headerBg: '#111',
@@ -48,10 +56,15 @@ const lightTheme = {
   },
   components: {
     Button: {
-      colorPrimary: '#000',
-      colorBgContainer: '#fff',
-      colorText: '#000',
-      colorBorder: '#000'
+      colorPrimary: '#000000',
+      colorBgContainer: '#ffffff',
+      colorText: '#000000',
+      colorBorder: '#000000',
+      colorPrimaryHover: '#000000',
+      colorPrimaryActive: '#000000',
+      colorTextDisabled: '#999999',
+      colorBgContainerDisabled: '#f5f5f5',
+      colorBorderDisabled: '#d9d9d9'
     },
     Layout: {
       headerBg: '#fff',

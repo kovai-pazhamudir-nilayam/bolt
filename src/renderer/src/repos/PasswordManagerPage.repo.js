@@ -5,12 +5,12 @@ const passwordManagerAPI = {
 }
 
 const passwordManagerDB = {
-  getAll: () => window.settingsAPI.passwordManager.getAll(),
-  getById: (id) => window.settingsAPI.passwordManager.getById(id),
+  getAll: () => window.passwordManagerAPI.passwordManager.getAll(),
+  getById: (id) => window.passwordManagerAPI.passwordManager.getById(id),
   create: (input) => window.settingsAPI.passwordManager.create(input),
-  update: (input) => window.settingsAPI.passwordManager.update(input),
-  upsert: (input) => window.settingsAPI.passwordManager.upsert(input),
-  delete: (id) => window.settingsAPI.passwordManager.delete(id)
+  update: (input) => window.passwordManagerAPI.passwordManager.update(input),
+  upsert: (input) => window.passwordManagerAPI.passwordManager.upsert(input),
+  delete: (id) => window.passwordManagerAPI.passwordManager.delete(id)
 }
 
 const passwordManagerFactory = () => {
