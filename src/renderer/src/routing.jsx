@@ -28,6 +28,7 @@ import TaskManagerConfigPage from './pages/TaskManagerConfigPage/TaskManagerConf
 import TaskManagerDIPage from './pages/TaskManagerDIPage/TaskManagerDIPage'
 import ToolsPage from './pages/ToolsPage/ToolsPage'
 import WelcomePage from './pages/WelcomePage/WelcomePage'
+import ShellCommandPage from './pages/ShellCommandPage/ShellCommandPage'
 
 export const ROUTES = [
   {
@@ -159,5 +160,11 @@ export const ROUTES = [
     path: '/profile',
     icon: User,
     element: <ProfilePage />
+  },
+  {
+    label: 'Shell Command ',
+    path: '/shell-command',
+    icon: User,
+    element: <ShellCommandPage />
   }
 ]

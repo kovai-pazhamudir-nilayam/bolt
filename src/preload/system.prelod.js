@@ -1,8 +1,8 @@
 import { ipcRenderer } from 'electron'
 
-const systemApi = {
+const systemAPI = {
   selectFolder: async () => {
     return ipcRenderer.invoke('system:select-folder')
   }
 }
-export { systemApi }
+export { systemAPI }

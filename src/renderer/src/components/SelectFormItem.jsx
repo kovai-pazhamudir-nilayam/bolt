@@ -37,6 +37,7 @@ const SelectFormItem = ({ options, name, label, disabled = false, transform = nu
       <Select
         disabled={disabled}
         showSearch
+        style={{ minWidth: '200px' }}
         filterOption={(input, option) =>
           (option?.key ?? '').toLowerCase().includes(input.toLowerCase()) ||
           (option?.value ?? '').toLowerCase().includes(input.toLowerCase()) ||

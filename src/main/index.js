@@ -10,6 +10,7 @@ import { registerSettingsHandler } from './ipc/settings.ipc/settings.ipc.js'
 import { registerGithubSettingsHandler } from './ipc/githubSettings.ipc/githubSettings.ipc'
 import { registerTaskHandler } from './ipc/task.ipc'
 import { registerToolsHandler } from './ipc/tools.ipc/tools.ipc'
+import { registerShellHandler } from './ipc/shell.ipc'
 
 function createWindow() {
   // Create the browser window.
@@ -70,6 +71,7 @@ app.whenReady().then(async () => {
   registerSystemHandler(ipcMain)
   registerTaskManagerDIHandler(ipcMain)
   registerToolsHandler(ipcMain)
+  registerShellHandler(ipcMain)
 
   createWindow()
 

@@ -1,11 +1,12 @@
 import { contextBridge } from 'electron'
 import { electronAPI } from '@electron-toolkit/preload'
-import { settingsApi } from './settings.preload'
-import { githubSettingsApi } from './githubSettings.preload'
-import { taskApi } from './task.prelod'
-import { terminalApi } from './terminal.prelod'
-import { systemApi } from './system.prelod'
+import { settingsAPI } from './settings.preload'
+import { githubSettingsAPI } from './githubSettings.preload'
+import { taskAPI } from './task.prelod'
+import { terminalAPI } from './terminal.prelod'
+import { systemAPI } from './system.prelod'
 import { toolsAPI } from './tools.preload'
+import { shellAPI } from './shell.preload'
 
 // const system2345 = {
 //   onTaskManagerLog: (callback) => {
@@ -27,22 +28,28 @@ import { toolsAPI } from './tools.preload'
 // just add to the DOM global.
 if (process.contextIsolated) {
   try {
+    console.log('Exposing APIs to renderer process...')
     contextBridge.exposeInMainWorld('electron', electronAPI)
-    contextBridge.exposeInMainWorld('systemApi', systemApi)
-    contextBridge.exposeInMainWorld('settingsApi', settingsApi)
-    contextBridge.exposeInMainWorld('githubSettingsApi', githubSettingsApi)
-    contextBridge.exposeInMainWorld('taskApi', taskApi)
-    contextBridge.exposeInMainWorld('terminalAPI', terminalApi)
+    contextBridge.exposeInMainWorld('systemAPI', systemAPI)
+    contextBridge.exposeInMainWorld('settingsAPI', settingsAPI)
+    contextBridge.exposeInMainWorld('githubSettingsAPI', githubSettingsAPI)
+    contextBridge.exposeInMainWorld('taskAPI', taskAPI)
+    contextBridge.exposeInMainWorld('terminalAPI', terminalAPI)
     contextBridge.exposeInMainWorld('toolsAPI', toolsAPI)
+    contextBridge.exposeInMainWorld('shellAPI', shellAPI)
+    console.log('All APIs exposed successfully, including shellAPI')
   } catch (error) {
-    console.error(error)
+    console.error('Error exposing APIs:', error)
   }
 } else {
+  console.log('Context isolation disabled, adding APIs to window object...')
   window.electron = electronAPI
-  window.systemApi = systemApi
-  window.settingsApi = settingsApi
-  window.githubSettingsApi = githubSettingsApi
-  window.taskApi = taskApi
-  window.terminalAPI = terminalApi
+  window.systemAPI = systemAPI
+  window.settingsAPI = settingsAPI
+  window.githubSettingsAPI = githubSettingsAPI
+  window.taskAPI = taskAPI
+  window.terminalAPI = terminalAPI
   window.toolsAPI = toolsAPI
+  window.shellAPI = shellAPI
+  console.log('All APIs added to window object, including shellAPI')
 }

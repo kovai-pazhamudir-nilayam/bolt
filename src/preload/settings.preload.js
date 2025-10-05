@@ -19,9 +19,9 @@ const gcpProjectConfig = {
   delete: (input) => ipcRenderer.invoke('gcp-project-config:delete', input)
 }
 
-const settingsApi = {
+const settingsAPI = {
   company,
   environment,
   gcpProjectConfig
 }
-export { settingsApi }
+export { settingsAPI }

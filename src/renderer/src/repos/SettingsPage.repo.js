@@ -5,9 +5,9 @@ const companyAPI = {
 }
 
 const companyDB = {
-  getAll: () => window.settingsApi.company.getAll(),
-  upsert: (input) => window.settingsApi.company.upsert(input),
-  delete: (company_code) => window.settingsApi.company.delete(company_code)
+  getAll: () => window.settingsAPI.company.getAll(),
+  upsert: (input) => window.settingsAPI.company.upsert(input),
+  delete: (company_code) => window.settingsAPI.company.delete(company_code)
 }
 
 const environmentAPI = {
@@ -17,16 +17,16 @@ const environmentAPI = {
 }
 
 const environmentDB = {
-  getAll: () => window.settingsApi.environment.getAll(),
-  upsert: (input) => window.settingsApi.environment.upsert(input),
-  delete: (env_code) => window.settingsApi.environment.delete(env_code)
+  getAll: () => window.settingsAPI.environment.getAll(),
+  upsert: (input) => window.settingsAPI.environment.upsert(input),
+  delete: (env_code) => window.settingsAPI.environment.delete(env_code)
 }
 
 const gcpProjectConfigDB = {
-  getAll: () => window.settingsApi.gcpProjectConfig.getAll(),
-  getOne: (input) => window.settingsApi.gcpProjectConfig.getOne(input),
-  upsert: (input) => window.settingsApi.gcpProjectConfig.upsert(input),
-  delete: (input) => window.settingsApi.gcpProjectConfig.delete(input)
+  getAll: () => window.settingsAPI.gcpProjectConfig.getAll(),
+  getOne: (input) => window.settingsAPI.gcpProjectConfig.getOne(input),
+  upsert: (input) => window.settingsAPI.gcpProjectConfig.upsert(input),
+  delete: (input) => window.settingsAPI.gcpProjectConfig.delete(input)
 }
 
 const settingsFactory = () => {

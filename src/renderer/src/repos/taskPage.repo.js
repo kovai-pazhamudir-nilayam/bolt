@@ -5,10 +5,10 @@ const taskAPI = {
 }
 
 const taskDB = {
-  getAll: () => window.taskApi.getAll(),
-  create: (input) => window.taskApi.create(input),
-  update: (input) => window.taskApi.update(input),
-  delete: (company_code) => window.taskApi.delete(company_code)
+  getAll: () => window.taskAPI.getAll(),
+  create: (input) => window.taskAPI.create(input),
+  update: (input) => window.taskAPI.update(input),
+  delete: (company_code) => window.taskAPI.delete(company_code)
 }
 
 const tasksFactory = () => {

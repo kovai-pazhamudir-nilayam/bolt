@@ -28,11 +28,11 @@ const githubSecret = {
   delete: (company_code) => ipcRenderer.invoke('githubSecret:delete', company_code)
 }
 
-const githubSettingsApi = {
+const githubSettingsAPI = {
   githubConfig,
   githubUser,
   githubRepo,
   githubSecret
 }
 
-export { githubSettingsApi }
+export { githubSettingsAPI }

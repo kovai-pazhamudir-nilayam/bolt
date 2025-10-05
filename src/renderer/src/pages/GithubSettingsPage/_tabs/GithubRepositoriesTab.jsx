@@ -1,15 +1,16 @@
 /* eslint-disable react/prop-types */
-import { Button, Select } from 'antd'
-import { RefreshCw, ShieldPlus, SquareAsterisk } from 'lucide-react'
+import { Col, Form, Row, Space } from 'antd'
+import { ShieldPlus, SquareAsterisk } from 'lucide-react'
 import { useEffect, useState } from 'react'
 import EntityTable from '../../../components/EntityTable'
+import SelectFormItem from '../../../components/SelectFormItem'
+import SubmitBtnForm from '../../../components/SubmitBtnForm'
 import withNotification from '../../../hoc/withNotification'
 import { githubSettingsPageFactory } from '../../../repos/githubSettingsPage.repo'
 import { settingsFactory } from '../../../repos/SettingsPage.repo'
 import AddNewGithubRepoModal from '../_blocks/AddNewGithubRepoModal'
 import AddSecretToGitHubRepoModal from '../_blocks/AddSecretToGitHubRepoModal'
 import GitHubRepoAccessModal from '../_blocks/GitHubRepoAccessModal'
-const { Option } = Select
 
 const { githubRepositoriesRepo, githubUsersRepo, githubSecretRepo } = githubSettingsPageFactory()
 const { companyRepo } = settingsFactory()
@@ -121,16 +122,9 @@ const GithubRepositoriesTabWOC = ({ renderErrorNotification, renderSuccessNotifi
     setSearchText(e.target.value)
   }
 
-  const [syncCompanyId, setSyncCompanyId] = useState(null)
+  const handleSync = async (values) => {
+    const { syncCompanyId } = values
 
-  const handleSync = async () => {
-    if (!syncCompanyId) {
-      renderErrorNotification({
-        title: 'Validation',
-        message: 'Please select a company to sync'
-      })
-      return
-    }
     try {
       setLoading(true)
       await githubRepositoriesRepo.sync(syncCompanyId)
@@ -208,48 +202,44 @@ const GithubRepositoriesTabWOC = ({ renderErrorNotification, renderSuccessNotifi
 
   return (
     <>
-      <div style={{ display: 'flex', gap: 12, marginBottom: 12 }}>
-        <Select
-          allowClear
-          placeholder="Select company to sync"
-          style={{ width: 300 }}
-          value={syncCompanyId}
-          onChange={setSyncCompanyId}
-        >
-          {datasource.companies.map((company) => (
-            <Option key={company.company_code} value={company.company_code}>
-              {company.company_code}
-            </Option>
-          ))}
-        </Select>
-        <Button icon={<RefreshCw size={14} />} onClick={handleSync} loading={loading}>
-          Sync Repos
-        </Button>
-      </div>
-
-      <EntityTable
-        data={datasource.repos}
-        columns={columns}
-        loading={loading}
-        extraActions={[
-          {
-            text: 'Access',
-            onClick: onAccessClick,
-            icon: ShieldPlus
-          },
-          {
-            text: 'Add Secret',
-            onClick: onAddSecretClick,
-            icon: SquareAsterisk
-          }
-        ]}
-        onAdd={handleAdd}
-        onEdit={null}
-        onDelete={handleDelete}
-        searchText={searchText}
-        onSearchChange={handleSearchChange}
-        emptyText="No repositories found. Click 'Add New' or run Sync."
-      />
+      <Space direction="vertical" style={{ marginBottom: '16px', display: 'flex', width: '100%' }}>
+        <Row gutter={[16, 16]}>
+          <Col span={12}>
+            <Form onFinish={handleSync} layout="inline" requiredMark={false}>
+              <SelectFormItem
+                options={datasource.companies}
+                name="syncCompanyId"
+                label=""
+                transform="COMPANIES"
+              />
+              <SubmitBtnForm loading={loading} btnText="Sync Repos" />
+            </Form>
+          </Col>
+        </Row>
+        <EntityTable
+          data={datasource.repos}
+          columns={columns}
+          loading={loading}
+          extraActions={[
+            {
+              text: 'Access',
+              onClick: onAccessClick,
+              icon: ShieldPlus
+            },
+            {
+              text: 'Add Secret',
+              onClick: onAddSecretClick,
+              icon: SquareAsterisk
+            }
+          ]}
+          onAdd={handleAdd}
+          onEdit={null}
+          onDelete={handleDelete}
+          searchText={searchText}
+          onSearchChange={handleSearchChange}
+          emptyText="No repositories found. Click 'Add New' or run Sync."
+        />
+      </Space>
 
       {isModalVisible && (
         <AddNewGithubRepoModal
