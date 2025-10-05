@@ -1,11 +1,13 @@
 /* eslint-disable react/prop-types */
 
-import { Button, Card, Col, Row, Space, Typography, Alert, Tabs, Spin } from 'antd'
-import { ExternalLink, Info, Building2 } from 'lucide-react'
-import { useEffect, useState, useCallback } from 'react'
+import { Alert, Button, Space, Spin, Typography } from 'antd'
+import { Building2, ExternalLink, Info, RefreshCw } from 'lucide-react'
+import { useCallback, useEffect, useState } from 'react'
+import CustomTabs from '../../components/CustomTabs/CustomTabs'
 import PageHeader from '../../components/PageHeader/PageHeader'
 import withNotification from '../../hoc/withNotification'
 import { settingsFactory } from '../../repos/SettingsPage.repo'
+import './OsTicketPage.less'
 
 const { Title, Paragraph } = Typography
 
@@ -14,7 +16,6 @@ const { companyRepo } = settingsFactory()
 const OsTicketPageWoc = ({ renderErrorNotification, renderSuccessNotification }) => {
   const [companies, setCompanies] = useState([])
   const [loading, setLoading] = useState(true)
-  const [activeTab, setActiveTab] = useState('')
   const [embeddedUrl, setEmbeddedUrl] = useState(null)
   const [showIframe, setShowIframe] = useState(false)
   const [iframeLoading, setIframeLoading] = useState(false)
@@ -25,7 +26,6 @@ const OsTicketPageWoc = ({ renderErrorNotification, renderSuccessNotification })
       const data = await companyRepo.getAll()
       setCompanies(data)
       if (data.length > 0) {
-        setActiveTab(data[0].company_code)
         // Auto-embed if the first company has a support portal
         if (data[0].support_portal_url) {
           try {
@@ -60,11 +60,6 @@ const OsTicketPageWoc = ({ renderErrorNotification, renderSuccessNotification })
     loadCompanies()
   }, [loadCompanies])
 
-  useEffect(() => {
-    // Check webview API availability
-    console.log('Webview API available:', !!window.webviewAPI)
-  }, [])
-
   const handleOpenExternal = (url, companyName) => {
     try {
       // Try shellAPI first, then fallback to electron API
@@ -89,83 +84,11 @@ const OsTicketPageWoc = ({ renderErrorNotification, renderSuccessNotification })
     }
   }
 
-  const handleOpenInApp = async (url, companyName) => {
-    try {
-      if (!window.webviewAPI?.open) {
-        throw new Error('Webview API not available')
-      }
-
-      await window.webviewAPI.open(url, {
-        width: 1400,
-        height: 900,
-        title: `${companyName} Support Portal`
-      })
-
-      renderSuccessNotification({
-        message: `Opening ${companyName} support portal in app window`
-      })
-    } catch (error) {
-      console.error('Error opening webview:', error)
-      renderErrorNotification({
-        message: `Failed to open support portal in app window: ${error.message}`
-      })
-    }
-  }
-
-  // Handle iframe navigation and session management
-  const handleIframeMessage = (event) => {
-    // Handle messages from the iframe if needed
-    console.log('Iframe message received:', event.data)
-  }
-
-  // Set up message listener for iframe communication
-  useEffect(() => {
-    if (showIframe) {
-      window.addEventListener('message', handleIframeMessage)
-      return () => {
-        window.removeEventListener('message', handleIframeMessage)
-      }
-    }
-  }, [showIframe])
-
-  const handleTabChange = async (companyCode) => {
-    setActiveTab(companyCode)
-
-    // Find the company and auto-embed if it has a support portal
-    const company = companies.find((c) => c.company_code === companyCode)
-    if (company && company.support_portal_url) {
-      try {
-        setIframeLoading(true)
-
-        if (!window.webviewAPI?.embed) {
-          setIframeLoading(false)
-          return
-        }
-
-        // Setup iframe embedding
-        await window.webviewAPI.embed(company.support_portal_url)
-
-        // Set the URL and show iframe
-        setEmbeddedUrl(company.support_portal_url)
-        setShowIframe(true)
-        setIframeLoading(false)
-      } catch (error) {
-        console.error('Error auto-embedding iframe:', error)
-        setIframeLoading(false)
-      }
-    } else {
-      // Close iframe if no support portal
-      setShowIframe(false)
-      setEmbeddedUrl(null)
-      setIframeLoading(false)
-    }
-  }
-
   const renderCompanyTab = (company) => {
     const hasSupportPortal = company.support_portal_url
 
     return (
-      <div style={{ padding: '16px 0' }}>
+      <div className="company-tab-content">
         <Space direction="vertical" size="large" style={{ width: '100%' }}>
           <div>
             <Title level={4}>
@@ -180,42 +103,17 @@ const OsTicketPageWoc = ({ renderErrorNotification, renderSuccessNotification })
 
           {hasSupportPortal ? (
             <>
-              <div style={{ marginBottom: 16 }}>
-                <Space size="middle" wrap>
-                  <Button
-                    size="large"
-                    icon={<ExternalLink size={18} />}
-                    onClick={() =>
-                      handleOpenInApp(company.support_portal_url, company.company_name)
-                    }
-                  >
-                    Open in App Window
-                  </Button>
-                  <Button
-                    size="large"
-                    icon={<ExternalLink size={18} />}
-                    onClick={() =>
-                      handleOpenExternal(company.support_portal_url, company.company_name)
-                    }
-                  >
-                    Open in External Browser
-                  </Button>
-                </Space>
-              </div>
-
               {showIframe && embeddedUrl ? (
-                <div style={{ marginTop: 16 }}>
-                  <div
-                    style={{
-                      display: 'flex',
-                      justifyContent: 'end',
-                      alignItems: 'center',
-                      marginBottom: 8
-                    }}
-                  >
+                <div>
+                  <div className="company-header">
+                    <div>
+                      <strong>Portal URL:</strong>
+                      <code className="portal-url-code">{company.support_portal_url}</code>
+                    </div>
                     <Space>
                       <Button
                         size="small"
+                        icon={<RefreshCw size={16} />}
                         onClick={() => {
                           setIframeLoading(true)
                           // Force webview refresh by changing src
@@ -234,52 +132,26 @@ const OsTicketPageWoc = ({ renderErrorNotification, renderSuccessNotification })
                       </Button>
                       <Button
                         size="small"
+                        icon={<ExternalLink size={16} />}
                         onClick={() => {
                           // Fallback: open in app window if webview fails
-                          handleOpenInApp(embeddedUrl, 'Support Portal')
+                          handleOpenExternal(embeddedUrl, 'Support Portal')
                         }}
                         type="text"
                       >
-                        Open in Window
+                        Open in External Browser
                       </Button>
                     </Space>
                   </div>
-                  <div
-                    style={{
-                      border: '1px solid #d9d9d9',
-                      borderRadius: '6px',
-                      overflow: 'hidden',
-                      height: '600px',
-                      position: 'relative'
-                    }}
-                  >
+                  <div className="webview-container">
                     {iframeLoading && (
-                      <div
-                        style={{
-                          position: 'absolute',
-                          top: 0,
-                          left: 0,
-                          right: 0,
-                          bottom: 0,
-                          display: 'flex',
-                          alignItems: 'center',
-                          justifyContent: 'center',
-                          background: '#f5f5f5',
-                          zIndex: 1
-                        }}
-                      >
+                      <div className="webview-loading-overlay">
                         <Spin size="large" />
                       </div>
                     )}
                     <webview
                       src={embeddedUrl}
-                      style={{
-                        width: '100%',
-                        height: '100%',
-                        border: 'none',
-                        opacity: iframeLoading ? 0 : 1,
-                        transition: 'opacity 0.3s ease'
-                      }}
+                      className={`webview ${iframeLoading ? 'loading' : 'loaded'}`}
                       // eslint-disable-next-line react/no-unknown-property
                       partition="persist:webview-session"
                       // eslint-disable-next-line react/no-unknown-property
@@ -301,7 +173,7 @@ const OsTicketPageWoc = ({ renderErrorNotification, renderSuccessNotification })
                             setIframeLoading(false)
                             // Auto-fallback to window if webview fails
                             setTimeout(() => {
-                              handleOpenInApp(embeddedUrl, 'Support Portal')
+                              handleOpenExternal(embeddedUrl, 'Support Portal')
                             }, 1000)
                           })
                         }
@@ -310,7 +182,7 @@ const OsTicketPageWoc = ({ renderErrorNotification, renderSuccessNotification })
                   </div>
                 </div>
               ) : (
-                <div style={{ marginTop: 16 }}>
+                <div className="info-alert">
                   <Alert
                     message="Support Portal Access"
                     description="The support portal will be automatically embedded in this page. You can also open it in a dedicated window within the app or in your external browser using the buttons above."
@@ -321,28 +193,6 @@ const OsTicketPageWoc = ({ renderErrorNotification, renderSuccessNotification })
                   />
                 </div>
               )}
-
-              <div style={{ marginTop: 16 }}>
-                <Card size="small" style={{ background: '#f8f9fa' }}>
-                  <Space direction="vertical" size="small" style={{ width: '100%' }}>
-                    <div>
-                      <strong>Portal URL:</strong>
-                      <br />
-                      <code
-                        style={{
-                          background: '#e9ecef',
-                          padding: '2px 6px',
-                          borderRadius: '3px',
-                          fontSize: '12px',
-                          wordBreak: 'break-all'
-                        }}
-                      >
-                        {company.support_portal_url}
-                      </code>
-                    </div>
-                  </Space>
-                </Card>
-              </div>
             </>
           ) : (
             <Alert
@@ -360,16 +210,18 @@ const OsTicketPageWoc = ({ renderErrorNotification, renderSuccessNotification })
 
   if (loading) {
     return (
-      <div style={{ textAlign: 'center', padding: '50px' }}>
-        <Spin size="large" />
-        <div style={{ marginTop: 16 }}>Loading companies...</div>
+      <div className="os-ticket-page">
+        <div className="loading-container">
+          <Spin size="large" />
+          <div className="loading-text">Loading companies...</div>
+        </div>
       </div>
     )
   }
 
   if (companies.length === 0) {
     return (
-      <div>
+      <div className="os-ticket-page">
         <PageHeader
           title="Support Portals"
           description="Access company support portals for ticket management and support requests."
@@ -391,25 +243,13 @@ const OsTicketPageWoc = ({ renderErrorNotification, renderSuccessNotification })
   }))
 
   return (
-    <div>
+    <div className="os-ticket-page">
       <PageHeader
         title="Support Portals"
         description="Access company support portals for ticket management and support requests."
       />
 
-      <Row gutter={[16, 16]}>
-        <Col span={24}>
-          <Card>
-            <Tabs
-              activeKey={activeTab}
-              onChange={handleTabChange}
-              items={tabItems}
-              type="card"
-              size="large"
-            />
-          </Card>
-        </Col>
-      </Row>
+      <CustomTabs items={tabItems} size="large" />
     </div>
   )
 }

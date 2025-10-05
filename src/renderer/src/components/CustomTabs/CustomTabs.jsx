@@ -1,10 +1,10 @@
-import { Tabs, Typography } from 'antd'
-import { useLocation, useNavigate, useSearchParams } from 'react-router-dom'
+/* eslint-disable react/prop-types */
+import { Tabs } from 'antd'
 import _ from 'lodash'
 import { useEffect, useState } from 'react'
+import { useLocation, useNavigate, useSearchParams } from 'react-router-dom'
 
-const CustomTabsWOC = ({ items, tabBarExtraContent, authContext }) => {
-  const { Paragraph } = Typography
+const CustomTabsWOC = ({ items, tabBarExtraContent }) => {
   const updatedItems = items
     .map((item) => {
       return {
@@ -39,7 +39,7 @@ const CustomTabsWOC = ({ items, tabBarExtraContent, authContext }) => {
 
   return (
     <Tabs
-      destroyInactiveTabPane={true}
+      destroyOnHidden={true}
       activeKey={activeTab}
       items={updatedItems}
       onChange={onChange}
