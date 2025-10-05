@@ -1,8 +1,8 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 import Terminal from './Terminal'
-import { terminalFactory } from '../../repos/terminal.repo'
+import { shellFactory } from '../../repos/shell.repo'
 
-const { terminalRepo } = terminalFactory()
+const { shellRepo } = shellFactory()
 
 const TerminalWrapper = ({ onCommandStart, onCommandEnd, onError, className = '', style = {} }) => {
   const [currentProcessId, setCurrentProcessId] = useState(null)
@@ -106,11 +106,11 @@ const TerminalWrapper = ({ onCommandStart, onCommandEnd, onError, className = ''
         }
 
         // Register listeners
-        logUnsubRef.current = terminalRepo.onLog(handleLog)
-        endUnsubRef.current = terminalRepo.onEnd(handleEnd)
+        logUnsubRef.current = shellRepo.onLog(handleLog)
+        endUnsubRef.current = shellRepo.onEnd(handleEnd)
 
         // Execute command
-        const result = await terminalRepo.run(command)
+        const result = await shellRepo.run(command)
         setCurrentProcessId(result.processId)
       } catch (error) {
         isCommandRunning.current = false
@@ -127,7 +127,7 @@ const TerminalWrapper = ({ onCommandStart, onCommandEnd, onError, className = ''
       if (domEvent.ctrlKey && key === 'c') {
         // Ctrl+C to interrupt
         if (isCommandRunning.current && currentProcessId) {
-          terminalRepo.kill(currentProcessId)
+          shellRepo.kill(currentProcessId)
           writeToTerminal('^C\r\n')
           isCommandRunning.current = false
           setCurrentProcessId(null)

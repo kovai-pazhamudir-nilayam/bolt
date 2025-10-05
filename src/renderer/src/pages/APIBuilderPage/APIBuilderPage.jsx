@@ -14,10 +14,10 @@ export default function Terminal() {
   const terminalEndRef = useRef(null)
 
   useEffect(() => {
-    window.terminalAPI.onLog((log) => {
+    window.shellAPI.onLog((log) => {
       setLogs((prev) => [...prev, `> ${log}`])
     })
-    window.terminalAPI.onEnd((code) => {
+    window.shellAPI.onEnd((code) => {
       setLogs((prev) => [...prev, `Process exited with code ${code}`])
     })
   }, [])
@@ -35,7 +35,7 @@ export default function Terminal() {
     }
 
     setLogs((prev) => [...prev, `$ ${input}`])
-    window.terminalAPI.run(input)
+    window.shellAPI.run(input)
 
     setHistory((prev) => [...prev, input])
     setHistoryIndex(-1)

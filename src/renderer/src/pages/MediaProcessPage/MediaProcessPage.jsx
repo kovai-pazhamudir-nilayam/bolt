@@ -1,13 +1,13 @@
-
-
 import { Button, Col, Form, Row, Select, message } from 'antd'
 import { useRef, useState } from 'react'
 import PageHeader from '../../components/PageHeader/PageHeader'
-import CustomCard from '../../components/CustomCard/CustomCard'
 import LogsViewer from '../../components/LogsViewer/LogsViewer'
+import { systemFactory } from '../../repos/system.repo'
+import withNotification from '../../hoc/withNotification'
 const ITEMS = ['PRODUCT', 'CATEGORY', 'BRAND']
+const { systemRepo } = systemFactory()
 
-const MediaProcessPage = () => {
+const MediaProcessPageWOC = ({ renderErrorNotification, renderSuccessNotification }) => {
   const [folderPath, setFolderPath] = useState('')
   const [logs, setLogs] = useState([])
   const logRef = useRef(null)
@@ -44,15 +44,13 @@ const MediaProcessPage = () => {
   }
 
   const handleSelectFolder = async () => {
-    if (!window.api || !window.api.selectFolder) {
-      message.error('Folder selection is not available. window.api is undefined.')
-      return
-    }
-    const path = await window.api.selectFolder()
+    const path = await systemRepo.selectFolder()
     if (path) {
       setFolderPath(path)
     } else {
-      message.warning('No folder selected')
+      renderErrorNotification({
+        message: 'No folder selected'
+      })
     }
   }
 
@@ -64,59 +62,57 @@ const MediaProcessPage = () => {
       />
       <Row gutter={[16, 16]}>
         <Col lg={10} xs={24}>
-          <CustomCard title="Media Processing Details ">
-            <Form layout="vertical" onFinish={onFinish}>
-              <Form.Item
-                name="cancelReason"
-                label="Choose a item"
-                rules={[
-                  {
-                    required: true,
-                    message: `Please select cancellation reason`
+          <Form layout="vertical" onFinish={onFinish}>
+            <Form.Item
+              name="cancelReason"
+              label="Choose a item"
+              rules={[
+                {
+                  required: true,
+                  message: `Please select cancellation reason`
+                }
+              ]}
+            >
+              <Select
+                style={{ width: '100%' }}
+                placeholder="Select reason"
+                options={ITEMS.map((item) => {
+                  return {
+                    label: item,
+                    value: item
                   }
-                ]}
-              >
-                <Select
-                  style={{ width: '100%' }}
-                  placeholder="Select reason"
-                  options={ITEMS.map((item) => {
-                    return {
-                      label: item,
-                      value: item
-                    }
-                  })}
-                />
-              </Form.Item>
-              <Row gutter={[16]}>
-                <Col xs={12} lg={12}>
-                  <Form.Item>
-                    <Button type="dashed" block onClick={handleSelectFolder}>
-                      Select Folder
-                    </Button>
-                    {folderPath && (
-                      <div style={{ marginTop: 8, wordBreak: 'break-all', fontSize: 12 }}>
-                        <b>Selected folder:</b> {folderPath}
-                      </div>
-                    )}
-                  </Form.Item>
-                </Col>
-                <Col xs={12} lg={12}>
-                  <Form.Item>
-                    <Button
-                      loading={uploading}
-                      danger
-                      type="primary"
-                      htmlType="submit"
-                      block
-                      disabled={uploading}
-                    >
-                      Upload
-                    </Button>
-                  </Form.Item>
-                </Col>
-              </Row>
-            </Form>
-          </CustomCard>
+                })}
+              />
+            </Form.Item>
+            <Row gutter={[16]}>
+              <Col xs={12} lg={12}>
+                <Form.Item>
+                  <Button type="dashed" block onClick={handleSelectFolder}>
+                    Select Folder
+                  </Button>
+                  {folderPath && (
+                    <div style={{ marginTop: 8, wordBreak: 'break-all', fontSize: 12 }}>
+                      <b>Selected folder:</b> {folderPath}
+                    </div>
+                  )}
+                </Form.Item>
+              </Col>
+              <Col xs={12} lg={12}>
+                <Form.Item>
+                  <Button
+                    loading={uploading}
+                    danger
+                    type="primary"
+                    htmlType="submit"
+                    block
+                    disabled={uploading}
+                  >
+                    Upload
+                  </Button>
+                </Form.Item>
+              </Col>
+            </Row>
+          </Form>
         </Col>
         <Col lg={14} xs={24}>
           <LogsViewer logRef={logRef} logs={logs} />
@@ -125,5 +121,7 @@ const MediaProcessPage = () => {
     </div>
   )
 }
+
+const MediaProcessPage = withNotification(MediaProcessPageWOC)
 
 export default MediaProcessPage

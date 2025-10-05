@@ -3,7 +3,6 @@ import { electronAPI } from '@electron-toolkit/preload'
 import { settingsAPI } from './settings.preload'
 import { githubSettingsAPI } from './githubSettings.preload'
 import { taskAPI } from './task.prelod'
-import { terminalAPI } from './terminal.prelod'
 import { systemAPI } from './system.prelod'
 import { toolsAPI } from './tools.preload'
 import { shellAPI } from './shell.preload'
@@ -36,7 +35,6 @@ if (process.contextIsolated) {
     contextBridge.exposeInMainWorld('settingsAPI', settingsAPI)
     contextBridge.exposeInMainWorld('githubSettingsAPI', githubSettingsAPI)
     contextBridge.exposeInMainWorld('taskAPI', taskAPI)
-    contextBridge.exposeInMainWorld('terminalAPI', terminalAPI)
     contextBridge.exposeInMainWorld('toolsAPI', toolsAPI)
     contextBridge.exposeInMainWorld('shellAPI', shellAPI)
     contextBridge.exposeInMainWorld('webviewAPI', webviewAPI)
@@ -51,7 +49,6 @@ if (process.contextIsolated) {
   window.settingsAPI = settingsAPI
   window.githubSettingsAPI = githubSettingsAPI
   window.taskAPI = taskAPI
-  window.terminalAPI = terminalAPI
   window.toolsAPI = toolsAPI
   window.shellAPI = shellAPI
   window.webviewAPI = webviewAPI

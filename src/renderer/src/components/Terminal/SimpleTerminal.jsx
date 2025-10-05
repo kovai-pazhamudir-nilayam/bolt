@@ -9,7 +9,7 @@ const SimpleTerminal = ({ style = {} }) => {
   useEffect(() => {
     console.log('SimpleTerminal: useEffect running')
     console.log('SimpleTerminal: terminalRef.current:', terminalRef.current)
-    
+
     if (!terminalRef.current) {
       console.log('SimpleTerminal: terminalRef.current is null, retrying in 100ms')
       setTimeout(() => {
@@ -35,7 +35,7 @@ const SimpleTerminal = ({ style = {} }) => {
 
   const initializeTerminal = () => {
     console.log('SimpleTerminal: Creating terminal instance')
-    
+
     try {
       const terminal = new XTerm({
         cursorBlink: true,
@@ -52,15 +52,14 @@ const SimpleTerminal = ({ style = {} }) => {
 
       console.log('SimpleTerminal: Terminal created, opening...')
       terminal.open(terminalRef.current)
-      
+
       terminal.write('Welcome to Simple Terminal!\r\n')
       terminal.write('Type some text here...\r\n')
       terminal.write('$ ')
 
       xtermRef.current = terminal
-      
-      console.log('SimpleTerminal: Terminal opened successfully')
 
+      console.log('SimpleTerminal: Terminal opened successfully')
     } catch (error) {
       console.error('SimpleTerminal: Error creating terminal:', error)
     }

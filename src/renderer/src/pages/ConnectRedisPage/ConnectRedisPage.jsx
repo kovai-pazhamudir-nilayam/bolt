@@ -1,5 +1,3 @@
-
-
 import { Col, Form, Row } from 'antd'
 import { useCallback, useEffect, useRef, useState } from 'react'
 import PageHeader from '../../components/PageHeader/PageHeader'
@@ -8,7 +6,7 @@ import SelectFormItem from '../../components/SelectFormItem'
 import SubmitBtnForm from '../../components/SubmitBtnForm'
 import withNotification from '../../hoc/withNotification'
 import { settingsFactory } from '../../repos/SettingsPage.repo'
-import { terminalFactory } from '../../repos/terminal.repo'
+import { shellFactory } from '../../repos/shell.repo'
 
 // Constants
 const COMMAND_TIMEOUT = 300000 // 5 minutes
@@ -16,7 +14,7 @@ const SUCCESS_CODE = 0
 
 // Initialize repositories
 const { companyRepo, environmentRepo, gcpProjectConfigRepo } = settingsFactory()
-const { terminalRepo } = terminalFactory()
+const { shellRepo } = shellFactory()
 
 const ConnectRedisPageWoc = ({ renderErrorNotification, renderSuccessNotification }) => {
   // State management
@@ -88,10 +86,10 @@ const ConnectRedisPageWoc = ({ renderErrorNotification, renderSuccessNotificatio
         }
       }
 
-      const logUnsub = terminalRepo.onLog(handleLog)
-      const endUnsub = terminalRepo.onEnd(handleEnd)
+      const logUnsub = shellRepo.onLog(handleLog)
+      const endUnsub = shellRepo.onEnd(handleEnd)
 
-      terminalRepo.run(kubectlCommand).catch(reject)
+      shellRepo.run(kubectlCommand).catch(reject)
     })
   }
 
@@ -130,8 +128,8 @@ const ConnectRedisPageWoc = ({ renderErrorNotification, renderSuccessNotificatio
     setLoading(true)
 
     // Register event listeners
-    const logUnsub = terminalRepo.onLog(handleLog)
-    const endUnsub = terminalRepo.onEnd(handleEnd)
+    const logUnsub = shellRepo.onLog(handleLog)
+    const endUnsub = shellRepo.onEnd(handleEnd)
 
     // Cleanup function
     const cleanup = () => {
@@ -150,7 +148,7 @@ const ConnectRedisPageWoc = ({ renderErrorNotification, renderSuccessNotificatio
     }
 
     // Execute command
-    terminalRepo.run(command).catch((error) => {
+    shellRepo.run(command).catch((error) => {
       setLoading(false)
       renderErrorNotification({
         message: error.message || 'Command execution failed'
@@ -200,8 +198,8 @@ const ConnectRedisPageWoc = ({ renderErrorNotification, renderSuccessNotificatio
             }
           }
 
-          const endUnsub = terminalRepo.onEnd(handleEnd)
-          terminalRepo.run(command).catch(reject)
+          const endUnsub = shellRepo.onEnd(handleEnd)
+          shellRepo.run(command).catch(reject)
         })
       }
     }
@@ -303,7 +301,6 @@ const ConnectRedisPageWoc = ({ renderErrorNotification, renderSuccessNotificatio
         Object.keys(window).filter((key) => key.includes('API') || key.includes('shell'))
       )
       console.log('shellAPI available:', !!window.shellAPI)
-      console.log('terminalAPI available:', !!window.terminalAPI)
     }
   }, [])
 

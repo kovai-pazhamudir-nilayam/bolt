@@ -1,5 +1,3 @@
-
-
 import { Button, Col, Form, Input, Row, Space, Tabs } from 'antd'
 import PageHeader from '../../components/PageHeader/PageHeader'
 import LogsViewer from '../../components/LogsViewer/LogsViewer'
@@ -7,9 +5,9 @@ import TerminalWrapper from '../../components/Terminal/TerminalWrapper'
 import SimpleTerminal from '../../components/Terminal/SimpleTerminal'
 import { useCallback, useEffect, useRef, useState } from 'react'
 import withNotification from '../../hoc/withNotification'
-import { terminalFactory } from '../../repos/terminal.repo'
+import { shellFactory } from '../../repos/shell.repo'
 
-const { terminalRepo } = terminalFactory()
+const { shellRepo } = shellFactory()
 
 const ShellCommandPageWoc = ({ renderErrorNotification, renderSuccessNotification }) => {
   const [logs, setLogs] = useState([])
@@ -73,11 +71,11 @@ const ShellCommandPageWoc = ({ renderErrorNotification, renderSuccessNotificatio
 
       try {
         // Register listeners and store unsubscribe functions
-        logUnsubRef.current = terminalRepo.onLog(handleLog)
-        endUnsubRef.current = terminalRepo.onEnd(handleEnd)
+        logUnsubRef.current = shellRepo.onLog(handleLog)
+        endUnsubRef.current = shellRepo.onEnd(handleEnd)
 
         // Run the command
-        const result = await terminalRepo.run(command, {
+        const result = await shellRepo.run(command, {
           cwd: workingDirectory || undefined
         })
 
@@ -93,7 +91,7 @@ const ShellCommandPageWoc = ({ renderErrorNotification, renderSuccessNotificatio
   const handleKillCommand = useCallback(async () => {
     if (currentProcessId) {
       try {
-        await terminalRepo.kill(currentProcessId)
+        await shellRepo.kill(currentProcessId)
         renderSuccessNotification({ message: 'Command terminated' })
         setCurrentProcessId(null)
         setLoading(false)
@@ -192,18 +190,27 @@ const ShellCommandPageWoc = ({ renderErrorNotification, renderSuccessNotificatio
       key: 'terminal',
       label: 'Interactive Terminal',
       children: (
-        <div style={{ height: '600px', border: '1px solid #d9d9d9', borderRadius: '6px', position: 'relative' }}>
+        <div
+          style={{
+            height: '600px',
+            border: '1px solid #d9d9d9',
+            borderRadius: '6px',
+            position: 'relative'
+          }}
+        >
           <SimpleTerminal style={{ height: '100%', width: '100%' }} />
-          <div style={{ 
-            position: 'absolute', 
-            top: '10px', 
-            right: '10px', 
-            background: 'rgba(0,0,0,0.7)', 
-            color: 'white', 
-            padding: '5px 10px', 
-            borderRadius: '4px',
-            fontSize: '12px'
-          }}>
+          <div
+            style={{
+              position: 'absolute',
+              top: '10px',
+              right: '10px',
+              background: 'rgba(0,0,0,0.7)',
+              color: 'white',
+              padding: '5px 10px',
+              borderRadius: '4px',
+              fontSize: '12px'
+            }}
+          >
             Terminal Status: Testing
           </div>
         </div>
