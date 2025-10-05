@@ -1,4 +1,4 @@
-/* eslint-disable react/prop-types */
+
 
 import { Col, Form, Row } from 'antd'
 import { useCallback, useEffect, useRef, useState } from 'react'

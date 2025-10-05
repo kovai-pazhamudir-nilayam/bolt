@@ -1,4 +1,4 @@
-/* eslint-disable react/prop-types */
+
 import { Col, Form, Row, Space } from 'antd'
 import { ShieldPlus, SquareAsterisk } from 'lucide-react'
 import { useEffect, useState } from 'react'

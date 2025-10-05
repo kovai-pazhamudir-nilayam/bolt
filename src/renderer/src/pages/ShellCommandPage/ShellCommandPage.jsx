@@ -1,4 +1,4 @@
-/* eslint-disable react/prop-types */
+
 
 import { Button, Col, Form, Input, Row, Space, Tabs } from 'antd'
 import PageHeader from '../../components/PageHeader/PageHeader'

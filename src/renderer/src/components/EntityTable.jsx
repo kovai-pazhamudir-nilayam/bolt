@@ -1,4 +1,3 @@
-/* eslint-disable react/prop-types */
 import { Button, Col, Input, Row, Space, Table } from 'antd'
 import { Edit, Plus, Trash, Search } from 'lucide-react'
 import { useState, useEffect } from 'react'

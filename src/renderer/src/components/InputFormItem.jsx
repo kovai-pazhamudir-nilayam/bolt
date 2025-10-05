@@ -1,4 +1,4 @@
-/* eslint-disable react/prop-types */
+
 import { Form, Input } from 'antd'
 
 const InputFormItem = ({

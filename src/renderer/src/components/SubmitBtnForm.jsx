@@ -1,4 +1,4 @@
-/* eslint-disable react/prop-types */
+
 import { Button, Form } from 'antd'
 
 const SubmitBtnForm = ({ loading = false, btnText = 'Submit' }) => {

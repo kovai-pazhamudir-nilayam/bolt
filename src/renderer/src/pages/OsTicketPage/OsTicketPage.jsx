@@ -1,4 +1,4 @@
-/* eslint-disable react/prop-types */
+
 
 import { Alert, Button, Space, Spin, Typography } from 'antd'
 import { Building2, ExternalLink, Info, RefreshCw } from 'lucide-react'

@@ -1,4 +1,4 @@
-/* eslint-disable react/prop-types */
+
 import { Tabs } from 'antd'
 import _ from 'lodash'
 import { useEffect, useState } from 'react'
