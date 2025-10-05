@@ -1,17 +1,50 @@
 import { Button, Col, Form, Row, Select, message } from 'antd'
-import { useRef, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import PageHeader from '../../components/PageHeader/PageHeader'
 import LogsViewer from '../../components/LogsViewer/LogsViewer'
 import { systemFactory } from '../../repos/system.repo'
 import withNotification from '../../hoc/withNotification'
+import { shellFactory } from '../../repos/shell.repo'
 const ITEMS = ['PRODUCT', 'CATEGORY', 'BRAND']
 const { systemRepo } = systemFactory()
+const { shellRepo } = shellFactory()
+import SelectFormItem from '../../components/SelectFormItem'
+import { settingsFactory } from '../../repos/SettingsPage.repo'
+const { companyRepo, environmentRepo } = settingsFactory()
 
 const MediaProcessPageWOC = ({ renderErrorNotification, renderSuccessNotification }) => {
   const [folderPath, setFolderPath] = useState('')
   const [logs, setLogs] = useState([])
   const logRef = useRef(null)
   const [uploading, setUploading] = useState(false)
+  const [loading, setLoading] = useState(false)
+  const [datasource, setDatasource] = useState({
+    companies: [],
+    environments: []
+  })
+
+  const fetchData = async () => {
+    setLoading(true)
+    try {
+      const [allCompanies, allEnvironments] = await Promise.all([
+        companyRepo.getAll(),
+        environmentRepo.getAll()
+      ])
+
+      setDatasource({
+        environments: allEnvironments,
+        companies: allCompanies
+      })
+    } catch (error) {
+      renderErrorNotification(error)
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  useEffect(() => {
+    fetchData()
+  }, [])
 
   const onFinish = async () => {
     if (!folderPath) {
@@ -62,7 +95,19 @@ const MediaProcessPageWOC = ({ renderErrorNotification, renderSuccessNotificatio
       />
       <Row gutter={[16, 16]}>
         <Col lg={10} xs={24}>
-          <Form layout="vertical" onFinish={onFinish}>
+          <Form layout="vertical" onFinish={onFinish} loading={loading}>
+            <SelectFormItem
+              options={datasource.companies}
+              name="company_code"
+              label="Company"
+              transform="COMPANIES"
+            />
+            <SelectFormItem
+              options={datasource.environments}
+              name="env_code"
+              label="Environment"
+              transform="ENVIRONMENTS"
+            />
             <Form.Item
               name="cancelReason"
               label="Choose a item"
