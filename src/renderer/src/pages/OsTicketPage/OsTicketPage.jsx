@@ -30,12 +30,8 @@ const OsTicketPageWoc = ({ renderErrorNotification, renderSuccessNotification })
         if (data[0].support_portal_url) {
           try {
             setIframeLoading(true)
-            console.log('Auto-embedding support portal for:', data[0].company_name)
-            console.log('webviewAPI available:', !!window.webviewAPI)
-            console.log('webviewAPI.embed available:', !!window.webviewAPI?.embed)
 
             if (!window.webviewAPI?.embed) {
-              console.warn('Webview embed API not available')
               setIframeLoading(false)
               return
             }
@@ -47,12 +43,9 @@ const OsTicketPageWoc = ({ renderErrorNotification, renderSuccessNotification })
             setEmbeddedUrl(data[0].support_portal_url)
             setShowIframe(true)
             setIframeLoading(false)
-
-            console.log('Auto-embedded support portal successfully')
           } catch (error) {
             console.error('Error auto-embedding iframe:', error)
             setIframeLoading(false)
-            // Don't show error notification for auto-embed, just log it
           }
         }
       }
@@ -68,47 +61,25 @@ const OsTicketPageWoc = ({ renderErrorNotification, renderSuccessNotification })
   }, [loadCompanies])
 
   useEffect(() => {
-    console.log('Component mounted, checking webview API availability:')
-    console.log('window.webviewAPI:', window.webviewAPI)
-    console.log('window.webviewAPI?.open:', window.webviewAPI?.open)
-    console.log('window.webviewAPI?.embed:', window.webviewAPI?.embed)
-    console.log(
-      'All window APIs:',
-      Object.keys(window).filter((key) => key.includes('API'))
-    )
+    // Check webview API availability
+    console.log('Webview API available:', !!window.webviewAPI)
   }, [])
 
   const handleOpenExternal = (url, companyName) => {
     try {
-      console.log('Attempting to open external URL:', url)
-      console.log(
-        'Available APIs:',
-        Object.keys(window).filter((key) => key.includes('API'))
-      )
-      console.log('window.electron:', window.electron)
-      console.log('window.electron?.shell:', window.electron?.shell)
-      // Try multiple methods to open external URL
-      if (window.electron?.shell?.openExternal) {
-        window.electron.shell.openExternal(url)
-        renderSuccessNotification({
-          message: `Opening ${companyName} support portal in external browser`
-        })
-      } else if (window.shellAPI?.openExternal) {
+      // Try shellAPI first, then fallback to electron API
+      if (window.shellAPI?.openExternal) {
         window.shellAPI.openExternal(url)
         renderSuccessNotification({
           message: `Opening ${companyName} support portal in external browser`
         })
+      } else if (window.electron?.shell?.openExternal) {
+        window.electron.shell.openExternal(url)
+        renderSuccessNotification({
+          message: `Opening ${companyName} support portal in external browser`
+        })
       } else {
-        // Fallback: try to open using the webview API navigate method
-        console.log('Falling back to webview navigate method')
-        if (window.webviewAPI?.navigate) {
-          window.webviewAPI.navigate(url)
-          renderSuccessNotification({
-            message: `Opening ${companyName} support portal in app window`
-          })
-        } else {
-          throw new Error('No external browser API available')
-        }
+        throw new Error('No external browser API available')
       }
     } catch (error) {
       console.error('Error opening external browser:', error)
@@ -120,35 +91,21 @@ const OsTicketPageWoc = ({ renderErrorNotification, renderSuccessNotification })
 
   const handleOpenInApp = async (url, companyName) => {
     try {
-      console.log('Attempting to open webview:', { url, companyName })
-      console.log('webviewAPI available:', !!window.webviewAPI)
-      console.log('webviewAPI.open available:', !!window.webviewAPI?.open)
-      console.log('Full webviewAPI object:', window.webviewAPI)
-
       if (!window.webviewAPI?.open) {
-        throw new Error('Webview API not available - check if webviewAPI is properly exposed')
+        throw new Error('Webview API not available')
       }
 
-      console.log('Calling webviewAPI.open with:', {
-        url,
-        options: {
-          width: 1400,
-          height: 900,
-          title: `${companyName} Support Portal`
-        }
-      })
-
-      const result = await window.webviewAPI.open(url, {
+      await window.webviewAPI.open(url, {
         width: 1400,
         height: 900,
         title: `${companyName} Support Portal`
       })
 
-      console.log('Webview open result:', result)
-      renderSuccessNotification({ message: `Opening ${companyName} support portal in app window` })
+      renderSuccessNotification({
+        message: `Opening ${companyName} support portal in app window`
+      })
     } catch (error) {
       console.error('Error opening webview:', error)
-      console.error('Error stack:', error.stack)
       renderErrorNotification({
         message: `Failed to open support portal in app window: ${error.message}`
       })
@@ -179,12 +136,8 @@ const OsTicketPageWoc = ({ renderErrorNotification, renderSuccessNotification })
     if (company && company.support_portal_url) {
       try {
         setIframeLoading(true)
-        console.log('Auto-embedding support portal for:', company.company_name)
-        console.log('webviewAPI available:', !!window.webviewAPI)
-        console.log('webviewAPI.embed available:', !!window.webviewAPI?.embed)
 
         if (!window.webviewAPI?.embed) {
-          console.warn('Webview embed API not available')
           setIframeLoading(false)
           return
         }
@@ -196,12 +149,9 @@ const OsTicketPageWoc = ({ renderErrorNotification, renderSuccessNotification })
         setEmbeddedUrl(company.support_portal_url)
         setShowIframe(true)
         setIframeLoading(false)
-
-        console.log('Auto-embedded support portal successfully')
       } catch (error) {
         console.error('Error auto-embedding iframe:', error)
         setIframeLoading(false)
-        // Don't show error notification for auto-embed, just log it
       }
     } else {
       // Close iframe if no support portal
@@ -345,7 +295,6 @@ const OsTicketPageWoc = ({ renderErrorNotification, renderSuccessNotification })
                         if (webview) {
                           webview.addEventListener('dom-ready', () => {
                             setIframeLoading(false)
-                            console.log('Webview loaded successfully')
                           })
                           webview.addEventListener('did-fail-load', (e) => {
                             console.error('Webview load error:', e)
