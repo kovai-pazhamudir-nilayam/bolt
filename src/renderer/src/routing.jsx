@@ -7,6 +7,7 @@ import {
   ImageUp,
   ListCheck,
   Settings as SettingsIcon,
+  Ticket,
   ToolCase,
   User
 } from 'lucide-react'
@@ -16,6 +17,7 @@ import DBBackpupPage from './pages/DBBackpupPage/DBBackpupPage'
 import FetchLocalLogsPage from './pages/FetchLocalLogsPage/FetchLocalLogsPage'
 import GithubSettingsPage from './pages/GithubSettingsPage/GithubSettingsPage'
 import MediaProcessPage from './pages/MediaProcessPage/MediaProcessPage'
+import OsTicketPage from './pages/OsTicketPage/OsTicketPage'
 import PageBuilderPage from './pages/PageBuilderPage/PageBuilderPage'
 import ProfilePage from './pages/ProfilePage/ProfilePage'
 import ProxyConfiguratorPage from './pages/ProxyConfiguratorPage/ProxyConfiguratorPage'
@@ -74,7 +76,7 @@ export const ROUTES = [
   },
   {
     label: 'Proxy Configurator',
-    path: '/tools/table-builder',
+    path: '/tools/proxy-configurator',
     icon: ToolCase,
     hideInMenu: true,
     element: <ProxyConfiguratorPage />
@@ -166,5 +168,11 @@ export const ROUTES = [
     path: '/shell-command',
     icon: User,
     element: <ShellCommandPage />
+  },
+  {
+    label: 'osTicket',
+    path: '/os-ticket',
+    icon: Ticket,
+    element: <OsTicketPage />
   }
 ]

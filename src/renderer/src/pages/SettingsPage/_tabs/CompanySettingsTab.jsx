@@ -35,7 +35,7 @@ const CompanyModal = ({ editing, handleCancel, onFinish, form }) => {
         <Form.Item
           rules={[
             {
-              required: true,
+              required: false,
               message: 'Logo URL is required'
             },
             {
@@ -59,6 +59,25 @@ const CompanyModal = ({ editing, handleCancel, onFinish, form }) => {
         >
           <Input placeholder="Optional logo URL" />
         </Form.Item>
+        <Form.Item
+          name="support_portal_url"
+          label="Support Portal URL"
+          rules={[
+            {
+              validator: (_, value) => {
+                if (!value) return Promise.resolve()
+                try {
+                  new URL(value)
+                  return Promise.resolve()
+                } catch {
+                  return Promise.reject('Invalid URL format')
+                }
+              }
+            }
+          ]}
+        >
+          <Input placeholder="e.g., https://helpdesk.company.com" />
+        </Form.Item>
         <Form.Item>
           <Button type="primary" htmlType="submit">
             Submit
@@ -77,6 +96,12 @@ const columns = [
     dataIndex: 'company_logo',
     key: 'company_logo',
     render: (text) => text || 'No logo'
+  },
+  {
+    title: 'Support Portal',
+    dataIndex: 'support_portal_url',
+    key: 'support_portal_url',
+    render: (text) => text || 'Not configured'
   },
   {
     title: 'Created',

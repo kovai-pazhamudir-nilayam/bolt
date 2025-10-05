@@ -11,6 +11,7 @@ import { registerGithubSettingsHandler } from './ipc/githubSettings.ipc/githubSe
 import { registerTaskHandler } from './ipc/task.ipc'
 import { registerToolsHandler } from './ipc/tools.ipc/tools.ipc'
 import { registerShellHandler } from './ipc/shell.ipc'
+import { registerWebviewHandler } from './ipc/webview.ipc'
 
 function createWindow() {
   // Create the browser window.
@@ -21,7 +22,10 @@ function createWindow() {
     // ...(process.platform === 'linux' ? { icon } : {}),
     webPreferences: {
       preload: join(__dirname, '../preload/index.js'),
-      sandbox: false
+      sandbox: false,
+      webviewTag: true,
+      nodeIntegration: false,
+      contextIsolation: true
     }
   })
 
@@ -72,6 +76,7 @@ app.whenReady().then(async () => {
   registerTaskManagerDIHandler(ipcMain)
   registerToolsHandler(ipcMain)
   registerShellHandler(ipcMain)
+  registerWebviewHandler(ipcMain)
 
   createWindow()
 

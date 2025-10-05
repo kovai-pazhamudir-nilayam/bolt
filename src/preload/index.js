@@ -7,6 +7,7 @@ import { terminalAPI } from './terminal.prelod'
 import { systemAPI } from './system.prelod'
 import { toolsAPI } from './tools.preload'
 import { shellAPI } from './shell.preload'
+import { webviewAPI } from './webview.preload'
 
 // const system2345 = {
 //   onTaskManagerLog: (callback) => {
@@ -37,7 +38,9 @@ if (process.contextIsolated) {
     contextBridge.exposeInMainWorld('terminalAPI', terminalAPI)
     contextBridge.exposeInMainWorld('toolsAPI', toolsAPI)
     contextBridge.exposeInMainWorld('shellAPI', shellAPI)
-    console.log('All APIs exposed successfully, including shellAPI')
+    contextBridge.exposeInMainWorld('webviewAPI', webviewAPI)
+    console.log('All APIs exposed successfully, including webviewAPI')
+    console.log('webviewAPI object:', webviewAPI)
   } catch (error) {
     console.error('Error exposing APIs:', error)
   }
@@ -51,5 +54,7 @@ if (process.contextIsolated) {
   window.terminalAPI = terminalAPI
   window.toolsAPI = toolsAPI
   window.shellAPI = shellAPI
-  console.log('All APIs added to window object, including shellAPI')
+  window.webviewAPI = webviewAPI
+  console.log('All APIs added to window object, including webviewAPI')
+  console.log('webviewAPI object:', webviewAPI)
 }

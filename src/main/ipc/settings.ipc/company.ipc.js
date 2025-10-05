@@ -4,19 +4,21 @@ export const registerCompanyHandler = (ipcMain, configDb) => {
   }
 
   async function upsertCompany(event, input) {
-    const { company_code, company_name, company_logo } = input
+    const { company_code, company_name, company_logo, support_portal_url } = input
     return configDb
       .knex('company')
       .insert({
         company_code,
         company_name,
         company_logo,
+        support_portal_url,
         updated_at: configDb.knex.fn.now()
       })
       .onConflict('company_code')
       .merge({
         company_name,
         company_logo,
+        support_portal_url,
         updated_at: configDb.knex.fn.now()
       })
   }
