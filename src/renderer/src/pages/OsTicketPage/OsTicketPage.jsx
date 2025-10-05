@@ -80,12 +80,41 @@ const OsTicketPageWoc = ({ renderErrorNotification, renderSuccessNotification })
 
   const handleOpenExternal = (url, companyName) => {
     try {
-      window.electron?.shell?.openExternal?.(url)
-      renderSuccessNotification({
-        message: `Opening ${companyName} support portal in external browser`
+      console.log('Attempting to open external URL:', url)
+      console.log(
+        'Available APIs:',
+        Object.keys(window).filter((key) => key.includes('API'))
+      )
+      console.log('window.electron:', window.electron)
+      console.log('window.electron?.shell:', window.electron?.shell)
+      // Try multiple methods to open external URL
+      if (window.electron?.shell?.openExternal) {
+        window.electron.shell.openExternal(url)
+        renderSuccessNotification({
+          message: `Opening ${companyName} support portal in external browser`
+        })
+      } else if (window.shellAPI?.openExternal) {
+        window.shellAPI.openExternal(url)
+        renderSuccessNotification({
+          message: `Opening ${companyName} support portal in external browser`
+        })
+      } else {
+        // Fallback: try to open using the webview API navigate method
+        console.log('Falling back to webview navigate method')
+        if (window.webviewAPI?.navigate) {
+          window.webviewAPI.navigate(url)
+          renderSuccessNotification({
+            message: `Opening ${companyName} support portal in app window`
+          })
+        } else {
+          throw new Error('No external browser API available')
+        }
+      }
+    } catch (error) {
+      console.error('Error opening external browser:', error)
+      renderErrorNotification({
+        message: `Failed to open external browser: ${error.message}`
       })
-    } catch {
-      renderErrorNotification({ message: 'Failed to open external browser' })
     }
   }
 
@@ -124,12 +153,6 @@ const OsTicketPageWoc = ({ renderErrorNotification, renderSuccessNotification })
         message: `Failed to open support portal in app window: ${error.message}`
       })
     }
-  }
-
-  const handleCloseIframe = () => {
-    setShowIframe(false)
-    setEmbeddedUrl(null)
-    setIframeLoading(false)
   }
 
   // Handle iframe navigation and session management
@@ -235,12 +258,11 @@ const OsTicketPageWoc = ({ renderErrorNotification, renderSuccessNotification })
                   <div
                     style={{
                       display: 'flex',
-                      justifyContent: 'space-between',
+                      justifyContent: 'end',
                       alignItems: 'center',
                       marginBottom: 8
                     }}
                   >
-                    <Title level={5}>Support Portal (Embedded)</Title>
                     <Space>
                       <Button
                         size="small"
@@ -269,9 +291,6 @@ const OsTicketPageWoc = ({ renderErrorNotification, renderSuccessNotification })
                         type="text"
                       >
                         Open in Window
-                      </Button>
-                      <Button size="small" onClick={handleCloseIframe} type="text">
-                        Close
                       </Button>
                     </Space>
                   </div>
@@ -302,7 +321,6 @@ const OsTicketPageWoc = ({ renderErrorNotification, renderSuccessNotification })
                         <Spin size="large" />
                       </div>
                     )}
-                    {/* eslint-disable-next-line react/no-unknown-property */}
                     <webview
                       src={embeddedUrl}
                       style={{
@@ -312,10 +330,15 @@ const OsTicketPageWoc = ({ renderErrorNotification, renderSuccessNotification })
                         opacity: iframeLoading ? 0 : 1,
                         transition: 'opacity 0.3s ease'
                       }}
+                      // eslint-disable-next-line react/no-unknown-property
                       partition="persist:webview-session"
+                      // eslint-disable-next-line react/no-unknown-property
                       preload=""
+                      // eslint-disable-next-line react/no-unknown-property
                       nodeintegration="false"
+                      // eslint-disable-next-line react/no-unknown-property
                       websecurity="false"
+                      // eslint-disable-next-line react/no-unknown-property
                       allowpopups="true"
                       title="Support Portal"
                       ref={(webview) => {

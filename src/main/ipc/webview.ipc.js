@@ -1,5 +1,8 @@
 import { BrowserWindow, session } from 'electron'
 
+// Global flag to track if header filtering is already set up
+let headerFilteringSetup = false
+
 export const registerWebviewHandler = (ipcMain) => {
   // Handle opening URL in iframe within the app
   ipcMain.handle('webview:open', async (event, url, options = {}) => {
@@ -7,26 +10,31 @@ export const registerWebviewHandler = (ipcMain) => {
     const { width = 1200, height = 800, title = 'Web View' } = options
 
     try {
-      // Set up header filtering to allow iframe embedding
-      const urlObj = new URL(url)
-      const filter = { urls: [`${urlObj.origin}/*`] }
+      // Set up header filtering only once to avoid multiple listeners
+      if (!headerFilteringSetup) {
+        const urlObj = new URL(url)
+        const filter = { urls: [`${urlObj.origin}/*`] }
 
-      // Remove CSP and X-Frame-Options headers to allow iframe embedding
-      session.defaultSession.webRequest.onHeadersReceived(filter, (details, callback) => {
-        const headers = details.responseHeaders || {}
+        // Remove CSP and X-Frame-Options headers to allow iframe embedding
+        session.defaultSession.webRequest.onHeadersReceived(filter, (details, callback) => {
+          const headers = details.responseHeaders || {}
 
-        // Remove CSP headers
-        delete headers['content-security-policy']
-        delete headers['content-security-policy-report-only']
-        delete headers['Content-Security-Policy']
-        delete headers['Content-Security-Policy-Report-Only']
+          // Remove CSP headers
+          delete headers['content-security-policy']
+          delete headers['content-security-policy-report-only']
+          delete headers['Content-Security-Policy']
+          delete headers['Content-Security-Policy-Report-Only']
 
-        // Remove X-Frame-Options headers
-        delete headers['x-frame-options']
-        delete headers['X-Frame-Options']
+          // Remove X-Frame-Options headers
+          delete headers['x-frame-options']
+          delete headers['X-Frame-Options']
 
-        callback({ responseHeaders: headers })
-      })
+          callback({ responseHeaders: headers })
+        })
+
+        headerFilteringSetup = true
+        console.log('Header filtering set up for webview')
+      }
 
       // Create a new browser window with iframe-friendly settings
       const webviewWindow = new BrowserWindow({
@@ -90,7 +98,8 @@ export const registerWebviewHandler = (ipcMain) => {
       // Handle window closed
       webviewWindow.on('closed', () => {
         // Clean up the header filter when window is closed
-        session.defaultSession.webRequest.removeListener('onHeadersReceived')
+        // Note: webRequest listeners are automatically cleaned up when the session is destroyed
+        console.log('Webview window closed, cleaning up')
       })
 
       // Handle new window requests (open in external browser)
@@ -128,26 +137,8 @@ export const registerWebviewHandler = (ipcMain) => {
     console.log('Webview embed handler called with:', { url })
 
     try {
-      // Set up header filtering to allow iframe embedding
-      const urlObj = new URL(url)
-      const filter = { urls: [`${urlObj.origin}/*`] }
-
-      // Remove CSP and X-Frame-Options headers to allow iframe embedding
-      session.defaultSession.webRequest.onHeadersReceived(filter, (details, callback) => {
-        const headers = details.responseHeaders || {}
-
-        // Remove CSP headers
-        delete headers['content-security-policy']
-        delete headers['content-security-policy-report-only']
-        delete headers['Content-Security-Policy']
-        delete headers['Content-Security-Policy-Report-Only']
-
-        // Remove X-Frame-Options headers
-        delete headers['x-frame-options']
-        delete headers['X-Frame-Options']
-
-        callback({ responseHeaders: headers })
-      })
+      // Header filtering is already set up in the open handler, so we don't need to set it up again
+      console.log('Using existing header filtering setup')
 
       // Configure session for better cookie handling
       const webviewSession = session.fromPartition('persist:webview-session')
@@ -164,19 +155,6 @@ export const registerWebviewHandler = (ipcMain) => {
       webviewSession.setPermissionRequestHandler((webContents, permission, callback) => {
         // Allow all permissions for the webview
         callback(true)
-      })
-
-      // Set up additional webRequest handlers for better session management
-      webviewSession.webRequest.onBeforeSendHeaders((details, callback) => {
-        // Add additional headers that might be needed for session management
-        details.requestHeaders['Accept'] =
-          'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8'
-        details.requestHeaders['Accept-Language'] = 'en-US,en;q=0.5'
-        details.requestHeaders['Accept-Encoding'] = 'gzip, deflate, br'
-        details.requestHeaders['DNT'] = '1'
-        details.requestHeaders['Connection'] = 'keep-alive'
-        details.requestHeaders['Upgrade-Insecure-Requests'] = '1'
-        callback({ requestHeaders: details.requestHeaders })
       })
 
       return { success: true, url }

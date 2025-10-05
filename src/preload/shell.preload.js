@@ -12,6 +12,9 @@ const shellAPI = {
   // Get active processes
   getActiveProcesses: () => ipcRenderer.invoke('shell:active-processes'),
 
+  // Open external URL in default browser
+  openExternal: (url) => ipcRenderer.invoke('shell:openExternal', url),
+
   // Listen for log events
   onLog: (callback) => {
     const handler = (event, data) => callback(data)

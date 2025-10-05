@@ -1,4 +1,5 @@
 import { spawn } from 'child_process'
+import { shell } from 'electron'
 
 // Store active processes to manage them
 const activeProcesses = new Map()
@@ -88,6 +89,18 @@ export const registerShellHandler = (ipcMain) => {
   // Handle getting active processes
   ipcMain.handle('shell:active-processes', async () => {
     return Array.from(activeProcesses.keys())
+  })
+
+  // Handle opening external URL in default browser
+  ipcMain.handle('shell:openExternal', async (event, url) => {
+    try {
+      console.log('Opening external URL:', url)
+      await shell.openExternal(url)
+      return { success: true }
+    } catch (error) {
+      console.error('Error opening external URL:', error)
+      throw new Error(`Failed to open external URL: ${error.message}`)
+    }
   })
 
   // Cleanup all processes on app quit
