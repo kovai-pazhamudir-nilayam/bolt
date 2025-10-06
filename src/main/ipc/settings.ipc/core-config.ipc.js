@@ -1,31 +1,39 @@
 export const registeCoreConfigHandler = (ipcMain, configDb) => {
-  async function getCompanies() {
-    return configDb.knex('core-config').select('*')
+  async function getAllCoreConfig() {
+    return configDb.knex('core_config').select('*')
   }
 
-  async function upsertCompany(event, input) {
-    const { company_code, company_name, company_logo } = input
+  async function upsertCoreConfig(_event, input) {
+    const { company_code, env_code, base_url, auth_api, auth_api_key } = input
     return configDb
-      .knex('core-config')
+      .knex('core_config')
       .insert({
         company_code,
-        company_name,
-        company_logo,
+        env_code,
+        base_url,
+        auth_api,
+        auth_api_key,
         updated_at: configDb.knex.fn.now()
       })
-      .onConflict('core-config_code')
+      .onConflict(['company_code', 'env_code'])
       .merge({
-        company_name,
-        company_logo,
+        base_url,
+        auth_api,
+        auth_api_key,
         updated_at: configDb.knex.fn.now()
       })
   }
 
-  async function deleteCompany(event, company_code) {
-    return configDb.knex('core-config').where({ company_code }).del()
+  async function deleteCoreConfig(_event, { company_code, env_code }) {
+    return configDb.knex('core_config').where({ company_code, env_code }).del()
   }
 
-  ipcMain.handle('core-config:getAll', getCompanies)
-  ipcMain.handle('core-config:upsert', upsertCompany)
-  ipcMain.handle('core-config:delete', deleteCompany)
+  async function getOneCoreConfig(_event, { company_code, env_code }) {
+    return configDb.knex('core_config').where({ company_code, env_code }).first()
+  }
+
+  ipcMain.handle('core-config:getAll', getAllCoreConfig)
+  ipcMain.handle('core-config:getOne', getOneCoreConfig)
+  ipcMain.handle('core-config:upsert', upsertCoreConfig)
+  ipcMain.handle('core-config:delete', deleteCoreConfig)
 }

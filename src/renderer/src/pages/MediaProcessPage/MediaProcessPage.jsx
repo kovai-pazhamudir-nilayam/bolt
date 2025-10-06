@@ -1,16 +1,17 @@
 import { Button, Col, Form, Row, Select } from 'antd'
-import { useCallback, useEffect, useRef, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
+import CompanySelection from '../../components/CompanySelection'
+import EnvironmentSelection from '../../components/EnvironmentSelection'
 import LogsViewer from '../../components/LogsViewer/LogsViewer'
 import PageHeader from '../../components/PageHeader/PageHeader'
 import SubmitBtnForm from '../../components/SubmitBtnForm'
-import SelectFormItem from '../../components/SelectFormItem'
 import withNotification from '../../hoc/withNotification'
 import { settingsFactory } from '../../repos/SettingsPage.repo'
 import { shellFactory } from '../../repos/shell.repo'
 import { systemFactory } from '../../repos/system.repo'
 const { systemRepo } = systemFactory()
 const { shellRepo } = shellFactory()
-const { companyRepo, environmentRepo, mediaConfigRepo } = settingsFactory()
+const { mediaConfigRepo } = settingsFactory()
 
 const ITEMS = ['PRODUCT', 'CATEGORY', 'BRAND']
 
@@ -19,37 +20,10 @@ const MediaProcessPageWOC = ({ renderErrorNotification, renderSuccessNotificatio
   const [logs, setLogs] = useState([])
   const logRef = useRef(null)
   const [uploading, setUploading] = useState(false)
-  const [loading, setLoading] = useState(false)
-  const [datasource, setDatasource] = useState({
-    companies: [],
-    environments: []
-  })
+
   const [folderError, setFolderError] = useState('')
   const logUnsubRef = useRef(null)
   const endUnsubRef = useRef(null)
-
-  const fetchData = useCallback(async () => {
-    setLoading(true)
-    try {
-      const [allCompanies, allEnvironments] = await Promise.all([
-        companyRepo.getAll(),
-        environmentRepo.getAll()
-      ])
-
-      setDatasource({
-        environments: allEnvironments,
-        companies: allCompanies
-      })
-    } catch (error) {
-      renderErrorNotification(error)
-    } finally {
-      setLoading(false)
-    }
-  }, [renderErrorNotification])
-
-  useEffect(() => {
-    fetchData()
-  }, [fetchData])
 
   // Cleanup listeners on unmount
   useEffect(() => {
@@ -208,19 +182,9 @@ const MediaProcessPageWOC = ({ renderErrorNotification, renderSuccessNotificatio
       />
       <Row gutter={[16, 16]}>
         <Col lg={10} xs={24}>
-          <Form layout="vertical" onFinish={onFinish} loading={loading}>
-            <SelectFormItem
-              options={datasource.companies}
-              name="company_code"
-              label="Company"
-              transform="COMPANIES"
-            />
-            <SelectFormItem
-              options={datasource.environments}
-              name="env_code"
-              label="Environment"
-              transform="ENVIRONMENTS"
-            />
+          <Form layout="vertical" onFinish={onFinish}>
+            <CompanySelection />
+            <EnvironmentSelection />
             <Form.Item
               name="type"
               label="Choose a item"

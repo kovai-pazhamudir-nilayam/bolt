@@ -35,11 +35,19 @@ const passwordManager = {
   delete: (id) => ipcRenderer.invoke('passwordManager:delete', id)
 }
 
+const coreConfig = {
+  getAll: () => ipcRenderer.invoke('core-config:getAll'),
+  getOne: (input) => ipcRenderer.invoke('core-config:getOne', input),
+  upsert: (input) => ipcRenderer.invoke('core-config:upsert', input),
+  delete: (input) => ipcRenderer.invoke('core-config:delete', input)
+}
+
 const settingsAPI = {
   company,
   environment,
   gcpProjectConfig,
   mediaConfig,
-  passwordManager
+  passwordManager,
+  coreConfig
 }
 export { settingsAPI }

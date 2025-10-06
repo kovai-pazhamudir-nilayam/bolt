@@ -2,21 +2,21 @@ import { useEffect, useState } from 'react'
 import SelectFormItem from './SelectFormItem'
 import withNotification from '../hoc/withNotification'
 import { settingsFactory } from '../repos/SettingsPage.repo'
-const { environmentRepo } = settingsFactory()
+const { companyRepo } = settingsFactory()
 
-const EnvironmentSelectionWOC = ({ renderErrorNotification }) => {
+const CompanySelectionWOC = ({ renderErrorNotification }) => {
   // const [loading, setLoading] = useState(false)
   const [datasource, setDatasource] = useState({
-    environments: []
+    companies: []
   })
 
   const fetchData = async () => {
     // setLoading(true)
     try {
-      const [environments] = await Promise.all([environmentRepo.getAll()])
+      const [allCompanies] = await Promise.all([companyRepo.getAll()])
 
       setDatasource({
-        environments: environments
+        companies: allCompanies
       })
     } catch (error) {
       renderErrorNotification(error)
@@ -31,14 +31,14 @@ const EnvironmentSelectionWOC = ({ renderErrorNotification }) => {
 
   return (
     <SelectFormItem
-      options={datasource.environments}
-      name="env_code"
-      label="Environment"
-      transform="ENVIRONMENTS"
+      options={datasource.companies}
+      name="company_code"
+      label="Company"
+      transform="COMPANIES"
     />
   )
 }
 
-const EnvironmentSelection = withNotification(EnvironmentSelectionWOC)
+const CompanySelection = withNotification(CompanySelectionWOC)
 
-export default EnvironmentSelection
+export default CompanySelection

@@ -10,6 +10,8 @@ const companyDB = {
   delete: (company_code) => window.settingsAPI.company.delete(company_code)
 }
 
+const coreConfigAPI = {}
+
 const environmentAPI = {
   getAll: () => {},
   upsert: () => {},
@@ -36,16 +38,28 @@ const mediaConfigDB = {
   delete: (input) => window.settingsAPI.mediaConfig.delete(input)
 }
 
+const coreConfigDB = {
+  getAll: () => window.settingsAPI.coreConfig.getAll(),
+  getOne: (input) => window.settingsAPI.coreConfig.getOne(input),
+  upsert: (input) => window.settingsAPI.coreConfig.upsert(input),
+  delete: (input) => window.settingsAPI.coreConfig.delete(input)
+}
+
 const settingsFactory = () => {
   const mode = window.runtimeConfig?.mode || 'local'
   if (mode === 'api') {
-    return { companyRepo: companyAPI, environmentRepo: environmentAPI }
+    return {
+      companyRepo: companyAPI,
+      environmentRepo: environmentAPI,
+      coreConfigRepo: coreConfigAPI
+    }
   }
   return {
     companyRepo: companyDB,
     environmentRepo: environmentDB,
     gcpProjectConfigRepo: gcpProjectConfigDB,
-    mediaConfigRepo: mediaConfigDB
+    mediaConfigRepo: mediaConfigDB,
+    coreConfigRepo: coreConfigDB
   }
 }
 
