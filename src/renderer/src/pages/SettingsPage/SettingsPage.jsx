@@ -1,5 +1,5 @@
 import CustomTabs from '../../components/CustomTabs/CustomTabs'
-import { Building2, Cloud, Database } from 'lucide-react'
+import { Building2, Cloud, Database, Image } from 'lucide-react'
 // import CompaniesSettings from './SettingsPageTabs/CompaniesSettings'
 // import CoreTokenConfigsSettings from './_blocks/CoreTokenConfigsSettings'
 // import GcpProjectConfigsSettings from './_blocks/GcpProjectConfigsSettings'
@@ -8,6 +8,7 @@ import EnvironmentsSettingsTab from './_tabs/EnvironmentsSettingsTab'
 import CompanySettingsTab from './_tabs/CompanySettingsTab'
 import CoreConfigsSettingsPageTab from './_tabs/CoreConfigsSettingsPageTab'
 import GcpProjectConfigsSettingsTab from './_tabs/GcpProjectConfigsSettingsTab'
+import MediaConfigSettingsTab from './_tabs/MediaConfigSettingsTab'
 
 const SettingsPage = () => {
   const tabItems = [
@@ -50,6 +51,16 @@ const SettingsPage = () => {
         </span>
       ),
       children: <GcpProjectConfigsSettingsTab />
+    },
+    {
+      key: 'media-configs',
+      label: (
+        <span>
+          <Image size={16} style={{ marginRight: 8 }} />
+          Media Config
+        </span>
+      ),
+      children: <MediaConfigSettingsTab />
     }
   ]
 

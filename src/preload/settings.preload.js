@@ -19,6 +19,13 @@ const gcpProjectConfig = {
   delete: (input) => ipcRenderer.invoke('gcp-project-config:delete', input)
 }
 
+const mediaConfig = {
+  getAll: () => ipcRenderer.invoke('media-config:getAll'),
+  getOne: (input) => ipcRenderer.invoke('media-config:getOne', input),
+  upsert: (input) => ipcRenderer.invoke('media-config:upsert', input),
+  delete: (input) => ipcRenderer.invoke('media-config:delete', input)
+}
+
 const passwordManager = {
   getAll: () => ipcRenderer.invoke('passwordManager:getAll'),
   getById: (id) => ipcRenderer.invoke('passwordManager:getById', id),
@@ -32,6 +39,7 @@ const settingsAPI = {
   company,
   environment,
   gcpProjectConfig,
+  mediaConfig,
   passwordManager
 }
 export { settingsAPI }

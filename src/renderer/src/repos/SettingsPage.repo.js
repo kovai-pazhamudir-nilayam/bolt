@@ -29,6 +29,13 @@ const gcpProjectConfigDB = {
   delete: (input) => window.settingsAPI.gcpProjectConfig.delete(input)
 }
 
+const mediaConfigDB = {
+  getAll: () => window.settingsAPI.mediaConfig.getAll(),
+  getOne: (input) => window.settingsAPI.mediaConfig.getOne(input),
+  upsert: (input) => window.settingsAPI.mediaConfig.upsert(input),
+  delete: (input) => window.settingsAPI.mediaConfig.delete(input)
+}
+
 const settingsFactory = () => {
   const mode = window.runtimeConfig?.mode || 'local'
   if (mode === 'api') {
@@ -37,7 +44,8 @@ const settingsFactory = () => {
   return {
     companyRepo: companyDB,
     environmentRepo: environmentDB,
-    gcpProjectConfigRepo: gcpProjectConfigDB
+    gcpProjectConfigRepo: gcpProjectConfigDB,
+    mediaConfigRepo: mediaConfigDB
   }
 }
 
