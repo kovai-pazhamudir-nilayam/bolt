@@ -3,6 +3,7 @@ import { useEffect, useState } from 'react'
 import EntityTable from '../../../components/EntityTable'
 import withNotification from '../../../hoc/withNotification'
 import { settingsFactory } from '../../../repos/SettingsPage.repo'
+import SelectFormItem from '../../../components/SelectFormItem'
 
 const { Option } = Select
 const { mediaConfigRepo, companyRepo, environmentRepo } = settingsFactory()
@@ -19,46 +20,31 @@ const MediaConfigModal = ({ editing, handleCancel, onFinish, form, companies, en
       width={600}
     >
       <Form form={form} onFinish={onFinish} layout="vertical" requiredMark={false}>
-        <Form.Item
+        <SelectFormItem
+          options={companies}
           name="company_code"
           label="Company"
-          rules={[{ required: true, message: 'Please select company' }]}
-        >
-          <Select placeholder="Select company" disabled={editing}>
-            {companies.map((company) => (
-              <Option key={company.company_code} value={company.company_code}>
-                {company.company_name}
-              </Option>
-            ))}
-          </Select>
-        </Form.Item>
-        
-        <Form.Item
-          name="environment_code"
+          transform="COMPANIES"
+        />
+        <SelectFormItem
+          options={environments}
+          name="env_code"
           label="Environment"
-          rules={[{ required: true, message: 'Please select environment' }]}
-        >
-          <Select placeholder="Select environment" disabled={editing}>
-            {environments.map((env) => (
-              <Option key={env.environment_code} value={env.environment_code}>
-                {env.environment_name}
-              </Option>
-            ))}
-          </Select>
-        </Form.Item>
-        
+          transform="ENVIRONMENTS"
+        />
+
         <Form.Item
           name="type"
           label="Type"
           rules={[{ required: true, message: 'Please select type' }]}
         >
           <Select placeholder="Select type" disabled={editing}>
-            <Option value="product">Product</Option>
-            <Option value="brand">Brand</Option>
-            <Option value="category">Category</Option>
+            <Option value="PRODUCT">Product</Option>
+            <Option value="BRAND">Brand</Option>
+            <Option value="CATEGORY">Category</Option>
           </Select>
         </Form.Item>
-        
+
         <Form.Item
           name="bucket_path"
           label="Bucket Path"
@@ -66,7 +52,7 @@ const MediaConfigModal = ({ editing, handleCancel, onFinish, form, companies, en
         >
           <Input placeholder="e.g., /media/products/company1" />
         </Form.Item>
-        
+
         <Form.Item>
           <Button type="primary" htmlType="submit">
             Submit
@@ -78,11 +64,11 @@ const MediaConfigModal = ({ editing, handleCancel, onFinish, form, companies, en
 }
 
 const columns = [
-  { title: 'Company', dataIndex: 'company_name', key: 'company_name' },
-  { title: 'Environment', dataIndex: 'environment_name', key: 'environment_name' },
-  { 
-    title: 'Type', 
-    dataIndex: 'type', 
+  { title: 'Company', dataIndex: 'company_code', key: 'company_code' },
+  { title: 'Environment', dataIndex: 'env_code', key: 'env_code' },
+  {
+    title: 'Type',
+    dataIndex: 'type',
     key: 'type',
     render: (text) => text.charAt(0).toUpperCase() + text.slice(1)
   },
@@ -123,7 +109,7 @@ const MediaConfigSettingsTabWOC = ({ renderErrorNotification, renderSuccessNotif
       setCompanies(companiesData)
       setEnvironments(environmentsData)
     } catch (error) {
-      renderErrorNotification(error)
+      renderErrorNotification({ message: error.message })
     } finally {
       setLoading(false)
     }
@@ -153,7 +139,7 @@ const MediaConfigSettingsTabWOC = ({ renderErrorNotification, renderSuccessNotif
         message: 'Media Config deleted successfully!'
       })
     } catch (error) {
-      renderErrorNotification(error)
+      renderErrorNotification({ message: error.message })
     }
   }
 
@@ -179,10 +165,12 @@ const MediaConfigSettingsTabWOC = ({ renderErrorNotification, renderSuccessNotif
       form.resetFields()
       loadData()
       renderSuccessNotification({
-        message: editing ? 'Media Config updated successfully!' : 'Media Config created successfully!'
+        message: editing
+          ? 'Media Config updated successfully!'
+          : 'Media Config created successfully!'
       })
     } catch (error) {
-      renderErrorNotification(error)
+      renderErrorNotification({ message: error.message })
     }
   }
 
