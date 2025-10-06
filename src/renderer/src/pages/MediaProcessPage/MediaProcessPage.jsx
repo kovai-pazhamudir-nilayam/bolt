@@ -1,5 +1,6 @@
 import { Button, Col, Form, Row, Select } from 'antd'
-import { useEffect, useRef, useState } from 'react'
+import { useRef, useState } from 'react'
+import fs from 'fs'
 import CompanySelection from '../../components/CompanySelection'
 import EnvironmentSelection from '../../components/EnvironmentSelection'
 import LogsViewer from '../../components/LogsViewer/LogsViewer'
@@ -7,13 +8,73 @@ import PageHeader from '../../components/PageHeader/PageHeader'
 import SubmitBtnForm from '../../components/SubmitBtnForm'
 import withNotification from '../../hoc/withNotification'
 import { settingsFactory } from '../../repos/SettingsPage.repo'
-import { shellFactory } from '../../repos/shell.repo'
 import { systemFactory } from '../../repos/system.repo'
 const { systemRepo } = systemFactory()
-const { shellRepo } = shellFactory()
-const { mediaConfigRepo } = settingsFactory()
+const { mediaConfigRepo, coreConfigRepo } = settingsFactory()
 
 const ITEMS = ['PRODUCT', 'CATEGORY', 'BRAND']
+
+// Helper function to list files in a directory
+const listFiles = async (input_path) => {
+  const fileNames = (await fs.readdirSync(input_path, { withFileTypes: true }))
+    .filter((dirent) => !dirent.isDirectory() && dirent.name !== '.DS_Store')
+    .filter((dirent) => !dirent.isDirectory() && dirent.name !== 'Thumbs.db')
+    .filter((dirent) => !dirent.isDirectory() && dirent.name !== 'desktop.ini')
+    .map((dir) => dir.name)
+
+  return fileNames.sort((a, b) => {
+    return Number(a.split('.')[0].split('_')[1]) - Number(b.split('.')[0].split('_')[1])
+  })
+}
+
+// Helper function to construct API payload
+const constructPayload = async ({ media_path }) => {
+  const categories = await listFiles(media_path)
+  return {
+    csv_file_name: `category_${new Date().toISOString().split('T')[0]}.csv`,
+    brands: categories.map((item) => {
+      return {
+        brand_id: item.split('.')[0],
+        media_type: 'images',
+        is_primary_for_store: true,
+        is_primary_for_scm: true,
+        position: 1,
+        media_name: item
+      }
+    }),
+    audit: {
+      created_by: 'pankaj.ladhar@ibo.com'
+    }
+  }
+}
+
+// Helper function to make API call
+const makeAPICall = async ({ payload, authToken, domain }) => {
+  const url = `${domain}/v1/brands`
+
+  console.log(`Making api call to ${url}`)
+
+  try {
+    const response = await fetch(url, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: authToken
+      },
+      body: JSON.stringify(payload)
+    })
+
+    if (!response.ok) {
+      throw new Error('Network response was not ok')
+    }
+
+    const jsonResponse = await response.json()
+    return jsonResponse
+  } catch (error) {
+    console.error('Error:', error)
+    throw error
+  }
+}
 
 const MediaProcessPageWOC = ({ renderErrorNotification, renderSuccessNotification }) => {
   const [folderPath, setFolderPath] = useState('')
@@ -22,20 +83,6 @@ const MediaProcessPageWOC = ({ renderErrorNotification, renderSuccessNotificatio
   const [uploading, setUploading] = useState(false)
 
   const [folderError, setFolderError] = useState('')
-  const logUnsubRef = useRef(null)
-  const endUnsubRef = useRef(null)
-
-  // Cleanup listeners on unmount
-  useEffect(() => {
-    return () => {
-      if (logUnsubRef.current) {
-        logUnsubRef.current()
-      }
-      if (endUnsubRef.current) {
-        endUnsubRef.current()
-      }
-    }
-  }, [])
 
   const onFinish = async (values) => {
     if (!folderPath) {
@@ -85,82 +132,75 @@ const MediaProcessPageWOC = ({ renderErrorNotification, renderSuccessNotificatio
       setLogs((prev) => [...prev, `    Bucket Path: ${matchingConfig.bucket_path}`])
       setLogs((prev) => [...prev, `    Config ID: ${matchingConfig.id}`])
 
-      // Step 3: Prepare upload command
-      const bucket_name = matchingConfig.bucket_path
-      const command = `gsutil -m cp -r "${folderPath}"/* gs://${bucket_name}/images/`
-      setLogs((prev) => [...prev, `#3 ---> Preparing upload command:`])
-      setLogs((prev) => [...prev, `    Command: ${command}`])
-      setLogs((prev) => [...prev, `    Source: ${folderPath}/*`])
-      setLogs((prev) => [...prev, `    Destination: gs://${bucket_name}`])
+      // Step 3: Fetch core configuration for API credentials
+      setLogs((prev) => [...prev, `#3 ---> Fetching core configuration...`])
+      const coreConfigs = await coreConfigRepo.getAll()
+      const matchingCoreConfig = coreConfigs.find(
+        (config) =>
+          config.company_code === values.company_code && config.env_code === values.env_code
+      )
 
-      // Step 4: Execute upload
-      setLogs((prev) => [...prev, `#4 ---> Starting upload process...`])
-      setLogs((prev) => [...prev, `    This may take a while depending on file sizes...`])
-
-      // Clean up any existing listeners first
-      if (logUnsubRef.current) {
-        logUnsubRef.current()
-        logUnsubRef.current = null
-      }
-      if (endUnsubRef.current) {
-        endUnsubRef.current()
-        endUnsubRef.current = null
-      }
-
-      // Set up event listeners
-      const handleLog = (data) => {
-        const { output } = data
-        setLogs((prev) => [...prev, `    ${output}`])
-        // Auto-scroll to bottom
-        setTimeout(() => {
-          if (logRef.current) logRef.current.scrollTop = logRef.current.scrollHeight
-        }, 0)
-      }
-
-      const handleEnd = (data) => {
-        const { code } = data
+      if (!matchingCoreConfig) {
+        setLogs((prev) => [...prev, `❌ ERROR: No core configuration found for:`])
+        setLogs((prev) => [...prev, `    Company: ${values.company_code}`])
+        setLogs((prev) => [...prev, `    Environment: ${values.env_code}`])
+        setLogs((prev) => [...prev, `Please configure this combination in Settings > Core Config`])
         setUploading(false)
-
-        // Clean up listeners
-        if (logUnsubRef.current) {
-          logUnsubRef.current()
-          logUnsubRef.current = null
-        }
-        if (endUnsubRef.current) {
-          endUnsubRef.current()
-          endUnsubRef.current = null
-        }
-
-        if (code === 0) {
-          setLogs((prev) => [...prev, `#5 ---> ✅ Upload completed successfully!`])
-          setLogs((prev) => [...prev, `    Files uploaded to: gs://${bucket_name}`])
-          renderSuccessNotification({ message: 'Upload complete!' })
-        } else {
-          setLogs((prev) => [...prev, `#5 ---> ❌ Upload failed!`])
-          setLogs((prev) => [...prev, `    Exit code: ${code}`])
-          setLogs((prev) => [...prev, `    Please check the logs above for details`])
-          renderErrorNotification({ message: 'Upload failed (exit code ' + code + ')' })
-        }
+        renderErrorNotification({
+          message: 'No core configuration found. Please configure this combination in Settings.'
+        })
+        return
       }
 
-      // Register listeners
-      logUnsubRef.current = shellRepo.onLog(handleLog)
-      endUnsubRef.current = shellRepo.onEnd(handleEnd)
+      setLogs((prev) => [...prev, `✅ Found core configuration:`])
+      setLogs((prev) => [...prev, `    Base URL: ${matchingCoreConfig.base_url}`])
+      setLogs((prev) => [...prev, `    Auth API: ${matchingCoreConfig.auth_api}`])
 
-      // Execute the command
+      const authToken = matchingCoreConfig.auth_api_key
+      const domain = matchingCoreConfig.base_url
+
+      // Step 4: Process media files
+      setLogs((prev) => [...prev, `#4 ---> Processing media files...`])
+      setLogs((prev) => [...prev, `    Scanning folder: ${folderPath}`])
+
       try {
-        await shellRepo.run(command)
-      } catch (error) {
-        setUploading(false)
-        setLogs((prev) => [...prev, `❌ ERROR: Failed to start command`])
-        setLogs((prev) => [...prev, `    ${error.message}`])
-        renderErrorNotification({ message: error.message })
+        const fileList = await listFiles(folderPath)
+        setLogs((prev) => [...prev, `    Found ${fileList.length} files:`])
+        fileList.forEach((file, index) => {
+          setLogs((prev) => [...prev, `    ${index + 1}. ${file}`])
+        })
+
+        // Step 5: Construct API payload
+        setLogs((prev) => [...prev, `#5 ---> Constructing API payload...`])
+        const payload = await constructPayload({ media_path: folderPath })
+        setLogs((prev) => [...prev, `    CSV file name: ${payload.csv_file_name}`])
+        setLogs((prev) => [...prev, `    Brands count: ${payload.brands.length}`])
+
+        // Step 6: Make API call
+        setLogs((prev) => [...prev, `#6 ---> Making API call...`])
+        setLogs((prev) => [...prev, `    URL: ${domain}/v1/brands`])
+
+        const response = await makeAPICall({
+          payload,
+          authToken,
+          domain
+        })
+
+        setLogs((prev) => [...prev, `#7 ---> ✅ API call completed successfully!`])
+        setLogs((prev) => [...prev, `    Response: ${JSON.stringify(response, null, 2)}`])
+        renderSuccessNotification({ message: 'Media processing complete!' })
+      } catch (fileError) {
+        setLogs((prev) => [...prev, `❌ ERROR: Failed to process media files`])
+        setLogs((prev) => [...prev, `    ${fileError.message}`])
+        renderErrorNotification({ message: 'Failed to process media files: ' + fileError.message })
       }
     } catch (error) {
       setUploading(false)
       setLogs((prev) => [...prev, `❌ ERROR: ${error.message}`])
       setLogs((prev) => [...prev, `    Please check your configuration and try again`])
       renderErrorNotification({ message: error.message })
+    } finally {
+      setUploading(false)
     }
   }
 
