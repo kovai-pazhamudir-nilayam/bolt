@@ -8,6 +8,7 @@ import { toolsAPI } from './tools.preload'
 import { shellAPI } from './shell.preload'
 import { webviewAPI } from './webview.preload'
 import { passwordManagerAPI } from './passwordManager.preload'
+import { userProfileAPI } from './userProfile.preload'
 
 // const system2345 = {
 //   onTaskManagerLog: (callback) => {
@@ -39,6 +40,7 @@ if (process.contextIsolated) {
     contextBridge.exposeInMainWorld('shellAPI', shellAPI)
     contextBridge.exposeInMainWorld('webviewAPI', webviewAPI)
     contextBridge.exposeInMainWorld('passwordManagerAPI', passwordManagerAPI)
+    contextBridge.exposeInMainWorld('userProfileAPI', userProfileAPI)
   } catch (error) {
     console.error('Error exposing APIs:', error)
   }
@@ -53,4 +55,5 @@ if (process.contextIsolated) {
   window.shellAPI = shellAPI
   window.webviewAPI = webviewAPI
   window.passwordManagerAPI = passwordManagerAPI
+  window.userProfileAPI = userProfileAPI
 }

@@ -21,7 +21,7 @@ import MediaProcessPage from './pages/MediaProcessPage/MediaProcessPage'
 import OsTicketPage from './pages/OsTicketPage/OsTicketPage'
 import PageBuilderPage from './pages/PageBuilderPage/PageBuilderPage'
 import PasswordManagerPage from './pages/PasswordManagerPage/PasswordManagerPage'
-import ProfilePage from './pages/ProfilePage/ProfilePage'
+import UserProfilePage from './pages/UserProfilePage/UserProfilePage'
 import ProxyConfiguratorPage from './pages/ProxyConfiguratorPage/ProxyConfiguratorPage'
 import PushLogsToGCPPage from './pages/PushLogsToGCPPage/PushLogsToGCPPage'
 import SavedDBQueryPage from './pages/SavedDBQueryPage/SavedDBQueryPage'
@@ -166,10 +166,10 @@ export const ROUTES = [
     element: <PasswordManagerPage />
   },
   {
-    label: 'Profile',
-    path: '/profile',
+    label: 'User Profile',
+    path: '/user-profile',
     icon: User,
-    element: <ProfilePage />
+    element: <UserProfilePage />
   },
   {
     label: 'Shell Command ',
