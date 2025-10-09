@@ -47,19 +47,41 @@ const getGrouppedNotes = (notes) => {
 }
 
 const NotesSidebarLayoutWOC = ({ renderErrorNotification, renderSuccessNotification }) => {
+  // Core data states
   const [notes, setNotes] = useState([])
-  const [selectedNote, setSelectedNote] = useState(null)
-  const [searchText, setSearchText] = useState('')
-  const [editingContent, setEditingContent] = useState('')
-  const [editingTitle, setEditingTitle] = useState('')
-  const [editingCompany, setEditingCompany] = useState('')
-  const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false)
-  const [isCreatingNew, setIsCreatingNew] = useState(false)
-  const [newNoteTitle, setNewNoteTitle] = useState('')
-  const [newNoteCompany, setNewNoteCompany] = useState('')
   const [companies, setCompanies] = useState([])
+  const [searchText, setSearchText] = useState('')
+
+  // UI state
+  const [selectedNoteId, setSelectedNoteId] = useState(null)
+  const [isCreatingNew, setIsCreatingNew] = useState(false)
+
+  // Editing state - consolidated into a single object
+  const [editingState, setEditingState] = useState({
+    title: '',
+    content: '',
+    company: '',
+    hasUnsavedChanges: false
+  })
+
+  // Refs
   const contentEditableRef = useRef(null)
-  const hasUnsavedChangesRef = useRef(null)
+  const hasUnsavedChangesRef = useRef(false)
+
+  // Derived state
+  const selectedNote = useMemo(
+    () => notes.find((note) => note.id === selectedNoteId) || null,
+    [notes, selectedNoteId]
+  )
+
+  const getCompanyName = useCallback(
+    (companyCode) => {
+      if (!companyCode) return null
+      const company = companies.find((c) => c.company_code === companyCode)
+      return company ? company.company_name : companyCode
+    },
+    [companies]
+  )
 
   const loadData = useCallback(async () => {
     try {
@@ -68,26 +90,33 @@ const NotesSidebarLayoutWOC = ({ renderErrorNotification, renderSuccessNotificat
       setCompanies(companiesData)
 
       // Select first note if none selected
-      if (!selectedNote && data.length > 0) {
-        setSelectedNote(data[0])
-        setEditingTitle(data[0].title || '')
-        setEditingContent(data[0].content || '')
+      if (!selectedNoteId && data.length > 0) {
+        setSelectedNoteId(data[0].id)
+        setEditingState({
+          title: data[0].title || '',
+          content: data[0].content || '',
+          company: data[0].company_code || '',
+          hasUnsavedChanges: false
+        })
       }
     } catch (error) {
       renderErrorNotification(error)
     }
-  }, [selectedNote, renderErrorNotification])
+  }, [selectedNoteId, renderErrorNotification])
 
   useEffect(() => {
     loadData()
   }, [loadData])
 
-  // Update contentEditable when editingContent changes
+  // Update contentEditable when editingState.content changes
   useEffect(() => {
-    if (contentEditableRef.current && editingContent !== contentEditableRef.current.textContent) {
-      contentEditableRef.current.textContent = editingContent
+    if (
+      contentEditableRef.current &&
+      editingState.content !== contentEditableRef.current.textContent
+    ) {
+      contentEditableRef.current.textContent = editingState.content
     }
-  }, [editingContent])
+  }, [editingState.content])
 
   // Group notes by time periods
   const groupedNotes = useMemo(() => {
@@ -100,29 +129,40 @@ const NotesSidebarLayoutWOC = ({ renderErrorNotification, renderSuccessNotificat
       handleAutoSave()
     }
 
-    setSelectedNote(note)
-    setEditingTitle(note.title || '')
-    setEditingContent(note.content || '') // Load the actual content  
-    setEditingCompany(note.company_code || '')
-    setHasUnsavedChanges(false)
+    setSelectedNoteId(note.id)
+    setEditingState({
+      title: note.title || '',
+      content: note.content || '',
+      company: note.company_code || '',
+      hasUnsavedChanges: false
+    })
     hasUnsavedChangesRef.current = false
   }
 
   const handleContentChange = (value) => {
-    setEditingContent(value)
-    setHasUnsavedChanges(true)
+    setEditingState((prev) => ({
+      ...prev,
+      content: value,
+      hasUnsavedChanges: true
+    }))
     hasUnsavedChangesRef.current = true
   }
 
   const handleTitleChange = (value) => {
-    setEditingTitle(value)
-    setHasUnsavedChanges(true)
+    setEditingState((prev) => ({
+      ...prev,
+      title: value,
+      hasUnsavedChanges: true
+    }))
     hasUnsavedChangesRef.current = true
   }
 
   const handleCompanyChange = (value) => {
-    setEditingCompany(value)
-    setHasUnsavedChanges(true)
+    setEditingState((prev) => ({
+      ...prev,
+      company: value,
+      hasUnsavedChanges: true
+    }))
     hasUnsavedChangesRef.current = true
   }
 
@@ -138,14 +178,16 @@ const NotesSidebarLayoutWOC = ({ renderErrorNotification, renderSuccessNotificat
     try {
       const updatedNote = await notesRepo.upsert({
         ...selectedNote,
-        title: editingTitle,
-        content: editingContent,
-        company_code: editingCompany
+        title: editingState.title,
+        content: editingState.content,
+        company_code: editingState.company
       })
 
       setNotes((prev) => prev.map((note) => (note.id === updatedNote.id ? updatedNote : note)))
-      setSelectedNote(updatedNote)
-      setHasUnsavedChanges(false)
+      setEditingState((prev) => ({
+        ...prev,
+        hasUnsavedChanges: false
+      }))
       hasUnsavedChangesRef.current = false
     } catch (error) {
       renderErrorNotification(error)
@@ -154,30 +196,32 @@ const NotesSidebarLayoutWOC = ({ renderErrorNotification, renderSuccessNotificat
 
   const handleCreateNew = () => {
     setIsCreatingNew(true)
-    setNewNoteTitle('')
-    setNewNoteCompany('')
-    setEditingContent('')
-    setEditingTitle('')
-    setEditingCompany('')
-    setSelectedNote(null)
-    setHasUnsavedChanges(false)
+    setSelectedNoteId(null)
+    setEditingState({
+      title: '',
+      content: '',
+      company: '',
+      hasUnsavedChanges: false
+    })
   }
 
   const handleSaveNewNote = async () => {
-    if (!newNoteTitle.trim()) return
+    if (!editingState.title.trim()) return
 
     try {
       const newNote = await notesRepo.upsert({
-        title: newNoteTitle,
-        content: editingContent,
-        company_code: newNoteCompany || null
+        title: editingState.title,
+        content: editingState.content,
+        company_code: editingState.company || null
       })
 
       setNotes((prev) => [newNote, ...prev])
-      setSelectedNote(newNote)
-      setEditingTitle(newNoteTitle)
+      setSelectedNoteId(newNote.id)
       setIsCreatingNew(false)
-      setHasUnsavedChanges(false)
+      setEditingState((prev) => ({
+        ...prev,
+        hasUnsavedChanges: false
+      }))
 
       renderSuccessNotification({
         message: 'Note created successfully!'
@@ -189,12 +233,12 @@ const NotesSidebarLayoutWOC = ({ renderErrorNotification, renderSuccessNotificat
 
   const handleCancelNewNote = () => {
     setIsCreatingNew(false)
-    setNewNoteTitle('')
-    setNewNoteCompany('')
-    setEditingContent('')
-    setEditingTitle('')
-    setEditingCompany('')
-    setHasUnsavedChanges(false)
+    setEditingState({
+      title: '',
+      content: '',
+      company: '',
+      hasUnsavedChanges: false
+    })
   }
 
   const handleDeleteNote = async (note) => {
@@ -203,12 +247,14 @@ const NotesSidebarLayoutWOC = ({ renderErrorNotification, renderSuccessNotificat
       setNotes((prev) => prev.filter((n) => n.id !== note.id))
 
       // If the deleted note was selected, clear selection
-      if (selectedNote?.id === note.id) {
-        setSelectedNote(null)
-        setEditingTitle('')
-        setEditingContent('')
-        setEditingCompany('')
-        setHasUnsavedChanges(false)
+      if (selectedNoteId === note.id) {
+        setSelectedNoteId(null)
+        setEditingState({
+          title: '',
+          content: '',
+          company: '',
+          hasUnsavedChanges: false
+        })
       }
 
       renderSuccessNotification({
@@ -246,12 +292,13 @@ const NotesSidebarLayoutWOC = ({ renderErrorNotification, renderSuccessNotificat
         (note) =>
           note.title.toLowerCase().includes(searchText.toLowerCase()) ||
           note.content.toLowerCase().includes(searchText.toLowerCase()) ||
-          (note.company_code && note.company_code.toLowerCase().includes(searchText.toLowerCase()))
+          (note.company_code &&
+            getCompanyName(note.company_code).toLowerCase().includes(searchText.toLowerCase()))
       )
     })
 
     return filtered
-  }, [groupedNotes, searchText])
+  }, [groupedNotes, searchText, getCompanyName])
 
   return (
     <div className="notes-sidebar-layout">
@@ -328,7 +375,7 @@ const NotesSidebarLayoutWOC = ({ renderErrorNotification, renderSuccessNotificat
                       <div className="tags">
                         {note.company_code && (
                           <Tag size="small" color="purple" className="tag">
-                            {note.company_code}
+                            {getCompanyName(note.company_code)}
                           </Tag>
                         )}
                       </div>
@@ -355,15 +402,15 @@ const NotesSidebarLayoutWOC = ({ renderErrorNotification, renderSuccessNotificat
                 <div className="note-info">
                   <Input
                     placeholder="Enter note title..."
-                    value={newNoteTitle}
-                    onChange={(e) => setNewNoteTitle(e.target.value)}
+                    value={editingState.title}
+                    onChange={(e) => handleTitleChange(e.target.value)}
                     className="new-note-title-input"
                   />
                   <div className="note-meta">
                     <Select
                       placeholder="Company (optional)"
-                      value={newNoteCompany}
-                      onChange={setNewNoteCompany}
+                      value={editingState.company}
+                      onChange={handleCompanyChange}
                       options={companies.map((c) => ({
                         label: `${c.company_code} - ${c.company_name}`,
                         value: c.company_code
@@ -379,7 +426,7 @@ const NotesSidebarLayoutWOC = ({ renderErrorNotification, renderSuccessNotificat
                     <Button
                       type="primary"
                       onClick={handleSaveNewNote}
-                      disabled={!newNoteTitle.trim()}
+                      disabled={!editingState.title.trim()}
                     >
                       Save
                     </Button>
@@ -395,7 +442,7 @@ const NotesSidebarLayoutWOC = ({ renderErrorNotification, renderSuccessNotificat
                 ref={contentEditableRef}
                 contentEditable
                 suppressContentEditableWarning={true}
-                onInput={(e) => setEditingContent(e.target.textContent)}
+                onInput={(e) => handleContentChange(e.target.textContent)}
                 onBlur={handleFocusOut}
                 className="contenteditable-area"
                 placeholder="Start typing your note..."
@@ -409,7 +456,7 @@ const NotesSidebarLayoutWOC = ({ renderErrorNotification, renderSuccessNotificat
               <div className="header-content">
                 <div className="note-info">
                   <Input
-                    value={editingTitle}
+                    value={editingState.title}
                     onChange={(e) => handleTitleChange(e.target.value)}
                     onBlur={handleFocusOut}
                     placeholder="Enter note title..."
@@ -419,7 +466,7 @@ const NotesSidebarLayoutWOC = ({ renderErrorNotification, renderSuccessNotificat
                     <Text className="date">{formatDate(selectedNote.created_at)}</Text>
                     <div className="editable-meta">
                       <Select
-                        value={editingCompany}
+                        value={editingState.company}
                         onChange={handleCompanyChange}
                         onBlur={handleFocusOut}
                         placeholder="Company (optional)"
@@ -435,7 +482,9 @@ const NotesSidebarLayoutWOC = ({ renderErrorNotification, renderSuccessNotificat
                 </div>
 
                 <div className="actions">
-                  {hasUnsavedChanges && <Text className="auto-save-indicator">Saving...</Text>}
+                  {editingState.hasUnsavedChanges && (
+                    <Text className="auto-save-indicator">Saving...</Text>
+                  )}
                 </div>
               </div>
             </div>
