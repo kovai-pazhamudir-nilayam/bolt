@@ -11,7 +11,7 @@ const NavigationBar = () => {
   const handleHome = () => navigate('/welcome') // 👈 your welcome page route
 
   return (
-    <Space style={{ marginBottom: '16px' }}>
+    <Space>
       <Button type="primary" onClick={handleBack} icon={<Undo2 size={16} />} />
       <Button type="primary" onClick={handleForward} icon={<Redo2 size={16} />} />
       <Button type="primary" onClick={handleRefresh} icon={<RefreshCw size={16} />} />

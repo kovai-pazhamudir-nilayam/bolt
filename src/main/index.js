@@ -14,6 +14,7 @@ import { registerToolsHandler } from './ipc/tools.ipc/tools.ipc'
 import { registerShellHandler } from './ipc/shell.ipc'
 import { registerWebviewHandler } from './ipc/webview.ipc'
 import { registerUserProfileHandler } from './ipc/userProfile.ipc'
+import { registerNotesHandler } from './ipc/notes.ipc'
 
 function createWindow() {
   // Get the primary display dimensions
@@ -86,6 +87,7 @@ app.whenReady().then(async () => {
   registerShellHandler(ipcMain)
   registerWebviewHandler(ipcMain)
   registerUserProfileHandler(ipcMain, configDb)
+  registerNotesHandler(ipcMain, configDb)
 
   createWindow()
 

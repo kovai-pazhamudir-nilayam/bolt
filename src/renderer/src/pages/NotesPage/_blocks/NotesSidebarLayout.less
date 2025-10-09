@@ -1,0 +1,310 @@
+// NotesSidebarLayout.less
+.notes-sidebar-layout {
+  display: flex;
+  height: 100vh;
+  background-color: var(--color-background);
+  color: var(--color-text);
+
+  .sidebar {
+    width: 350px;
+    background-color: var(--color-background-soft);
+    border-right: 1px solid var(--ev-c-gray-3);
+    display: flex;
+    flex-direction: column;
+
+    .header {
+      padding: 20px;
+      border-bottom: 1px solid var(--ev-c-gray-3);
+
+      .title-container {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 16px;
+
+        .title {
+          color: var(--color-text);
+          margin: 0;
+        }
+      }
+
+      .search-input {
+        background-color: var(--color-background);
+        border: 1px solid var(--ev-c-gray-3);
+        color: var(--color-text);
+      }
+    }
+
+    .notes-list {
+      flex: 1;
+      overflow: auto;
+      padding: 10px;
+
+      .time-group {
+        margin-bottom: 20px;
+
+        .group-header {
+          display: flex;
+          align-items: center;
+          margin-bottom: 10px;
+          color: var(--ev-c-text-2);
+          font-size: 12px;
+          font-weight: bold;
+          text-transform: uppercase;
+          letter-spacing: 0.5px;
+
+          .calendar-icon {
+            margin-right: 6px;
+          }
+        }
+
+            .note-item {
+              padding: 12px;
+              margin-bottom: 4px;
+              border-radius: 6px;
+              cursor: pointer;
+              background-color: transparent;
+              border: 1px solid transparent;
+              transition: all 0.2s ease;
+              position: relative;
+
+              &.selected {
+                background-color: var(--ev-c-gray-3);
+                border: 1px solid var(--ev-c-gray-2);
+              }
+
+              &:hover:not(.selected) {
+                background-color: var(--ev-c-gray-2);
+              }
+
+              .delete-btn {
+                position: absolute;
+                top: 8px;
+                right: 8px;
+                opacity: 1;
+                transition: opacity 0.2s ease;
+                padding: 2px 4px;
+                height: auto;
+                min-width: auto;
+                z-index: 10;
+
+                &:hover {
+                  background-color: var(--ev-c-gray-2);
+                }
+              }
+
+          .note-content {
+            margin-bottom: 6px;
+
+            .note-title {
+              color: var(--color-text);
+              font-weight: 500;
+              font-size: 14px;
+              display: block;
+              margin-bottom: 4px;
+            }
+
+            .note-preview {
+              color: var(--ev-c-text-2);
+              font-size: 12px;
+              display: block;
+            }
+          }
+
+            .note-meta {
+              display: flex;
+              justify-content: space-between;
+              align-items: center;
+
+              .tags {
+                display: flex;
+                gap: 6px;
+
+                .tag {
+                  font-size: 10px;
+                }
+              }
+
+              .date {
+                color: var(--ev-c-text-3);
+                font-size: 10px;
+
+                .clock-icon {
+                  margin-right: 2px;
+                }
+              }
+            }
+        }
+      }
+    }
+  }
+
+  .main-content {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    background-color: var(--color-background);
+
+    .content-header {
+      padding: 20px;
+      border-bottom: 1px solid var(--ev-c-gray-3);
+      background-color: var(--color-background-soft);
+
+      .header-content {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+
+        .note-info {
+          flex: 1;
+
+          .note-title {
+            color: var(--color-text);
+            margin: 0 0 8px 0;
+          }
+
+          .note-meta {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+
+            .date {
+              color: var(--ev-c-text-2);
+              font-size: 14px;
+            }
+
+            .editable-meta {
+              display: flex;
+              gap: 12px;
+              align-items: center;
+
+              .editable-company-select {
+                width: 200px;
+              }
+            }
+          }
+        }
+
+        .actions {
+          display: flex;
+          align-items: center;
+          gap: 2  ;
+          .auto-save-indicator {
+            font-size: 12px;
+            font-style: italic;
+            opacity: 0.8;
+          }
+        }
+      }
+    }
+
+    .content-area {
+      flex: 1;
+      padding: 20px;
+      overflow: auto;
+
+      .editing-textarea {
+        height: 100%;
+        background-color: var(--color-background-soft);
+        border: 1px solid var(--ev-c-gray-3);
+        color: var(--color-text);
+        font-size: 14px;
+        line-height: 1.6;
+      }
+
+      .contenteditable-area {
+        height: 100%;
+        min-height: 400px;
+        background-color: var(--color-background-soft);
+        border: 1px solid var(--ev-c-gray-3);
+        color: var(--color-text);
+        font-size: 14px;
+        line-height: 1.6;
+        padding: 20px;
+        border-radius: 8px;
+        outline: none;
+        white-space: pre-wrap;
+        word-wrap: break-word;
+
+        &:empty:before {
+          content: attr(placeholder);
+          color: var(--ev-c-text-3);
+          font-style: italic;
+        }
+
+        &:focus {
+          border-color: var(--ev-c-gray-2);
+        }
+      }
+
+      .content-display {
+        background-color: var(--color-background-soft);
+        padding: 20px;
+        border-radius: 8px;
+        border: 1px solid var(--ev-c-gray-3);
+        min-height: 400px;
+        white-space: pre-wrap;
+        font-size: 14px;
+        line-height: 1.6;
+        color: var(--color-text);
+      }
+    }
+
+    .empty-state {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--ev-c-text-2);
+
+      .empty-content {
+        text-align: center;
+
+        .empty-title {
+          color: var(--ev-c-text-2);
+          margin: 0;
+        }
+      }
+    }
+
+    // New note creation styles
+    .new-note-title-input {
+      font-size: 24px;
+      font-weight: bold;
+      border: none;
+      background: transparent;
+      color: var(--color-text);
+      padding: 0;
+      margin-bottom: 8px;
+
+      &:focus {
+        box-shadow: none;
+        border-color: var(--ev-c-gray-2);
+      }
+    }
+
+    .editable-title-input {
+      font-size: 24px;
+      font-weight: bold;
+      border: none;
+      background: transparent;
+      color: var(--color-text);
+      padding: 0;
+      margin-bottom: 8px;
+
+      &:focus {
+        box-shadow: none;
+        border-color: var(--ev-c-gray-2);
+      }
+    }
+
+    .new-note-category-input {
+      width: 200px;
+      margin-right: 12px;
+    }
+
+    .new-note-company-select {
+      width: 250px;
+    }
+  }
+}

@@ -1,4 +1,4 @@
-import { Button, Col, ConfigProvider, Layout, Menu, notification, Row } from 'antd'
+import { Button, ConfigProvider, Layout, Menu, notification } from 'antd'
 import { Moon, Sun } from 'lucide-react'
 import { useState } from 'react'
 import { Route, BrowserRouter as Router, Routes, useLocation, useNavigate } from 'react-router-dom'
@@ -7,10 +7,9 @@ import './assets/main.css'
 import { ROUTES } from './routing'
 // import Versions from './components/Versions'
 import Footer from './components/Footer'
-import NavigationBar from './components/NavigationBar'
-import { MasterDataProvider } from './context/masterDataContext'
 import { NotificationContext } from './context/notificationContext'
 import { darkTheme, lightTheme } from './theme/theme'
+import NavigationBar from './components/NavigationBar'
 // Custom theme tokens for menu states
 // const menuAccent = '#f67373'
 const { Header, Content, Sider } = Layout
@@ -24,23 +23,21 @@ function App() {
   const customTheme = isDark ? darkTheme : lightTheme
 
   return (
-    <MasterDataProvider>
-      <ConfigProvider theme={customTheme}>
-        {contextHolder}
-        <NotificationContext.Provider value={api}>
-          <Router>
-            <div data-theme={isDark ? 'dark' : 'light'}>
-              <AppLayout
-                collapsed={collapsed}
-                setCollapsed={setCollapsed}
-                isDark={isDark}
-                setIsDark={setIsDark}
-              />
-            </div>
-          </Router>
-        </NotificationContext.Provider>
-      </ConfigProvider>
-    </MasterDataProvider>
+    <ConfigProvider theme={customTheme}>
+      {contextHolder}
+      <NotificationContext.Provider value={api}>
+        <Router>
+          <div data-theme={isDark ? 'dark' : 'light'}>
+            <AppLayout
+              collapsed={collapsed}
+              setCollapsed={setCollapsed}
+              isDark={isDark}
+              setIsDark={setIsDark}
+            />
+          </div>
+        </Router>
+      </NotificationContext.Provider>
+    </ConfigProvider>
   )
 }
 
@@ -88,17 +85,12 @@ function AppLayout({ collapsed, setCollapsed, isDark, setIsDark }) {
           style={{
             background: isDark ? '#111' : '#fff',
             color: isDark ? '#fff' : '#000',
-            fontSize: 20,
-            fontWeight: 700,
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'space-between'
           }}
         >
-          {/* <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
-            <span>Bolt Dashboard</span>
-            <MasterSelectionModal />
-          </div> */}
+          <NavigationBar />
         </Header>
         {/* Floating Theme Toggle Button */}
         <Button
@@ -128,11 +120,6 @@ function AppLayout({ collapsed, setCollapsed, isDark, setIsDark }) {
             margin: '24px 16px'
           }}
         >
-          <Row>
-            <Col>
-              <NavigationBar />
-            </Col>
-          </Row>
           <div
             style={{
               padding: 24,

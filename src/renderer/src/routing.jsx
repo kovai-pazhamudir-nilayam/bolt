@@ -33,6 +33,7 @@ import TaskManagerDIPage from './pages/TaskManagerDIPage/TaskManagerDIPage'
 import ToolsPage from './pages/ToolsPage/ToolsPage'
 import WelcomePage from './pages/WelcomePage/WelcomePage'
 import ShellCommandPage from './pages/ShellCommandPage/ShellCommandPage'
+import NotesPage from './pages/NotesPage/NotesPage'
 
 export const ROUTES = [
   {
@@ -136,10 +137,10 @@ export const ROUTES = [
     element: <ConnectRedisPage />
   },
   {
-    label: 'Documentation',
-    path: '/documentation',
+    label: 'Notes',
+    path: '/Notes',
     icon: BookOpen,
-    element: <SavedDBQueryPage />
+    element: <NotesPage />
   },
   {
     label: 'Tasks',
