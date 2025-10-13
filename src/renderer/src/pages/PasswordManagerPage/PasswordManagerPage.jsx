@@ -2,6 +2,7 @@ import { Button, Form, Input, Modal, Select, Tag, Tooltip } from 'antd'
 import { Copy, ExternalLink, Eye, EyeOff } from 'lucide-react'
 import { useEffect, useState } from 'react'
 import EntityTable from '../../components/EntityTable'
+import PageHeader from '../../components/PageHeader/PageHeader'
 import SubmitBtnForm from '../../components/SubmitBtnForm'
 import withNotification from '../../hoc/withNotification'
 import { passwordManagerFactory } from '../../repos/PasswordManagerPage.repo'
@@ -261,6 +262,11 @@ const PasswordManagerPageWOC = ({ renderErrorNotification, renderSuccessNotifica
 
   return (
     <>
+      <PageHeader
+        title="Password Manager"
+        description="Securely store and manage your passwords, usernames, and login credentials for different services and websites."
+      />
+
       <EntityTable
         rowKey="id"
         data={passwordEntries}

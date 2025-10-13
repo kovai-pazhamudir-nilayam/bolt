@@ -57,7 +57,14 @@ function AppLayout({ collapsed, setCollapsed, isDark, setIsDark }) {
         collapsible
         collapsed={collapsed}
         onCollapse={setCollapsed}
-        style={{ background: isDark ? '#181818' : '#fff' }}
+        style={{
+          background: isDark ? '#181818' : '#fff',
+          position: 'fixed',
+          left: 0,
+          top: 0,
+          bottom: 0,
+          zIndex: 1001
+        }}
       >
         <div style={{ height: 64, margin: 16, textAlign: 'center' }}>
           <img src={logo} alt="logo" style={{ width: 148 }} />
@@ -87,7 +94,14 @@ function AppLayout({ collapsed, setCollapsed, isDark, setIsDark }) {
             color: isDark ? '#fff' : '#000',
             display: 'flex',
             alignItems: 'center',
-            justifyContent: 'space-between'
+            justifyContent: 'space-between',
+            position: 'fixed',
+            top: 0,
+            left: collapsed ? 80 : 200,
+            right: 0,
+            zIndex: 1000,
+            height: 64,
+            padding: '0 16px'
           }}
         >
           <NavigationBar />
@@ -117,7 +131,8 @@ function AppLayout({ collapsed, setCollapsed, isDark, setIsDark }) {
         </Button>
         <Content
           style={{
-            margin: '24px 16px'
+            margin: '88px 16px 24px 16px',
+            marginLeft: collapsed ? '96px' : '216px'
           }}
         >
           <div

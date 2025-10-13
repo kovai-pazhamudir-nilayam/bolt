@@ -46,27 +46,50 @@ const getNotePreview = (content) => {
   return textContent + (content.length > 50 ? '...' : '')
 }
 
-const NotesList = ({ notes, searchText, selectedNote, onNoteSelect, onDeleteNote }) => {
+const NotesList = ({
+  notes,
+  searchText,
+  selectedCompanyFilter,
+  selectedNote,
+  onNoteSelect,
+  onDeleteNote
+}) => {
   // Group notes by time periods
   const groupedNotes = useMemo(() => {
     return getGrouppedNotes(notes)
   }, [notes])
 
   const filteredGroups = useMemo(() => {
-    if (!searchText.trim()) return groupedNotes
+    let filtered = groupedNotes
 
-    const filtered = {}
-    Object.keys(groupedNotes).forEach((key) => {
-      filtered[key] = groupedNotes[key].filter(
-        (note) =>
-          note.title.toLowerCase().includes(searchText.toLowerCase()) ||
-          note.content.toLowerCase().includes(searchText.toLowerCase()) ||
-          (note.company_code && note.company_code.toLowerCase().includes(searchText.toLowerCase()))
-      )
-    })
+    // Apply company filter
+    if (selectedCompanyFilter) {
+      const companyFiltered = {}
+      Object.keys(filtered).forEach((key) => {
+        companyFiltered[key] = filtered[key].filter(
+          (note) => note.company_code === selectedCompanyFilter
+        )
+      })
+      filtered = companyFiltered
+    }
+
+    // Apply search filter
+    if (searchText.trim()) {
+      const searchFiltered = {}
+      Object.keys(filtered).forEach((key) => {
+        searchFiltered[key] = filtered[key].filter(
+          (note) =>
+            note.title.toLowerCase().includes(searchText.toLowerCase()) ||
+            note.content.toLowerCase().includes(searchText.toLowerCase()) ||
+            (note.company_code &&
+              note.company_code.toLowerCase().includes(searchText.toLowerCase()))
+        )
+      })
+      filtered = searchFiltered
+    }
 
     return filtered
-  }, [groupedNotes, searchText])
+  }, [groupedNotes, searchText, selectedCompanyFilter])
 
   return (
     <div className="notes-list">
@@ -88,7 +111,13 @@ const NotesList = ({ notes, searchText, selectedNote, onNoteSelect, onDeleteNote
               >
                 <Popconfirm
                   title="Delete Note"
-                  description={`Are you sure you want to delete "${note.title || 'Untitled'}"? This action cannot be undone.`}
+                  description={
+                    <>
+                      Are you sure you want to delete &quot;{note.title || 'Untitled'}&quot;
+                      <br />
+                      This action cannot be undone.
+                    </>
+                  }
                   onConfirm={() => onDeleteNote(note)}
                   okText="Delete"
                   cancelText="Cancel"

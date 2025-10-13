@@ -1,7 +1,7 @@
 // NotesSidebarLayout.less
 .notes-sidebar-layout {
   display: flex;
-  height: 100vh;
+  height: calc(100vh - 120px); // Subtract space for PageHeader
   background-color: var(--color-background);
   color: var(--color-text);
 
@@ -11,10 +11,13 @@
     border-right: 1px solid var(--ev-c-gray-3);
     display: flex;
     flex-direction: column;
+    height: 100%;
+    overflow: hidden;
 
     .header {
       padding: 20px;
       border-bottom: 1px solid var(--ev-c-gray-3);
+      flex-shrink: 0;
 
       .title-container {
         display: flex;
@@ -26,6 +29,12 @@
           color: var(--color-text);
           margin: 0;
         }
+
+        .title-actions {
+          display: flex;
+          align-items: center;
+          gap: 8px;
+        }
       }
 
       .search-input {
@@ -33,12 +42,30 @@
         border: 1px solid var(--ev-c-gray-3);
         color: var(--color-text);
       }
+
+      .company-filter-select {
+        background-color: var(--color-background);
+        border: 1px solid var(--ev-c-gray-3);
+        color: var(--color-text);
+
+        .ant-select-selector {
+          background-color: var(--color-background) !important;
+          border: 1px solid var(--ev-c-gray-3) !important;
+          color: var(--color-text) !important;
+        }
+
+        .ant-select-selection-item {
+          color: var(--color-text) !important;
+        }
+      }
     }
 
     .notes-list {
       flex: 1;
-      overflow: auto;
+      overflow-y: auto;
+      overflow-x: hidden;
       padding: 10px;
+      height: 0; // This forces the flex item to respect the available space
 
       .time-group {
         margin-bottom: 20px;
@@ -144,11 +171,14 @@
     display: flex;
     flex-direction: column;
     background-color: var(--color-background);
+    height: 100%;
+    overflow: hidden;
 
     .content-header {
       padding: 20px;
       border-bottom: 1px solid var(--ev-c-gray-3);
       background-color: var(--color-background-soft);
+      flex-shrink: 0;
 
       .header-content {
         display: flex;
@@ -202,6 +232,7 @@
       flex: 1;
       padding: 20px;
       overflow: auto;
+      height: 0; // This forces the flex item to respect the available space
 
       .editing-textarea {
         height: 100%;
@@ -225,6 +256,7 @@
         outline: none;
         white-space: pre-wrap;
         word-wrap: break-word;
+        overflow-y: auto;
 
         &:empty:before {
           content: attr(placeholder);
@@ -247,6 +279,7 @@
         font-size: 14px;
         line-height: 1.6;
         color: var(--color-text);
+        overflow-y: auto;
       }
     }
 

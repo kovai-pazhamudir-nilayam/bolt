@@ -1,11 +1,12 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import withNotification from '../../../hoc/withNotification'
 import { notesFactory } from '../../../repos/NotesPage.repo'
 import { settingsFactory } from '../../../repos/SettingsPage.repo'
+import PageHeader from '../../../components/PageHeader/PageHeader'
+import EmptyNotes from './EmptyNotes'
+import NoteEditor from './NoteEditor'
 import NotesList from './NotesList'
 import NotesSidebarHeader from './NotesSidebarHeader'
-import NoteEditor from './NoteEditor'
-import EmptyNotes from './EmptyNotes'
 import './NotesSidebarLayout.less'
 
 const { notesRepo } = notesFactory()
@@ -16,30 +17,30 @@ const NotesSidebarLayoutWOC = ({ renderErrorNotification, renderSuccessNotificat
   const [notes, setNotes] = useState([])
   const [companies, setCompanies] = useState([])
   const [searchText, setSearchText] = useState('')
+  const [selectedCompanyFilter, setSelectedCompanyFilter] = useState(null)
 
   // UI state
   const [selectedNoteId, setSelectedNoteId] = useState(null)
   const [isCreatingNew, setIsCreatingNew] = useState(false)
 
-  // Editing state - consolidated into a single object
-  const [editingState, setEditingState] = useState({
+  const initialEditingState = {
     title: '',
     content: '',
     company: '',
     hasUnsavedChanges: false
-  })
+  }
+
+  // Editing state - consolidated into a single object
+  const [editingState, setEditingState] = useState(initialEditingState)
 
   // Refs
   const contentEditableRef = useRef(null)
   const hasUnsavedChangesRef = useRef(false)
 
   // Derived state
-  const selectedNote = useMemo(
-    () => notes.find((note) => note.id === selectedNoteId) || null,
-    [notes, selectedNoteId]
-  )
+  const selectedNote = notes.find((note) => note.id === selectedNoteId)
 
-  const loadData = useCallback(async () => {
+  const loadData = async () => {
     try {
       const [data, companiesData] = await Promise.all([notesRepo.getAll(), companyRepo.getAll()])
       setNotes(data)
@@ -58,35 +59,18 @@ const NotesSidebarLayoutWOC = ({ renderErrorNotification, renderSuccessNotificat
     } catch (error) {
       renderErrorNotification(error)
     }
-  }, [selectedNoteId, renderErrorNotification])
+  }
 
   useEffect(() => {
     loadData()
-  }, [loadData])
-
-  // Update contentEditable when editingState.content changes
-  useEffect(() => {
-    if (
-      contentEditableRef.current &&
-      editingState.content !== contentEditableRef.current.textContent
-    ) {
-      contentEditableRef.current.textContent = editingState.content
-    }
-  }, [editingState.content])
-
-  // Clear contentEditable when creating new note
-  useEffect(() => {
-    if (isCreatingNew && contentEditableRef.current) {
-      contentEditableRef.current.textContent = ''
-    }
-  }, [isCreatingNew])
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
 
   const handleNoteSelect = (note) => {
     // Save current note if there are unsaved changes
     if (selectedNote && hasUnsavedChangesRef.current) {
       handleAutoSave()
     }
-
     setSelectedNoteId(note.id)
     setEditingState({
       title: note.title || '',
@@ -132,7 +116,6 @@ const NotesSidebarLayoutWOC = ({ renderErrorNotification, renderSuccessNotificat
 
   const handleAutoSave = async () => {
     if (!selectedNote || !hasUnsavedChangesRef.current) return
-
     try {
       const updatedNote = await notesRepo.upsert({
         ...selectedNote,
@@ -140,7 +123,6 @@ const NotesSidebarLayoutWOC = ({ renderErrorNotification, renderSuccessNotificat
         content: editingState.content,
         company_code: editingState.company
       })
-
       setNotes((prev) => prev.map((note) => (note.id === updatedNote.id ? updatedNote : note)))
       setEditingState((prev) => ({
         ...prev,
@@ -161,23 +143,16 @@ const NotesSidebarLayoutWOC = ({ renderErrorNotification, renderSuccessNotificat
       company: '',
       hasUnsavedChanges: false
     })
-
-    // Clear the contentEditable div
-    if (contentEditableRef.current) {
-      contentEditableRef.current.textContent = ''
-    }
   }
 
   const handleSaveNewNote = async () => {
     if (!editingState.title.trim()) return
-
     try {
       const newNote = await notesRepo.upsert({
         title: editingState.title,
         content: editingState.content,
         company_code: editingState.company || null
       })
-
       setNotes((prev) => [newNote, ...prev])
       setSelectedNoteId(newNote.id)
       setIsCreatingNew(false)
@@ -185,7 +160,6 @@ const NotesSidebarLayoutWOC = ({ renderErrorNotification, renderSuccessNotificat
         ...prev,
         hasUnsavedChanges: false
       }))
-
       renderSuccessNotification({
         message: 'Note created successfully!'
       })
@@ -198,24 +172,13 @@ const NotesSidebarLayoutWOC = ({ renderErrorNotification, renderSuccessNotificat
 
   const handleCancelNewNote = () => {
     setIsCreatingNew(false)
-    setEditingState({
-      title: '',
-      content: '',
-      company: '',
-      hasUnsavedChanges: false
-    })
-
-    // Clear the contentEditable div
-    if (contentEditableRef.current) {
-      contentEditableRef.current.textContent = ''
-    }
+    setEditingState(initialEditingState)
   }
 
   const handleDeleteNote = async (note) => {
     try {
       await notesRepo.delete(note.id)
       setNotes((prev) => prev.filter((n) => n.id !== note.id))
-
       // If the deleted note was selected, clear selection
       if (selectedNoteId === note.id) {
         setSelectedNoteId(null)
@@ -226,7 +189,6 @@ const NotesSidebarLayoutWOC = ({ renderErrorNotification, renderSuccessNotificat
           hasUnsavedChanges: false
         })
       }
-
       renderSuccessNotification({
         message: 'Note deleted successfully!'
       })
@@ -238,45 +200,56 @@ const NotesSidebarLayoutWOC = ({ renderErrorNotification, renderSuccessNotificat
   }
 
   return (
-    <div className="notes-sidebar-layout">
-      {/* Sidebar */}
-      <div className="sidebar">
-        {/* Header */}
-        <NotesSidebarHeader
-          searchText={searchText}
-          onSearchChange={setSearchText}
-          onCreateNew={handleCreateNew}
-        />
+    <div>
+      <PageHeader
+        title="Notes"
+        description="Capture your thoughts, ideas, and important information in one organized place."
+      />
 
-        {/* Notes List */}
-        <NotesList
-          notes={notes}
-          searchText={searchText}
-          selectedNote={selectedNote}
-          onNoteSelect={handleNoteSelect}
-          onDeleteNote={handleDeleteNote}
-        />
-      </div>
-
-      {/* Main Content Area */}
-      <div className="main-content">
-        {isCreatingNew || selectedNote ? (
-          <NoteEditor
-            isCreatingNew={isCreatingNew}
-            selectedNote={selectedNote}
-            editingState={editingState}
+      <div className="notes-sidebar-layout">
+        {/* Sidebar */}
+        <div className="sidebar">
+          {/* Header */}
+          <NotesSidebarHeader
+            searchText={searchText}
+            onSearchChange={setSearchText}
+            onCreateNew={handleCreateNew}
             companies={companies}
-            contentEditableRef={contentEditableRef}
-            onTitleChange={handleTitleChange}
-            onCompanyChange={handleCompanyChange}
-            onContentChange={handleContentChange}
-            onFocusOut={handleFocusOut}
-            onSaveNewNote={handleSaveNewNote}
-            onCancelNewNote={handleCancelNewNote}
+            selectedCompanyFilter={selectedCompanyFilter}
+            onCompanyFilterChange={setSelectedCompanyFilter}
           />
-        ) : (
-          <EmptyNotes />
-        )}
+
+          {/* Notes List */}
+          <NotesList
+            notes={notes}
+            searchText={searchText}
+            selectedCompanyFilter={selectedCompanyFilter}
+            selectedNote={selectedNote}
+            onNoteSelect={handleNoteSelect}
+            onDeleteNote={handleDeleteNote}
+          />
+        </div>
+
+        {/* Main Content Area */}
+        <div className="main-content">
+          {isCreatingNew || selectedNote ? (
+            <NoteEditor
+              isCreatingNew={isCreatingNew}
+              selectedNote={selectedNote}
+              editingState={editingState}
+              companies={companies}
+              contentEditableRef={contentEditableRef}
+              onTitleChange={handleTitleChange}
+              onCompanyChange={handleCompanyChange}
+              onContentChange={handleContentChange}
+              onFocusOut={handleFocusOut}
+              onSaveNewNote={handleSaveNewNote}
+              onCancelNewNote={handleCancelNewNote}
+            />
+          ) : (
+            <EmptyNotes />
+          )}
+        </div>
       </div>
     </div>
   )

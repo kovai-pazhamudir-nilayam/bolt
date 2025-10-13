@@ -1,5 +1,3 @@
-
-
 import { Button, Form, Input, Modal } from 'antd'
 import { useEffect, useState } from 'react'
 import EntityTable from '../../../components/EntityTable'
@@ -26,7 +24,6 @@ const EnvironmentsSettingsTabWOC = ({ renderSuccessNotification, renderErrorNoti
   const [form] = Form.useForm()
   const [loading, setLoading] = useState(false)
   const [environments, setEnvironments] = useState([])
-  // const { , loading, loadData } = {}
 
   useEffect(() => {
     setLoading(true)
