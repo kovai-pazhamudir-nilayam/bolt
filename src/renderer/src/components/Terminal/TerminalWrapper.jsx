@@ -27,37 +27,40 @@ const TerminalWrapper = ({ onCommandStart, onCommandEnd, onError, className = ''
     }
   }, [])
 
-  const handleTerminalData = useCallback((data) => {
-    if (isCommandRunning.current) {
-      // If a command is running, send the data to the running process
-      // Note: This would require implementing input sending in the terminal repo
-      console.log('Sending input to process:', data)
-    } else {
-      // If no command is running, treat as new command
-      commandBuffer.current += data
-      
-      // Handle special keys
-      if (data === '\r' || data === '\n') {
-        const command = commandBuffer.current.trim()
-        commandBuffer.current = ''
-        
-        if (command) {
-          executeCommand(command)
-        } else {
-          writeToTerminal('\r\n$ ')
-        }
-      } else if (data === '\u007f' || data === '\b') {
-        // Handle backspace
-        if (commandBuffer.current.length > 0) {
-          commandBuffer.current = commandBuffer.current.slice(0, -1)
-          writeToTerminal('\b \b')
-        }
+  const handleTerminalData = useCallback(
+    (data) => {
+      if (isCommandRunning.current) {
+        // If a command is running, send the data to the running process
+        // Note: This would require implementing input sending in the terminal repo
+        console.log('Sending input to process:', data)
       } else {
-        // Echo the character
-        writeToTerminal(data)
+        // If no command is running, treat as new command
+        commandBuffer.current += data
+
+        // Handle special keys
+        if (data === '\r' || data === '\n') {
+          const command = commandBuffer.current.trim()
+          commandBuffer.current = ''
+
+          if (command) {
+            executeCommand(command)
+          } else {
+            writeToTerminal('\r\n$ ')
+          }
+        } else if (data === '\u007f' || data === '\b') {
+          // Handle backspace
+          if (commandBuffer.current.length > 0) {
+            commandBuffer.current = commandBuffer.current.slice(0, -1)
+            writeToTerminal('\b \b')
+          }
+        } else {
+          // Echo the character
+          writeToTerminal(data)
+        }
       }
-    }
-  }, [executeCommand, writeToTerminal])
+    },
+    [executeCommand, writeToTerminal]
+  )
 
   const executeCommand = useCallback(
     async (command) => {

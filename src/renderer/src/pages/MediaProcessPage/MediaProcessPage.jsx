@@ -1,6 +1,5 @@
 import { Button, Col, Form, Row, Select } from 'antd'
 import { useRef, useState } from 'react'
-import fs from 'fs'
 import CompanySelection from '../../components/CompanySelection'
 import EnvironmentSelection from '../../components/EnvironmentSelection'
 import LogsViewer from '../../components/LogsViewer/LogsViewer'
@@ -9,27 +8,31 @@ import SubmitBtnForm from '../../components/SubmitBtnForm'
 import withNotification from '../../hoc/withNotification'
 import { settingsFactory } from '../../repos/SettingsPage.repo'
 import { systemFactory } from '../../repos/system.repo'
+import { shellFactory } from '../../repos/shell.repo'
 const { systemRepo } = systemFactory()
 const { mediaConfigRepo, coreConfigRepo } = settingsFactory()
+const { shellRepo } = shellFactory()
+
+const media_processor_uri = {
+  PRODUCT: 'v1/brands',
+  BRAND: 'v1/brands'
+}
 
 const ITEMS = ['PRODUCT', 'CATEGORY', 'BRAND']
 
-// Helper function to list files in a directory
-const listFiles = async (input_path) => {
-  const fileNames = (await fs.readdirSync(input_path, { withFileTypes: true }))
-    .filter((dirent) => !dirent.isDirectory() && dirent.name !== '.DS_Store')
-    .filter((dirent) => !dirent.isDirectory() && dirent.name !== 'Thumbs.db')
-    .filter((dirent) => !dirent.isDirectory() && dirent.name !== 'desktop.ini')
-    .map((dir) => dir.name)
+// Helper function to upload files to GCS bucket
+const uploadToGCS = async ({ folderPath, bucketPath }) => {
+  const command = `gsutil -m cp -r ${folderPath}/* gs://${bucketPath}/images`
 
-  return fileNames.sort((a, b) => {
-    return Number(a.split('.')[0].split('_')[1]) - Number(b.split('.')[0].split('_')[1])
-  })
+  console.log(`Running command: ${command}`)
+
+  // Just run the command and wait for completion
+  return shellRepo.run(command)
 }
 
 // Helper function to construct API payload
 const constructPayload = async ({ media_path }) => {
-  const categories = await listFiles(media_path)
+  const categories = await systemRepo.listFiles(media_path)
   return {
     csv_file_name: `category_${new Date().toISOString().split('T')[0]}.csv`,
     brands: categories.map((item) => {
@@ -47,28 +50,39 @@ const constructPayload = async ({ media_path }) => {
     }
   }
 }
+///
+
+const makeCoreTokenAPIRequest = async ({ url, key }) => {
+  console.log(`Making api call to ${url}`)
+  try {
+    return await systemRepo.httpRequest(url, {
+      method: 'POST', // Specify the request method
+      headers: {
+        'Content-Type': 'application/json',
+        'x-auth-token': key
+      }
+    })
+  } catch (error) {
+    console.error('Error making core token API request:', error)
+    throw error
+  }
+}
 
 // Helper function to make API call
-const makeAPICall = async ({ payload, authToken, domain }) => {
-  const url = `${domain}/v1/brands`
+const makeAPICall = async ({ payload, authToken, domain, type }) => {
+  const url = `${domain}/media-processor/${media_processor_uri[type]}`
 
   console.log(`Making api call to ${url}`)
 
   try {
-    const response = await fetch(url, {
+    const jsonResponse = await systemRepo.httpRequest(url, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        Authorization: authToken
+        Authorization: authToken.token
       },
-      body: JSON.stringify(payload)
+      body: payload
     })
-
-    if (!response.ok) {
-      throw new Error('Network response was not ok')
-    }
-
-    const jsonResponse = await response.json()
     return jsonResponse
   } catch (error) {
     console.error('Error:', error)
@@ -156,37 +170,67 @@ const MediaProcessPageWOC = ({ renderErrorNotification, renderSuccessNotificatio
       setLogs((prev) => [...prev, `    Base URL: ${matchingCoreConfig.base_url}`])
       setLogs((prev) => [...prev, `    Auth API: ${matchingCoreConfig.auth_api}`])
 
-      const authToken = matchingCoreConfig.auth_api_key
+      //
+      const authToken = await makeCoreTokenAPIRequest({
+        url: matchingCoreConfig.auth_api,
+        key: matchingCoreConfig.auth_api_key
+      })
+
       const domain = matchingCoreConfig.base_url
 
-      // Step 4: Process media files
-      setLogs((prev) => [...prev, `#4 ---> Processing media files...`])
+      // Step 4: Upload files to GCS bucket
+      setLogs((prev) => [...prev, `#4 ---> Uploading files to GCS bucket...`])
+      setLogs((prev) => [...prev, `    Bucket: ${matchingConfig.bucket_path}`])
+      setLogs((prev) => [...prev, `    Source: ${folderPath}`])
+
+      try {
+        await uploadToGCS({
+          folderPath,
+          bucketPath: matchingConfig.bucket_path
+        })
+        setLogs((prev) => [...prev, `✅ Files uploaded to GCP Bucket successfully!`])
+      } catch (uploadError) {
+        setLogs((prev) => [...prev, `❌ ERROR: Failed to upload files to GCP Bucket`])
+        setLogs((prev) => [...prev, `    ${uploadError.message}`])
+        setUploading(false)
+        renderErrorNotification({
+          message: 'Failed to upload files to GCP Bucket: ' + uploadError.message
+        })
+        return
+      }
+
+      // Step 5: Process media files
+      setLogs((prev) => [...prev, `#5 ---> Processing media files...`])
       setLogs((prev) => [...prev, `    Scanning folder: ${folderPath}`])
 
       try {
-        const fileList = await listFiles(folderPath)
+        const fileList = await systemRepo.listFiles(folderPath)
         setLogs((prev) => [...prev, `    Found ${fileList.length} files:`])
         fileList.forEach((file, index) => {
           setLogs((prev) => [...prev, `    ${index + 1}. ${file}`])
         })
 
-        // Step 5: Construct API payload
-        setLogs((prev) => [...prev, `#5 ---> Constructing API payload...`])
+        // Step 6: Construct API payload
+        setLogs((prev) => [...prev, `#6 ---> Constructing API payload...`])
         const payload = await constructPayload({ media_path: folderPath })
         setLogs((prev) => [...prev, `    CSV file name: ${payload.csv_file_name}`])
         setLogs((prev) => [...prev, `    Brands count: ${payload.brands.length}`])
 
-        // Step 6: Make API call
-        setLogs((prev) => [...prev, `#6 ---> Making API call...`])
-        setLogs((prev) => [...prev, `    URL: ${domain}/v1/brands`])
+        // Step 7: Make API call
+        setLogs((prev) => [...prev, `#7 ---> Making API call...`])
+        setLogs((prev) => [
+          ...prev,
+          `    URL: ${domain}/media-processor/${media_processor_uri[values.type]}`
+        ])
 
         const response = await makeAPICall({
           payload,
           authToken,
-          domain
+          domain,
+          type: values.type
         })
 
-        setLogs((prev) => [...prev, `#7 ---> ✅ API call completed successfully!`])
+        setLogs((prev) => [...prev, `#8 ---> ✅ API call completed successfully!`])
         setLogs((prev) => [...prev, `    Response: ${JSON.stringify(response, null, 2)}`])
         renderSuccessNotification({ message: 'Media processing complete!' })
       } catch (fileError) {

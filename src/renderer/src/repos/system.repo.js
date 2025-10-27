@@ -1,10 +1,18 @@
 const systemAPI = {
-  selectFolder: () => {}
+  selectFolder: () => {},
+  listFiles: () => {},
+  httpRequest: () => {}
 }
 
 const systemDB = {
   selectFolder: () => {
     return window.systemAPI.selectFolder()
+  },
+  listFiles: async (input_path) => {
+    return window.systemAPI.listFiles(input_path)
+  },
+  httpRequest: async (url, options) => {
+    return window.systemAPI.httpRequest(url, options)
   }
 }
 
