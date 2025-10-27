@@ -9,11 +9,15 @@ import CompanySettingsTab from './_tabs/CompanySettingsTab'
 import CoreConfigsSettingsPageTab from './_tabs/CoreConfigsSettingsPageTab'
 import GcpProjectConfigsSettingsTab from './_tabs/GcpProjectConfigsSettingsTab'
 import MediaConfigSettingsTab from './_tabs/MediaConfigSettingsTab'
+import { useFeatureConfig } from '../../context/featureConfigContext'
 
 const SettingsPage = () => {
-  const tabItems = [
+  const { isFeatureHidden } = useFeatureConfig()
+
+  const allTabItems = [
     {
       key: 'companies',
+      featureKey: 'settings-companies',
       label: (
         <span>
           <Building2 size={16} style={{ marginRight: 8 }} />
@@ -24,6 +28,7 @@ const SettingsPage = () => {
     },
     {
       key: 'environments',
+      featureKey: 'settings-environments',
       label: (
         <span>
           <Database size={16} style={{ marginRight: 8 }} />
@@ -34,6 +39,7 @@ const SettingsPage = () => {
     },
     {
       key: 'core-configs',
+      featureKey: 'settings-core-configs',
       label: (
         <span>
           <Database size={16} style={{ marginRight: 8 }} />
@@ -44,6 +50,7 @@ const SettingsPage = () => {
     },
     {
       key: 'gcp-project-configs',
+      featureKey: 'settings-gcp-project-configs',
       label: (
         <span>
           <Cloud size={16} style={{ marginRight: 8 }} />
@@ -54,6 +61,7 @@ const SettingsPage = () => {
     },
     {
       key: 'media-configs',
+      featureKey: 'settings-media-configs',
       label: (
         <span>
           <Image size={16} style={{ marginRight: 8 }} />
@@ -63,6 +71,9 @@ const SettingsPage = () => {
       children: <MediaConfigSettingsTab />
     }
   ]
+
+  // Filter out hidden tabs
+  const tabItems = allTabItems.filter(tab => !isFeatureHidden(tab.featureKey))
 
   return (
     <div>

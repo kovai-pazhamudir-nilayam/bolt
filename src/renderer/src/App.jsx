@@ -2,12 +2,14 @@ import { Button, ConfigProvider, Layout, Menu, notification } from 'antd'
 import { Moon, Sun } from 'lucide-react'
 import { useState } from 'react'
 import { Route, BrowserRouter as Router, Routes, useLocation, useNavigate } from 'react-router-dom'
+import { useFeatureConfig } from './context/featureConfigContext'
 import logo from './assets/logo.png'
 import './assets/main.css'
 import { ROUTES } from './routing'
 // import Versions from './components/Versions'
 import Footer from './components/Footer'
 import { NotificationContext } from './context/notificationContext'
+import { FeatureConfigProvider } from './context/featureConfigContext'
 import { darkTheme, lightTheme } from './theme/theme'
 import NavigationBar from './components/NavigationBar'
 // Custom theme tokens for menu states
@@ -26,16 +28,18 @@ function App() {
     <ConfigProvider theme={customTheme}>
       {contextHolder}
       <NotificationContext.Provider value={api}>
-        <Router>
-          <div data-theme={isDark ? 'dark' : 'light'}>
-            <AppLayout
-              collapsed={collapsed}
-              setCollapsed={setCollapsed}
-              isDark={isDark}
-              setIsDark={setIsDark}
-            />
-          </div>
-        </Router>
+        <FeatureConfigProvider>
+          <Router>
+            <div data-theme={isDark ? 'dark' : 'light'}>
+              <AppLayout
+                collapsed={collapsed}
+                setCollapsed={setCollapsed}
+                isDark={isDark}
+                setIsDark={setIsDark}
+              />
+            </div>
+          </Router>
+        </FeatureConfigProvider>
       </NotificationContext.Provider>
     </ConfigProvider>
   )
@@ -44,6 +48,8 @@ function App() {
 function AppLayout({ collapsed, setCollapsed, isDark, setIsDark }) {
   const navigate = useNavigate()
   const location = useLocation()
+  const { getFilteredRoutes } = useFeatureConfig()
+  
   // Map path to menu key
   const pathKey = {
     '/': '1',
@@ -51,6 +57,9 @@ function AppLayout({ collapsed, setCollapsed, isDark, setIsDark }) {
     '/notifications': '3',
     '/backup': '4'
   }
+
+  // Filter routes based on feature configuration
+  const visibleRoutes = getFilteredRoutes(ROUTES)
   return (
     <Layout style={{ minHeight: '100vh' }}>
       <Sider
@@ -76,7 +85,7 @@ function AppLayout({ collapsed, setCollapsed, isDark, setIsDark }) {
           onClick={({ key }) => {
             navigate(key)
           }}
-          items={ROUTES.map(({ path, label, icon: IconComponent, hideInMenu }) => {
+          items={visibleRoutes.map(({ path, label, icon: IconComponent, hideInMenu }) => {
             return {
               key: path,
               icon: <IconComponent size={18} />,
@@ -144,7 +153,7 @@ function AppLayout({ collapsed, setCollapsed, isDark, setIsDark }) {
             }}
           >
             <Routes>
-              {ROUTES.map(({ path, element, hideInMenu }) => (
+              {visibleRoutes.map(({ path, element, hideInMenu }) => (
                 <Route
                   className={`${hideInMenu ? 'hide' : 'show'}`}
                   key={path}

@@ -8,6 +8,7 @@ import {
   Key,
   ListCheck,
   Settings as SettingsIcon,
+  Shield,
   Ticket,
   ToolCase,
   User
@@ -34,6 +35,7 @@ import ToolsPage from './pages/ToolsPage/ToolsPage'
 import WelcomePage from './pages/WelcomePage/WelcomePage'
 import ShellCommandPage from './pages/ShellCommandPage/ShellCommandPage'
 import NotesPage from './pages/NotesPage/NotesPage'
+import FeatureConfigPage from './pages/FeatureConfigPage/FeatureConfigPage'
 
 export const ROUTES = [
   {
@@ -183,5 +185,11 @@ export const ROUTES = [
     path: '/os-ticket',
     icon: Ticket,
     element: <OsTicketPage />
+  },
+  {
+    label: 'Feature Config',
+    path: '/feature-config',
+    icon: Shield,
+    element: <FeatureConfigPage />
   }
 ]
