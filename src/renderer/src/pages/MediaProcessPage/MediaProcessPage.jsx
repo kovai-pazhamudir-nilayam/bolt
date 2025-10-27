@@ -14,14 +14,15 @@ const { mediaConfigRepo, coreConfigRepo } = settingsFactory()
 const { shellRepo } = shellFactory()
 
 const media_processor_uri = {
-  PRODUCT: 'v1/brands',
-  BRAND: 'v1/brands'
+  PRODUCT: 'v1/products',
+  BRAND: 'v1/brands',
+  CATEGORY: 'v1/categories'
 }
 
 const ITEMS = ['PRODUCT', 'CATEGORY', 'BRAND']
 
-// Helper function to upload files to GCS bucket
-const uploadToGCS = async ({ folderPath, bucketPath }) => {
+// Helper function to upload files to GCP bucket
+const uploadToGCP = async ({ folderPath, bucketPath }) => {
   const command = `gsutil -m cp -r ${folderPath}/* gs://${bucketPath}/images`
 
   console.log(`Running command: ${command}`)
@@ -178,13 +179,13 @@ const MediaProcessPageWOC = ({ renderErrorNotification, renderSuccessNotificatio
 
       const domain = matchingCoreConfig.base_url
 
-      // Step 4: Upload files to GCS bucket
-      setLogs((prev) => [...prev, `#4 ---> Uploading files to GCS bucket...`])
+      // Step 4: Upload files to GCP bucket
+      setLogs((prev) => [...prev, `#4 ---> Uploading files to GCP bucket...`])
       setLogs((prev) => [...prev, `    Bucket: ${matchingConfig.bucket_path}`])
       setLogs((prev) => [...prev, `    Source: ${folderPath}`])
 
       try {
-        await uploadToGCS({
+        await uploadToGCP({
           folderPath,
           bucketPath: matchingConfig.bucket_path
         })
