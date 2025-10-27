@@ -4,7 +4,10 @@ const userProfileAPI = {
   getByCompanyEnvironment: () => {},
   upsert: () => {},
   delete: () => {},
-  updateFeatures: () => {}
+  updateFeatures: () => {},
+  getUserIdsByPhone: () => {},
+  upsertUserIds: () => {},
+  deleteUserIds: () => {}
 }
 
 const userProfileDB = {
@@ -13,7 +16,10 @@ const userProfileDB = {
   getByCompanyEnvironment: (input) => window.userProfileAPI.userProfile.getByCompanyEnvironment(input),
   upsert: (input) => window.userProfileAPI.userProfile.upsert(input),
   delete: (phone_number) => window.userProfileAPI.userProfile.delete(phone_number),
-  updateFeatures: (input) => window.userProfileAPI.userProfile.updateFeatures(input)
+  updateFeatures: (input) => window.userProfileAPI.userProfile.updateFeatures(input),
+  getUserIdsByPhone: (phone_number) => window.userProfileAPI.userProfile.getUserIdsByPhone(phone_number),
+  upsertUserIds: (input) => window.userProfileAPI.userProfile.upsertUserIds(input),
+  deleteUserIds: (phone_number) => window.userProfileAPI.userProfile.deleteUserIds(phone_number)
 }
 
 const userProfileFactory = () => {
