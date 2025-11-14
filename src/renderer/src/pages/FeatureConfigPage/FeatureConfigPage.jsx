@@ -1,45 +1,31 @@
-import React, { useState, useEffect } from 'react'
-import { 
-  Table, 
-  Button, 
-  Select, 
-  Space, 
-  Typography, 
-  Card, 
-  Switch, 
-  message, 
-  Modal, 
-  Tag,
-  Divider,
-  Row,
+import {
+  Button,
+  Card,
   Col,
-  Statistic
+  message,
+  Modal,
+  Row,
+  Select,
+  Space,
+  Statistic,
+  Table,
+  Tag,
+  Typography
 } from 'antd'
-import { 
-  Shield, 
-  Eye, 
-  EyeOff, 
-  Edit, 
-  Save, 
-  RotateCcw,
-  Settings,
-  Lock,
-  Unlock
-} from 'lucide-react'
+import { Edit, Eye, EyeOff, RotateCcw, Settings, Shield } from 'lucide-react'
+import { useState } from 'react'
 import PageHeader from '../../components/PageHeader/PageHeader'
 import { useFeatureConfig } from '../../context/featureConfigContext'
 
-const { Title, Text } = Typography
+const { Text } = Typography
 const { Option } = Select
 
 const FeatureConfigPage = () => {
   const {
     featureConfigs,
     loading,
-    superadminMode,
     updateFeatureAccessLevel,
     resetFeatureConfigs,
-    toggleSuperadminMode,
     isSuperadminOnlyFeature,
     loadFeatureConfigs
   } = useFeatureConfig()
@@ -49,7 +35,7 @@ const FeatureConfigPage = () => {
   const [resetModalVisible, setResetModalVisible] = useState(false)
 
   // Filter features by type
-  const filteredFeatures = featureConfigs.filter(feature => {
+  const filteredFeatures = featureConfigs.filter((feature) => {
     if (selectedType === 'all') return true
     return feature.feature_type === selectedType
   })
@@ -57,12 +43,12 @@ const FeatureConfigPage = () => {
   // Get statistics
   const stats = {
     total: featureConfigs.length,
-    pages: featureConfigs.filter(f => f.feature_type === 'page').length,
-    tabs: featureConfigs.filter(f => f.feature_type === 'tab').length,
-    write: featureConfigs.filter(f => f.access_level === 'write').length,
-    read: featureConfigs.filter(f => f.access_level === 'read').length,
-    hidden: featureConfigs.filter(f => f.access_level === 'hidden').length,
-    superadmin: featureConfigs.filter(f => f.is_superadmin_only).length
+    pages: featureConfigs.filter((f) => f.feature_type === 'page').length,
+    tabs: featureConfigs.filter((f) => f.feature_type === 'tab').length,
+    write: featureConfigs.filter((f) => f.access_level === 'write').length,
+    read: featureConfigs.filter((f) => f.access_level === 'read').length,
+    hidden: featureConfigs.filter((f) => f.access_level === 'hidden').length,
+    superadmin: featureConfigs.filter((f) => f.is_superadmin_only).length
   }
 
   const handleAccessLevelChange = async (featureKey, newAccessLevel) => {
@@ -89,19 +75,27 @@ const FeatureConfigPage = () => {
 
   const getAccessLevelColor = (level) => {
     switch (level) {
-      case 'write': return 'green'
-      case 'read': return 'orange'
-      case 'hidden': return 'red'
-      default: return 'default'
+      case 'write':
+        return 'green'
+      case 'read':
+        return 'orange'
+      case 'hidden':
+        return 'red'
+      default:
+        return 'default'
     }
   }
 
   const getAccessLevelIcon = (level) => {
     switch (level) {
-      case 'write': return <Edit size={14} />
-      case 'read': return <Eye size={14} />
-      case 'hidden': return <EyeOff size={14} />
-      default: return null
+      case 'write':
+        return <Edit size={14} />
+      case 'read':
+        return <Eye size={14} />
+      case 'hidden':
+        return <EyeOff size={14} />
+      default:
+        return null
     }
   }
 
@@ -131,11 +125,7 @@ const FeatureConfigPage = () => {
       title: 'Type',
       dataIndex: 'feature_type',
       key: 'feature_type',
-      render: (type) => (
-        <Tag color={type === 'page' ? 'blue' : 'cyan'}>
-          {type.toUpperCase()}
-        </Tag>
-      )
+      render: (type) => <Tag color={type === 'page' ? 'blue' : 'cyan'}>{type.toUpperCase()}</Tag>
     },
     {
       title: 'Current Access Level',
@@ -174,8 +164,8 @@ const FeatureConfigPage = () => {
         }
 
         return (
-          <Tag 
-            color={getAccessLevelColor(level)} 
+          <Tag
+            color={getAccessLevelColor(level)}
             icon={getAccessLevelIcon(level)}
             style={{ cursor: 'pointer' }}
             onClick={() => setEditingKey(record.feature_key)}
@@ -199,34 +189,6 @@ const FeatureConfigPage = () => {
         title="Feature Configuration"
         description="Manage feature access levels and permissions. Control which features users can access and their level of interaction."
       />
-
-      {/* Superadmin Mode Toggle */}
-      <Card style={{ marginBottom: 16 }}>
-        <Row justify="space-between" align="middle">
-          <Col>
-            <Space>
-              <Shield size={20} />
-              <div>
-                <Title level={5} style={{ margin: 0 }}>Superadmin Mode</Title>
-                <Text type="secondary">
-                  {superadminMode 
-                    ? 'All restrictions are bypassed' 
-                    : 'Normal user mode - restrictions apply'
-                  }
-                </Text>
-              </div>
-            </Space>
-          </Col>
-          <Col>
-            <Switch
-              checked={superadminMode}
-              onChange={toggleSuperadminMode}
-              checkedChildren={<Lock size={14} />}
-              unCheckedChildren={<Unlock size={14} />}
-            />
-          </Col>
-        </Row>
-      </Card>
 
       {/* Statistics */}
       <Row gutter={16} style={{ marginBottom: 16 }}>
@@ -268,11 +230,7 @@ const FeatureConfigPage = () => {
           <Col>
             <Space>
               <Text strong>Filter by type:</Text>
-              <Select
-                value={selectedType}
-                onChange={setSelectedType}
-                style={{ width: 120 }}
-              >
+              <Select value={selectedType} onChange={setSelectedType} style={{ width: 120 }}>
                 <Option value="all">All</Option>
                 <Option value="page">Pages</Option>
                 <Option value="tab">Tabs</Option>
@@ -281,18 +239,14 @@ const FeatureConfigPage = () => {
           </Col>
           <Col>
             <Space>
-              <Button 
+              <Button
                 icon={<RotateCcw size={16} />}
                 onClick={() => setResetModalVisible(true)}
                 danger
               >
                 Reset All
               </Button>
-              <Button 
-                icon={<Settings size={16} />}
-                onClick={loadFeatureConfigs}
-                loading={loading}
-              >
+              <Button icon={<Settings size={16} />} onClick={loadFeatureConfigs} loading={loading}>
                 Refresh
               </Button>
             </Space>
@@ -311,8 +265,7 @@ const FeatureConfigPage = () => {
             pageSize: 20,
             showSizeChanger: true,
             showQuickJumper: true,
-            showTotal: (total, range) => 
-              `${range[0]}-${range[1]} of ${total} features`
+            showTotal: (total, range) => `${range[0]}-${range[1]} of ${total} features`
           }}
         />
       </Card>
@@ -327,12 +280,10 @@ const FeatureConfigPage = () => {
         okButtonProps={{ danger: true }}
       >
         <p>
-          Are you sure you want to reset all feature configurations to their default values? 
-          This will set all features to "write" access level.
+          Are you sure you want to reset all feature configurations to their default values? This
+          will set all features to &quot;write&quot; access level.
         </p>
-        <Text type="secondary">
-          This action cannot be undone.
-        </Text>
+        <Text type="secondary">This action cannot be undone.</Text>
       </Modal>
     </div>
   )
