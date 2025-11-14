@@ -1,4 +1,5 @@
 import { Button, Col, Form, Row, Select } from 'antd'
+import _ from 'lodash'
 import { useRef, useState } from 'react'
 import CompanySelection from '../../components/CompanySelection'
 import EnvironmentSelection from '../../components/EnvironmentSelection'
@@ -7,11 +8,13 @@ import PageHeader from '../../components/PageHeader/PageHeader'
 import SubmitBtnForm from '../../components/SubmitBtnForm'
 import withNotification from '../../hoc/withNotification'
 import { settingsFactory } from '../../repos/SettingsPage.repo'
-import { systemFactory } from '../../repos/system.repo'
 import { shellFactory } from '../../repos/shell.repo'
+import { systemFactory } from '../../repos/system.repo'
+import { userProfileFactory } from '../../repos/UserProfilePage.repo'
 const { systemRepo } = systemFactory()
 const { mediaConfigRepo, coreConfigRepo } = settingsFactory()
 const { shellRepo } = shellFactory()
+const { userProfileRepo } = userProfileFactory()
 
 const media_processor_uri = {
   PRODUCT: 'v1/products',
@@ -31,7 +34,7 @@ const uploadToGCP = async ({ folderPath, bucketPath }) => {
   return shellRepo.run(command)
 }
 
-const constructPayloadForBrands = async ({ media_path }) => {
+const constructPayloadForBrands = async ({ media_path, user_email }) => {
   const items = await systemRepo.listFiles(media_path)
   return {
     csv_file_name: `category_${new Date().toISOString().split('T')[0]}.csv`,
@@ -46,12 +49,12 @@ const constructPayloadForBrands = async ({ media_path }) => {
       }
     }),
     audit: {
-      created_by: 'pankaj.ladhar@ibo.com'
+      created_by: user_email
     }
   }
 }
 
-const contructPayloadForProducts = async ({ media_path, company }) => {
+const contructPayloadForProducts = async ({ media_path, company, user_email }) => {
   const mediaInputArr = []
 
   const parentDirList = await systemRepo.listDirectories(media_path)
@@ -82,12 +85,12 @@ const contructPayloadForProducts = async ({ media_path, company }) => {
     csv_file_name: `product_${new Date().toISOString().split('T')[0]}.csv`,
     products: mediaInputArr,
     audit: {
-      created_by: 'pankaj.ladhar@ibo.com'
+      created_by: user_email
     }
   }
 }
 
-const contructPayloadForCategories = async ({ media_path }) => {
+const contructPayloadForCategories = async ({ media_path, user_email }) => {
   const items = await systemRepo.listFiles(media_path)
   return {
     csv_file_name: `category_${new Date().toISOString().split('T')[0]}.csv`,
@@ -103,19 +106,19 @@ const contructPayloadForCategories = async ({ media_path }) => {
     }),
 
     audit: {
-      created_by: 'pankaj.ladhar@ibo.com'
+      created_by: user_email
     }
   }
 }
 
-const constructPayload = async ({ media_path, company, type }) => {
+const constructPayload = async ({ media_path, company, type, user_email }) => {
   switch (type) {
     case 'BRAND':
-      return await constructPayloadForBrands({ media_path })
+      return await constructPayloadForBrands({ media_path, user_email })
     case 'PRODUCT':
-      return await contructPayloadForProducts({ media_path, company })
+      return await contructPayloadForProducts({ media_path, company, user_email })
     case 'CATEGORY':
-      return await contructPayloadForCategories({ media_path })
+      return await contructPayloadForCategories({ media_path, user_email })
   }
 }
 
@@ -168,6 +171,14 @@ const MediaProcessPageWOC = ({ renderErrorNotification, renderSuccessNotificatio
   const onFinish = async (values) => {
     if (!folderPath) {
       setFolderError('Please select a folder first.')
+      return
+    }
+
+    const userProfile = await userProfileRepo.getAll()
+    if (_.isEmpty(userProfile)) {
+      renderErrorNotification({
+        message: 'User Email id not found. Please configure user profile in User Profile page.'
+      })
       return
     }
 
@@ -282,7 +293,8 @@ const MediaProcessPageWOC = ({ renderErrorNotification, renderSuccessNotificatio
         const payload = await constructPayload({
           media_path: folderPath,
           company: values.company_code,
-          type: values.type
+          type: values.type,
+          user_email: userProfile[0].email
         })
 
         setLogs((prev) => [...prev, `    CSV file name: ${payload.csv_file_name}`])
