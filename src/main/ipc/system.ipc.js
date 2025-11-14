@@ -23,6 +23,14 @@ export const registerSystemHandler = (ipcMain) => {
     })
   }
 
+  async function listDirectories(_event, input_path) {
+    const directories = (await fs.readdirSync(input_path, { withFileTypes: true }))
+      .filter((dirent) => dirent.isDirectory())
+      .map((dir) => dir.name)
+
+    return directories
+  }
+
   async function makeHTTPRequest(_event, url, options = {}) {
     const { method = 'GET', headers = {}, body } = options
 
@@ -47,5 +55,6 @@ export const registerSystemHandler = (ipcMain) => {
 
   ipcMain.handle('system:select-folder', selectFolder)
   ipcMain.handle('system:list-files', listFiles)
+  ipcMain.handle('system:list-directories', listDirectories)
   ipcMain.handle('system:http-request', makeHTTPRequest)
 }

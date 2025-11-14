@@ -11,6 +11,9 @@ const systemDB = {
   listFiles: async (input_path) => {
     return window.systemAPI.listFiles(input_path)
   },
+  listDirectories: async (input_path) => {
+    return window.systemAPI.listDirectories(input_path)
+  },
   httpRequest: async (url, options) => {
     return window.systemAPI.httpRequest(url, options)
   }

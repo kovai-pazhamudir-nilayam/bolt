@@ -31,12 +31,11 @@ const uploadToGCP = async ({ folderPath, bucketPath }) => {
   return shellRepo.run(command)
 }
 
-// Helper function to construct API payload
-const constructPayload = async ({ media_path }) => {
-  const categories = await systemRepo.listFiles(media_path)
+const constructPayloadForBrands = async ({ media_path }) => {
+  const items = await systemRepo.listFiles(media_path)
   return {
     csv_file_name: `category_${new Date().toISOString().split('T')[0]}.csv`,
-    brands: categories.map((item) => {
+    brands: items.map((item) => {
       return {
         brand_id: item.split('.')[0],
         media_type: 'images',
@@ -51,7 +50,74 @@ const constructPayload = async ({ media_path }) => {
     }
   }
 }
-///
+
+const contructPayloadForProducts = async ({ media_path, company }) => {
+  const mediaInputArr = []
+
+  const parentDirList = await systemRepo.listDirectories(media_path)
+
+  for (let product_code of parentDirList) {
+    const nextPath = `${media_path}/${product_code}`
+    const childFileNames = await systemRepo.listFiles(nextPath)
+    const sku_key = company === 'ebono' ? 'sku_code' : 'esin'
+
+    childFileNames.forEach((fileNameWithEx, index) => {
+      const isPrimary = index === 0
+      const mediaObj = {
+        [sku_key]: product_code,
+        is_primary_for_store: isPrimary,
+        is_primary_for_scm: isPrimary,
+        position: index + 1,
+        media_name: `${product_code}/${fileNameWithEx}`,
+        alt_text: product_code,
+        media_type: 'images',
+        title: product_code,
+        enable_watermarking: false
+      }
+      mediaInputArr.push(mediaObj)
+    })
+  }
+
+  return {
+    csv_file_name: `product_${new Date().toISOString().split('T')[0]}.csv`,
+    products: mediaInputArr,
+    audit: {
+      created_by: 'pankaj.ladhar@ibo.com'
+    }
+  }
+}
+
+const contructPayloadForCategories = async ({ media_path }) => {
+  const items = await systemRepo.listFiles(media_path)
+  return {
+    csv_file_name: `category_${new Date().toISOString().split('T')[0]}.csv`,
+    categories: items.map((item) => {
+      return {
+        category_id: item.split('.')[0],
+        media_type: 'images',
+        is_primary_for_store: true,
+        is_primary_for_scm: true,
+        position: 1,
+        media_name: item
+      }
+    }),
+
+    audit: {
+      created_by: 'pankaj.ladhar@ibo.com'
+    }
+  }
+}
+
+const constructPayload = async ({ media_path, company, type }) => {
+  switch (type) {
+    case 'BRAND':
+      return await constructPayloadForBrands({ media_path })
+    case 'PRODUCT':
+      return await contructPayloadForProducts({ media_path, company })
+    case 'CATEGORY':
+      return await contructPayloadForCategories({ media_path })
+  }
+}
 
 const makeCoreTokenAPIRequest = async ({ url, key }) => {
   console.log(`Making api call to ${url}`)
@@ -213,7 +279,12 @@ const MediaProcessPageWOC = ({ renderErrorNotification, renderSuccessNotificatio
 
         // Step 6: Construct API payload
         setLogs((prev) => [...prev, `#6 ---> Constructing API payload...`])
-        const payload = await constructPayload({ media_path: folderPath })
+        const payload = await constructPayload({
+          media_path: folderPath,
+          company: values.company_code,
+          type: values.type
+        })
+
         setLogs((prev) => [...prev, `    CSV file name: ${payload.csv_file_name}`])
         setLogs((prev) => [...prev, `    Brands count: ${payload.brands.length}`])
 
