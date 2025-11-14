@@ -4,7 +4,7 @@ import withNotification from '../hoc/withNotification'
 import { settingsFactory } from '../repos/SettingsPage.repo'
 const { companyRepo } = settingsFactory()
 
-const CompanySelectionWOC = ({ renderErrorNotification }) => {
+const CompanySelectionWOC = ({ renderErrorNotification, name = 'company_code' }) => {
   // const [loading, setLoading] = useState(false)
   const [datasource, setDatasource] = useState({
     companies: []
@@ -32,7 +32,7 @@ const CompanySelectionWOC = ({ renderErrorNotification }) => {
   return (
     <SelectFormItem
       options={datasource.companies}
-      name="company_code"
+      name={name}
       label="Company"
       transform="COMPANIES"
     />

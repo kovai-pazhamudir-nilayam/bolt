@@ -1,72 +1,47 @@
 import { MinusCircleOutlined, PlusOutlined } from '@ant-design/icons'
-import { Button, Col, Form, Input, message, Row } from 'antd'
+import { Button, Col, Form, Input, Row } from 'antd'
 import { useEffect, useState } from 'react'
 import CompanySelection from '../../components/CompanySelection'
 import EnvironmentSelection from '../../components/EnvironmentSelection'
 import PageHeader from '../../components/PageHeader/PageHeader'
 import { userProfileFactory } from '../../repos/UserProfilePage.repo'
 import SubmitBtnForm from '../../components/SubmitBtnForm'
+import withNotification from '../../hoc/withNotification'
 
 const { userProfileRepo } = userProfileFactory()
 
-const UserProfilePage = () => {
+const UserProfilePageWOC = ({ renderErrorNotification, renderSuccessNotification }) => {
   const [form] = Form.useForm()
   const [loading, setLoading] = useState(false)
-  const [userProfile, setUserProfile] = useState(null)
 
   useEffect(() => {
-    // loadInitialData()
+    loadInitialData()
   }, [])
 
-  const loadUserProfile = async (phoneNumber) => {
+  const loadInitialData = async () => {
     try {
-      const profile = await userProfileRepo.getByPhone(phoneNumber)
-      if (profile) {
-        setUserProfile(profile)
-        const userIds = await userProfileRepo.getUserIdsByPhone(phoneNumber)
-        form.setFieldsValue({
-          ...profile,
-          user_ids: userIds.length > 0 ? userIds : [{}]
-        })
+      const [userProfile] = await userProfileRepo.getAll()
+
+      const data = {
+        ...userProfile,
+        user_ids: JSON.parse(userProfile.user_ids)
       }
+      form.setFieldsValue(data)
     } catch {
-      message.error('Failed to load user profile')
+      renderErrorNotification({ message: 'Failed to load user profile' })
     }
   }
 
   const onFinish = async (values) => {
     try {
       setLoading(true)
-      const { user_ids, ...profileData } = values
-
-      // Save user profile
-      await userProfileRepo.upsert(profileData)
-
-      // Save user IDs
-      if (user_ids && user_ids.length > 0) {
-        await userProfileRepo.upsertUserIds({
-          phone_number: values.phone_number,
-          user_ids: user_ids
-        })
-      }
-
-      message.success('User profile saved successfully!')
-      loadUserProfile(values.phone_number)
+      await userProfileRepo.upsert(values)
+      renderSuccessNotification({ message: 'User profile saved successfully!' })
     } catch (error) {
-      message.error('Failed to save user profile')
+      renderErrorNotification({ message: 'Failed to save user profile' })
       console.error(error)
     } finally {
       setLoading(false)
-    }
-  }
-
-  const handlePhoneNumberChange = (e) => {
-    const phoneNumber = e.target.value
-    if (phoneNumber && phoneNumber.length >= 10) {
-      loadUserProfile(phoneNumber)
-    } else {
-      setUserProfile(null)
-      form.resetFields(['name', 'email', 'password', 'user_ids'])
     }
   }
 
@@ -95,11 +70,7 @@ const UserProfilePage = () => {
             }
           ]}
         >
-          <Input
-            placeholder="Enter phone number"
-            onChange={handlePhoneNumberChange}
-            maxLength={15}
-          />
+          <Input placeholder="Enter phone number" maxLength={15} />
         </Form.Item>
 
         <Form.Item
@@ -161,10 +132,10 @@ const UserProfilePage = () => {
                 >
                   <Row gutter={[16, 16]}>
                     <Col>
-                      <CompanySelection />
+                      <CompanySelection name={[name, 'company_code']} />
                     </Col>
                     <Col>
-                      <EnvironmentSelection />
+                      <EnvironmentSelection name={[name, 'env_code']} />
                     </Col>
                     <Col span={8}>
                       <Form.Item
@@ -214,10 +185,12 @@ const UserProfilePage = () => {
           )}
         </Form.List>
 
-        <SubmitBtnForm btnText={userProfile ? 'Update Profile' : 'Create Profile'} />
+        <SubmitBtnForm btnText="Update Profile" />
       </Form>
     </div>
   )
 }
+
+const UserProfilePage = withNotification(UserProfilePageWOC)
 
 export default UserProfilePage

@@ -4,7 +4,7 @@ import withNotification from '../hoc/withNotification'
 import { settingsFactory } from '../repos/SettingsPage.repo'
 const { environmentRepo } = settingsFactory()
 
-const EnvironmentSelectionWOC = ({ renderErrorNotification }) => {
+const EnvironmentSelectionWOC = ({ renderErrorNotification, name = 'env_code' }) => {
   // const [loading, setLoading] = useState(false)
   const [datasource, setDatasource] = useState({
     environments: []
@@ -32,7 +32,7 @@ const EnvironmentSelectionWOC = ({ renderErrorNotification }) => {
   return (
     <SelectFormItem
       options={datasource.environments}
-      name="env_code"
+      name={name}
       label="Environment"
       transform="ENVIRONMENTS"
     />

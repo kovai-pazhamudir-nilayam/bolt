@@ -4,14 +4,9 @@ export async function up(knex) {
     t.string('name').notNullable()
     t.string('email').notNullable()
     t.string('password').notNullable()
-    t.string('company_code').notNullable()
-    t.string('env_code').notNullable()
-    t.json('features').defaultTo('{}')
+    t.json('user_ids').defaultTo('{}')
     t.datetime('created_at').defaultTo(knex.fn.now())
     t.datetime('updated_at').defaultTo(knex.fn.now())
-
-    // Add unique constraint for company + environment combination
-    t.unique(['company_code', 'env_code'])
   })
 }
 

@@ -50,7 +50,7 @@ export const registerPasswordManagerHandler = (ipcMain, configDb) => {
 
   async function upsertPasswordEntry(event, input) {
     const { id, company_url, type, username, password, title, notes } = input
-    
+
     if (id) {
       // Update existing entry
       const [entry] = await configDb
