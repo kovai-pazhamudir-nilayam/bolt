@@ -298,7 +298,7 @@ const MediaProcessPageWOC = ({ renderErrorNotification, renderSuccessNotificatio
         })
 
         setLogs((prev) => [...prev, `    CSV file name: ${payload.csv_file_name}`])
-        setLogs((prev) => [...prev, `    Brands count: ${payload.brands.length}`])
+        // setLogs((prev) => [...prev, `    Brands count: ${payload.brands.length}`])
 
         // Step 7: Make API call
         setLogs((prev) => [...prev, `#7 ---> Making API call...`])
