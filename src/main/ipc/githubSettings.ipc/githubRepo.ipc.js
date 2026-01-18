@@ -275,16 +275,16 @@ export const registerGithubRepoHandler = (ipcMain, configDb) => {
         .where({ company_code: company_code })
         .first()
 
-      try {
-        const { key, key_id } = await getPublicKey({
-          repo: repo_name,
-          owner: cfg.owner,
-          github_token: cfg.github_token
-        })
+      const { key, key_id } = await getPublicKey({
+        repo: repo_name,
+        owner: cfg.owner,
+        github_token: cfg.github_token
+      })
 
-        secrets.forEach(async (secret) => {
+      await Promise.all(
+        secrets.map((secret) => {
           const { secret_name, secret_value } = secret
-          await addSecret({
+          return addSecret({
             publicKey: key,
             keyId: key_id,
             repo: repo_name,
@@ -294,14 +294,12 @@ export const registerGithubRepoHandler = (ipcMain, configDb) => {
             secret_value
           })
         })
-      } catch (error) {
-        console.error(`❌ Error: ${error.message}`)
-      }
+      )
+
       return { success: true, message: 'Secrets added successfully' }
-      // return response
     } catch (error) {
       console.error('Error Adding Secrets:', error)
-      throw error
+      return { success: false, message: error.message || 'Failed to add secrets' }
     }
   }
 

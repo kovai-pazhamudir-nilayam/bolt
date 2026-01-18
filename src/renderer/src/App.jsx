@@ -8,6 +8,7 @@ import './assets/main.css'
 import { ROUTES } from './routing'
 // import Versions from './components/Versions'
 import Footer from './components/Footer'
+import CommandPalette from './components/CommandPalette/CommandPalette'
 import { NotificationContext } from './context/notificationContext'
 import { FeatureConfigProvider } from './context/featureConfigContext'
 import { AuthProvider } from './context/authContext'
@@ -179,6 +180,7 @@ function AppLayout({ collapsed, setCollapsed, isDark, setIsDark }) {
           {<Footer />}
         </Layout.Footer>
       </Layout>
+      <CommandPalette ROUTES={ROUTES} />
     </Layout>
   )
 }

@@ -121,10 +121,10 @@ const AddSecretToGitHubRepoModal = ({ values, onCancel, datasource, onFinish }) 
   const { repo_name } = values
   const [form] = Form.useForm()
 
-  const handleFinish = (values) => {
+  const handleFinish = (formValues) => {
     // Parse the secrets strings back to objects
-    const parsedSecrets = values.secrets.map((s) => JSON.parse(s))
-    onFinish({ ...values, secrets: parsedSecrets })
+    const parsedSecrets = formValues.secrets.map((s) => JSON.parse(s))
+    onFinish({ ...values, ...formValues, secrets: parsedSecrets })
   }
 
   return (
