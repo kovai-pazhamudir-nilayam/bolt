@@ -72,19 +72,21 @@ export const registerGithubRepoHandler = (ipcMain, configDb) => {
   }
 
   async function upsertGithubRepo(_event, input) {
-    const { company_code, repo_name } = input
+    const { company_code, repo_name, repo_url } = input
 
     return configDb
       .knex('github_repo')
       .insert({
         company_code,
         repo_name,
+        repo_url,
         updated_at: configDb.knex.fn.now()
       })
       .onConflict(['company_code', 'repo_name'])
       .merge({
         company_code,
         repo_name,
+        repo_url,
         updated_at: configDb.knex.fn.now()
       })
   }
@@ -142,9 +144,17 @@ export const registerGithubRepoHandler = (ipcMain, configDb) => {
         for (const repo of repos) {
           if (repo && repo.name) {
             await trx('github_repo')
-              .insert({ company_code, repo_name: repo.name })
+              .insert({
+                company_code,
+                repo_name: repo.name,
+                repo_url: repo.html_url,
+                updated_at: configDb.knex.fn.now()
+              })
               .onConflict(['company_code', 'repo_name'])
-              .ignore()
+              .merge({
+                repo_url: repo.html_url,
+                updated_at: configDb.knex.fn.now()
+              })
           }
         }
       })

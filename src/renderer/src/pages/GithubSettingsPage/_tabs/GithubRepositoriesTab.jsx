@@ -1,6 +1,5 @@
-
-import { Col, Form, Row, Space } from 'antd'
-import { ShieldPlus, SquareAsterisk } from 'lucide-react'
+import { Button, Col, Form, Row, Space, Tooltip } from 'antd'
+import { ExternalLink, ShieldPlus, SquareAsterisk } from 'lucide-react'
 import { useEffect, useState } from 'react'
 import EntityTable from '../../../components/EntityTable'
 import SelectFormItem from '../../../components/SelectFormItem'
@@ -24,12 +23,16 @@ const columns = [
     filterSearch: true,
     filters: [
       {
-        text: 'London',
-        value: 'London'
+        text: 'KPN',
+        value: 'KPN'
       },
       {
-        text: 'New York',
-        value: 'New York'
+        text: 'IBO',
+        value: 'IBO'
+      },
+      {
+        text: 'EBONO',
+        value: 'EBONO'
       }
     ]
   },
@@ -38,7 +41,24 @@ const columns = [
     dataIndex: 'repo_name',
     key: 'repo_name',
     onFilter: (value, record) => record.address.startsWith(value),
-    filterSearch: true
+    filterSearch: true,
+    render: (text, record) => (
+      <Space>
+        {text}
+        <Tooltip title="Open in GitHub">
+          <Button
+            type="text"
+            size="small"
+            icon={<ExternalLink size={14} />}
+            onClick={() => {
+              if (record.repo_url) {
+                window.shellAPI.openExternal(record.repo_url)
+              }
+            }}
+          />
+        </Tooltip>
+      </Space>
+    )
   }
 ]
 
