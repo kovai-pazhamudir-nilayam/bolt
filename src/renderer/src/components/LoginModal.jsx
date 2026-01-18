@@ -23,7 +23,7 @@ const LoginModal = ({ open, onClose }) => {
   }
 
   return (
-    <Modal title="Login" open={open} onCancel={onClose} footer={null} destroyOnClose>
+    <Modal title="Login" open={open} onCancel={onClose} footer={null} destroyOnHidden>
       <Form
         form={form}
         name="login_form"
