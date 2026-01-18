@@ -10,6 +10,7 @@ import { ROUTES } from './routing'
 import Footer from './components/Footer'
 import { NotificationContext } from './context/notificationContext'
 import { FeatureConfigProvider } from './context/featureConfigContext'
+import { AuthProvider } from './context/authContext'
 import { darkTheme, lightTheme } from './theme/theme'
 import NavigationBar from './components/NavigationBar'
 // Custom theme tokens for menu states
@@ -28,18 +29,20 @@ function App() {
     <ConfigProvider theme={customTheme}>
       {contextHolder}
       <NotificationContext.Provider value={api}>
-        <FeatureConfigProvider>
-          <Router>
-            <div data-theme={isDark ? 'dark' : 'light'}>
-              <AppLayout
-                collapsed={collapsed}
-                setCollapsed={setCollapsed}
-                isDark={isDark}
-                setIsDark={setIsDark}
-              />
-            </div>
-          </Router>
-        </FeatureConfigProvider>
+        <AuthProvider>
+          <FeatureConfigProvider>
+            <Router>
+              <div data-theme={isDark ? 'dark' : 'light'}>
+                <AppLayout
+                  collapsed={collapsed}
+                  setCollapsed={setCollapsed}
+                  isDark={isDark}
+                  setIsDark={setIsDark}
+                />
+              </div>
+            </Router>
+          </FeatureConfigProvider>
+        </AuthProvider>
       </NotificationContext.Provider>
     </ConfigProvider>
   )
@@ -49,7 +52,7 @@ function AppLayout({ collapsed, setCollapsed, isDark, setIsDark }) {
   const navigate = useNavigate()
   const location = useLocation()
   const { getFilteredRoutes } = useFeatureConfig()
-  
+
   // Map path to menu key
   const pathKey = {
     '/': '1',
