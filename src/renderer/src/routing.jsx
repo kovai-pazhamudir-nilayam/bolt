@@ -36,6 +36,7 @@ import WelcomePage from './pages/WelcomePage/WelcomePage'
 import ShellCommandPage from './pages/ShellCommandPage/ShellCommandPage'
 import NotesPage from './pages/NotesPage/NotesPage'
 import FeatureConfigPage from './pages/FeatureConfigPage/FeatureConfigPage'
+import DBSecretsPage from './pages/DBSecretsPage/DBSecretsPage'
 
 export const ROUTES = [
   {
@@ -165,6 +166,12 @@ export const ROUTES = [
     path: '/password-manager',
     icon: Key,
     element: <PasswordManagerPage />
+  },
+  {
+    label: 'DB Secrets',
+    path: '/db-secrets',
+    icon: DatabaseZap,
+    element: <DBSecretsPage />
   },
   {
     label: 'User Profile',

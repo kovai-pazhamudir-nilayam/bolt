@@ -11,28 +11,10 @@ import { passwordManagerAPI } from './passwordManager.preload'
 import { userProfileAPI } from './userProfile.preload'
 import { notesAPI } from './notes.preload'
 import { featureConfigAPI } from './featureConfig.preload'
+import { dbSecretsAPI } from './dbSecrets.preload'
 
-// const system2345 = {
-//   onTaskManagerLog: (callback) => {
-//     ipcRenderer.on('taskManagerDI:log', (event, log) => {
-//       callback(log)
-//     })
-//   },
-
-//   generateTaskManagerCode: async ({ targetDir, values }) => {
-//     return ipcRenderer.invoke('generate:taskManagerDICode', { targetDir, values })
-//   },
-//   getExistingDomainFolders: async (targetDir) => {
-//     return ipcRenderer.invoke('folder:getExistingDomainFolders', targetDir)
-//   }
-// }
-
-// Use `contextBridge` APIs to expose Electron APIs to
-// renderer only if context isolation is enabled, otherwise
-// just add to the DOM global.
 if (process.contextIsolated) {
   try {
-    console.log('Exposing APIs to renderer process...')
     contextBridge.exposeInMainWorld('electron', electronAPI)
     contextBridge.exposeInMainWorld('systemAPI', systemAPI)
     contextBridge.exposeInMainWorld('settingsAPI', settingsAPI)
@@ -45,11 +27,11 @@ if (process.contextIsolated) {
     contextBridge.exposeInMainWorld('userProfileAPI', userProfileAPI)
     contextBridge.exposeInMainWorld('notesAPI', notesAPI)
     contextBridge.exposeInMainWorld('featureConfigAPI', featureConfigAPI)
+    contextBridge.exposeInMainWorld('dbSecretsAPI', dbSecretsAPI)
   } catch (error) {
     console.error('Error exposing APIs:', error)
   }
 } else {
-  console.log('Context isolation disabled, adding APIs to window object...')
   window.electron = electronAPI
   window.systemAPI = systemAPI
   window.settingsAPI = settingsAPI
@@ -62,4 +44,5 @@ if (process.contextIsolated) {
   window.userProfileAPI = userProfileAPI
   window.notesAPI = notesAPI
   window.featureConfigAPI = featureConfigAPI
+  window.dbSecretsAPI = dbSecretsAPI
 }
