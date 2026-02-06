@@ -144,7 +144,7 @@ export const ROUTES = [
     label: 'Notes',
     path: '/Notes',
     icon: BookOpen,
-    hideInMenu: true,
+    hideInMenu: false,
     element: <NotesPage />
   },
   {
@@ -153,12 +153,6 @@ export const ROUTES = [
     hideInMenu: true,
     icon: ListCheck,
     element: <TaskListPage />
-  },
-  {
-    label: 'Settings',
-    path: '/settings',
-    icon: SettingsIcon,
-    element: <SettingsPage />
   },
   {
     label: 'DB Backup',
@@ -196,5 +190,11 @@ export const ROUTES = [
     path: '/feature-config',
     icon: Shield,
     element: <FeatureConfigPage />
+  },
+  {
+    label: 'Settings',
+    path: '/settings',
+    icon: SettingsIcon,
+    element: <SettingsPage />
   }
 ]

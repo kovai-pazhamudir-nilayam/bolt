@@ -4,7 +4,9 @@ const { Title, Text } = Typography
 const PageHeader = ({ title, description }) => {
   return (
     <>
-      <Title level={3}>{title}</Title>
+      <Title style={{ margin: 0 }} level={3}>
+        {title}
+      </Title>
       <Text type="secondary">{description}</Text>
 
       <Divider />

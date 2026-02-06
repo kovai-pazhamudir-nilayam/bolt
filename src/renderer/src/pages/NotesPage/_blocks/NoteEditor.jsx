@@ -1,4 +1,5 @@
 import { Button, Input, Select, Space, Typography } from 'antd'
+import RichTextEditor from './RichTextEditor'
 
 const { Text } = Typography
 
@@ -19,7 +20,6 @@ const NoteEditor = ({
   selectedNote = null,
   editingState,
   companies,
-  contentEditableRef,
   onTitleChange,
   onCompanyChange,
   onContentChange,
@@ -38,6 +38,7 @@ const NoteEditor = ({
               onChange={(e) => onTitleChange(e.target.value)}
               onBlur={isCreatingNew ? undefined : onFocusOut}
               placeholder="Enter note title..."
+              variant="borderless"
               className={isCreatingNew ? 'new-note-title-input' : 'editable-title-input'}
             />
             <div className="note-meta">
@@ -54,6 +55,7 @@ const NoteEditor = ({
                     label: `${c.company_code} - ${c.company_name}`,
                     value: c.company_code
                   }))}
+                  variant="borderless"
                   className={isCreatingNew ? 'new-note-company-select' : 'editable-company-select'}
                   allowClear
                 />
@@ -84,14 +86,11 @@ const NoteEditor = ({
 
       {/* Content */}
       <div className="content-area">
-        <div
-          ref={contentEditableRef}
-          contentEditable
-          suppressContentEditableWarning={true}
-          onInput={(e) => onContentChange(e.target.textContent)}
+        <RichTextEditor
+          content={editingState.content}
+          onChange={onContentChange}
           onBlur={onFocusOut}
-          className="contenteditable-area"
-          placeholder="Start typing your note..."
+          placeholder="Start typing your note here..."
         />
       </div>
     </>

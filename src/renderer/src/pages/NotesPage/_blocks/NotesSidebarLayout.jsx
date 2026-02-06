@@ -34,7 +34,6 @@ const NotesSidebarLayoutWOC = ({ renderErrorNotification, renderSuccessNotificat
   const [editingState, setEditingState] = useState(initialEditingState)
 
   // Refs
-  const contentEditableRef = useRef(null)
   const hasUnsavedChangesRef = useRef(false)
 
   // Derived state
@@ -43,11 +42,11 @@ const NotesSidebarLayoutWOC = ({ renderErrorNotification, renderSuccessNotificat
   const loadData = async () => {
     try {
       const [data, companiesData] = await Promise.all([notesRepo.getAll(), companyRepo.getAll()])
-      setNotes(data)
-      setCompanies(companiesData)
+      setNotes(data || [])
+      setCompanies(companiesData || [])
 
       // Select first note if none selected
-      if (!selectedNoteId && data.length > 0) {
+      if (!selectedNoteId && data && data.length > 0) {
         setSelectedNoteId(data[0].id)
         setEditingState({
           title: data[0].title || '',
@@ -57,7 +56,7 @@ const NotesSidebarLayoutWOC = ({ renderErrorNotification, renderSuccessNotificat
         })
       }
     } catch (error) {
-      renderErrorNotification(error)
+      renderErrorNotification({ message: 'Failed to load notes', description: error.message })
     }
   }
 
@@ -130,7 +129,7 @@ const NotesSidebarLayoutWOC = ({ renderErrorNotification, renderSuccessNotificat
       }))
       hasUnsavedChangesRef.current = false
     } catch (error) {
-      renderErrorNotification(error)
+      console.error('Auto-save error:', error)
     }
   }
 
@@ -139,7 +138,7 @@ const NotesSidebarLayoutWOC = ({ renderErrorNotification, renderSuccessNotificat
     setSelectedNoteId(null)
     setEditingState({
       title: '',
-      content: '',
+      content: '', // Initialize empty string for Tiptap
       company: '',
       hasUnsavedChanges: false
     })
@@ -238,7 +237,6 @@ const NotesSidebarLayoutWOC = ({ renderErrorNotification, renderSuccessNotificat
               selectedNote={selectedNote}
               editingState={editingState}
               companies={companies}
-              contentEditableRef={contentEditableRef}
               onTitleChange={handleTitleChange}
               onCompanyChange={handleCompanyChange}
               onContentChange={handleContentChange}

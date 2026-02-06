@@ -13,38 +13,43 @@ const NotesSidebarHeader = ({
 }) => {
   return (
     <div className="header">
-      <Space direction="vertical" style={{ width: '100%' }}>
-        <div className="title-container">
-          <Title level={3} className="title">
-            Notes
-          </Title>
-          <div className="title-actions">
-            <Select
-              style={{ width: '100px' }}
-              placeholder="Filter by company..."
-              value={selectedCompanyFilter}
-              onChange={onCompanyFilterChange}
-              options={[
-                { label: 'All', value: null },
-                ...companies.map((c) => ({
-                  label: `${c.company_code}`,
-                  value: c.company_code
-                }))
-              ]}
-              className="company-filter-select"
-              allowClear
-              size="small"
-            />
-            <Button type="primary" icon={<Plus size={16} />} onClick={onCreateNew} size="small" />
-          </div>
-        </div>
+      <div className="title-container">
+        <Title level={3} className="title">
+          My Notes
+        </Title>
+        <Button
+          type="primary"
+          shape="circle"
+          icon={<Plus size={18} />}
+          onClick={onCreateNew}
+          className="create-btn"
+        />
+      </div>
 
+      <Space direction="vertical" style={{ width: '100%' }} size={12}>
         <Input
           placeholder="Search notes..."
-          prefix={<Search size={14} />}
+          prefix={<Search size={16} style={{ color: 'var(--ev-c-text-3)' }} />}
           value={searchText}
           onChange={(e) => onSearchChange(e.target.value)}
           className="search-input"
+          allowClear
+        />
+
+        <Select
+          style={{ width: '100%' }}
+          placeholder="Filter by company"
+          value={selectedCompanyFilter}
+          onChange={onCompanyFilterChange}
+          options={[
+            { label: 'All Companies', value: null },
+            ...companies.map((c) => ({
+              label: `${c.company_code} - ${c.company_name}`,
+              value: c.company_code
+            }))
+          ]}
+          className="company-filter-select"
+          allowClear
         />
       </Space>
     </div>

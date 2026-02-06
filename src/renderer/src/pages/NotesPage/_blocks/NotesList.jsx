@@ -42,8 +42,11 @@ const getGrouppedNotes = (notes) => {
 
 const getNotePreview = (content) => {
   if (!content) return 'No content'
-  const textContent = content.replace(/\n/g, ' ').substring(0, 50)
-  return textContent + (content.length > 50 ? '...' : '')
+  // Strip HTML tags for preview
+  const plainText = content.replace(/<[^>]*>?/gm, '').trim()
+  if (!plainText) return 'No text content'
+  const textContent = plainText.replace(/\s+/g, ' ').substring(0, 80)
+  return textContent + (plainText.length > 80 ? '...' : '')
 }
 
 const NotesList = ({
