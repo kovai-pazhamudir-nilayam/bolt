@@ -37,7 +37,7 @@ const uploadToGCP = async ({ folderPath, bucketPath }) => {
 const constructPayloadForBrands = async ({ media_path, user_email }) => {
   const items = await systemRepo.listFiles(media_path)
   return {
-    csv_file_name: `category_${new Date().toISOString().split('T')[0]}.csv`,
+    csv_file_name: `brand_${new Date().toISOString().split('T')[0]}.csv`,
     brands: items.map((item) => {
       return {
         brand_id: item.split('.')[0],

@@ -42,6 +42,7 @@ export const ROUTES = [
     label: 'Tools',
     path: '/tools',
     icon: ToolCase,
+    hideInMenu: true,
     element: <ToolsPage />
   },
   {
@@ -136,17 +137,20 @@ export const ROUTES = [
     label: 'Redis',
     path: '/connect-redis',
     icon: HardDrive,
+    hideInMenu: true,
     element: <ConnectRedisPage />
   },
   {
     label: 'Notes',
     path: '/Notes',
     icon: BookOpen,
+    hideInMenu: true,
     element: <NotesPage />
   },
   {
     label: 'Tasks',
     path: '/task-list',
+    hideInMenu: true,
     icon: ListCheck,
     element: <TaskListPage />
   },
@@ -178,6 +182,7 @@ export const ROUTES = [
     label: 'Shell Command ',
     path: '/shell-command',
     icon: User,
+    hideInMenu: true,
     element: <ShellCommandPage />
   },
   {

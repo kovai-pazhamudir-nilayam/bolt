@@ -72,19 +72,21 @@ export const registerGithubRepoHandler = (ipcMain, configDb) => {
   }
 
   async function upsertGithubRepo(_event, input) {
-    const { company_code, repo_name } = input
+    const { company_code, repo_name, repo_url } = input
 
     return configDb
       .knex('github_repo')
       .insert({
         company_code,
         repo_name,
+        repo_url,
         updated_at: configDb.knex.fn.now()
       })
       .onConflict(['company_code', 'repo_name'])
       .merge({
         company_code,
         repo_name,
+        repo_url,
         updated_at: configDb.knex.fn.now()
       })
   }
@@ -142,9 +144,17 @@ export const registerGithubRepoHandler = (ipcMain, configDb) => {
         for (const repo of repos) {
           if (repo && repo.name) {
             await trx('github_repo')
-              .insert({ company_code, repo_name: repo.name })
+              .insert({
+                company_code,
+                repo_name: repo.name,
+                repo_url: repo.html_url,
+                updated_at: configDb.knex.fn.now()
+              })
               .onConflict(['company_code', 'repo_name'])
-              .ignore()
+              .merge({
+                repo_url: repo.html_url,
+                updated_at: configDb.knex.fn.now()
+              })
           }
         }
       })
@@ -265,16 +275,16 @@ export const registerGithubRepoHandler = (ipcMain, configDb) => {
         .where({ company_code: company_code })
         .first()
 
-      try {
-        const { key, key_id } = await getPublicKey({
-          repo: repo_name,
-          owner: cfg.owner,
-          github_token: cfg.github_token
-        })
+      const { key, key_id } = await getPublicKey({
+        repo: repo_name,
+        owner: cfg.owner,
+        github_token: cfg.github_token
+      })
 
-        secrets.forEach(async (secret) => {
+      await Promise.all(
+        secrets.map((secret) => {
           const { secret_name, secret_value } = secret
-          await addSecret({
+          return addSecret({
             publicKey: key,
             keyId: key_id,
             repo: repo_name,
@@ -284,14 +294,12 @@ export const registerGithubRepoHandler = (ipcMain, configDb) => {
             secret_value
           })
         })
-      } catch (error) {
-        console.error(`❌ Error: ${error.message}`)
-      }
+      )
+
       return { success: true, message: 'Secrets added successfully' }
-      // return response
     } catch (error) {
       console.error('Error Adding Secrets:', error)
-      throw error
+      return { success: false, message: error.message || 'Failed to add secrets' }
     }
   }
 
