@@ -1,4 +1,3 @@
-
 import { Form, Select } from 'antd'
 
 const getTransformedItems = ({ transform, options }) => {
@@ -26,7 +25,16 @@ const getTransformedItems = ({ transform, options }) => {
   }
 }
 
-const SelectFormItem = ({ options, name, label, disabled = false, transform = null }) => {
+const SelectFormItem = ({
+  options,
+  name,
+  label,
+  placeholder,
+  disabled = false,
+  loading = false,
+  allowClear = false,
+  transform = null
+}) => {
   const items = getTransformedItems({ transform, options })
   return (
     <Form.Item
@@ -36,14 +44,17 @@ const SelectFormItem = ({ options, name, label, disabled = false, transform = nu
     >
       <Select
         disabled={disabled}
+        loading={loading}
+        allowClear={allowClear}
         showSearch
         style={{ minWidth: '200px' }}
-        filterOption={(input, option) =>
-          (option?.key ?? '').toLowerCase().includes(input.toLowerCase()) ||
-          (option?.value ?? '').toLowerCase().includes(input.toLowerCase()) ||
-          (option?.label ?? '').toLowerCase().includes(input.toLowerCase())
-        }
-        placeholder="Select company"
+        filterOption={(input, option) => {
+          const labelStr = String(option?.label ?? '').toLowerCase()
+          const valueStr = String(option?.value ?? '').toLowerCase()
+          const search = input.toLowerCase()
+          return labelStr.includes(search) || valueStr.includes(search)
+        }}
+        placeholder={placeholder || `Select ${label}`}
         options={items}
       />
     </Form.Item>

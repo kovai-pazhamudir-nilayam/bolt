@@ -5,9 +5,11 @@ import EntityTable from '../../components/EntityTable'
 import PageHeader from '../../components/PageHeader/PageHeader'
 import SubmitBtnForm from '../../components/SubmitBtnForm'
 import withNotification from '../../hoc/withNotification'
+import { settingsFactory } from '../../repos/SettingsPage.repo'
 import { dbSecretsFactory } from '../../repos/DBSecretsPage.repo'
 
 const { dbSecretsRepo } = dbSecretsFactory()
+const { companyRepo, environmentRepo } = settingsFactory()
 const { Text } = Typography
 
 const DBSecretsPageWOC = ({ renderErrorNotification, renderSuccessNotification }) => {
@@ -16,12 +18,24 @@ const DBSecretsPageWOC = ({ renderErrorNotification, renderSuccessNotification }
   const [searchText, setSearchText] = useState('')
   const [loading, setLoading] = useState(false)
   const [showPasswords, setShowPasswords] = useState({})
+  const [datasource, setDatasource] = useState({
+    companies: [],
+    environments: []
+  })
 
   const loadData = useCallback(async () => {
     try {
       setLoading(true)
-      const data = await dbSecretsRepo.getAll()
+      const [data, companies, environments] = await Promise.all([
+        dbSecretsRepo.getAll(),
+        companyRepo.getAll(),
+        environmentRepo.getAll()
+      ])
       setEntries(data || [])
+      setDatasource({
+        companies: companies || [],
+        environments: environments || []
+      })
     } catch (error) {
       renderErrorNotification(error)
     } finally {
@@ -177,14 +191,22 @@ const DBSecretsPageWOC = ({ renderErrorNotification, renderSuccessNotification }
         >
           <Form layout="vertical" initialValues={editing} onFinish={onFinish}>
             <Form.Item name="company_code" label="Company Code" rules={[{ required: true }]}>
-              <Input placeholder="e.g. KPN" />
+              <Select placeholder="Select company">
+                {datasource.companies.map((co) => (
+                  <Select.Option key={co.company_code} value={co.company_code}>
+                    {co.company_code} - {co.company_name}
+                  </Select.Option>
+                ))}
+              </Select>
             </Form.Item>
 
             <Form.Item name="environment" label="Environment" rules={[{ required: true }]}>
               <Select placeholder="Select environment">
-                <Select.Option value="production">Production</Select.Option>
-                <Select.Option value="staging">Staging</Select.Option>
-                <Select.Option value="development">Development</Select.Option>
+                {datasource.environments.map((env) => (
+                  <Select.Option key={env.env_code} value={env.env_code}>
+                    {env.env_code} ({env.env_name})
+                  </Select.Option>
+                ))}
               </Select>
             </Form.Item>
 

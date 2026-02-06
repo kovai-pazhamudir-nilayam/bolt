@@ -37,6 +37,7 @@ import ShellCommandPage from './pages/ShellCommandPage/ShellCommandPage'
 import NotesPage from './pages/NotesPage/NotesPage'
 import FeatureConfigPage from './pages/FeatureConfigPage/FeatureConfigPage'
 import DBSecretsPage from './pages/DBSecretsPage/DBSecretsPage'
+import ConnectPostgresPage from './pages/ConnectPostgresPage/ConnectPostgresPage'
 
 export const ROUTES = [
   {
@@ -140,6 +141,12 @@ export const ROUTES = [
     icon: HardDrive,
     hideInMenu: true,
     element: <ConnectRedisPage />
+  },
+  {
+    label: 'Postgres',
+    path: '/connect-postgres',
+    icon: Database,
+    element: <ConnectPostgresPage />
   },
   {
     label: 'Notes',

@@ -1,6 +1,6 @@
 import { getLogLineTextColor } from './LogsViewer.helper'
 import './LogsViewer.less'
-const LogsViewer = ({ logRef, logs }) => {
+const LogsViewer = ({ logRef, logs, height = 268 }) => {
   return (
     <div className="LogsViewer">
       <div className="LogsViewer__header">
@@ -16,7 +16,7 @@ const LogsViewer = ({ logRef, logs }) => {
           color: '#0f0',
           fontFamily: 'monospace',
           fontSize: 12,
-          height: 268,
+          height: height,
           overflowY: 'auto',
           padding: 8
         }}
