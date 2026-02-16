@@ -38,14 +38,22 @@ import NotesPage from './pages/NotesPage/NotesPage'
 import FeatureConfigPage from './pages/FeatureConfigPage/FeatureConfigPage'
 import DBSecretsPage from './pages/DBSecretsPage/DBSecretsPage'
 import ConnectPostgresPage from './pages/ConnectPostgresPage/ConnectPostgresPage'
+import Base64Page from './pages/Base64Page/Base64Page'
 
 export const ROUTES = [
   {
     label: 'Tools',
     path: '/tools',
     icon: ToolCase,
-    hideInMenu: true,
+    hideInMenu: false,
     element: <ToolsPage />
+  },
+  {
+    label: 'Base64 Tool',
+    path: '/tools/base64',
+    icon: ToolCase,
+    hideInMenu: true,
+    element: <Base64Page />
   },
   {
     label: 'Welcome',

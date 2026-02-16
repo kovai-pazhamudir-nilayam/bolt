@@ -10,12 +10,19 @@ import {
   ServerCog,
   CloudUpload,
   FileSearch,
-  ListChecks
+  ListChecks,
+  Binary
 } from 'lucide-react'
 
 import './ToolsPage.less'
 
 const TOOLS = [
+  {
+    name: 'Base64 Tool',
+    description: 'Encode and decode text to/from Base64 format easily.',
+    path: '/tools/base64',
+    icon: Binary
+  },
   {
     name: 'Page Builder',
     description: 'Design and generate new application pages with templates.',

@@ -1,0 +1,142 @@
+.Base64Page {
+  height: calc(100vh - 200px); // accounting for potential main layout paddings
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  box-sizing: border-box;
+
+  .base64_content_row {
+    flex: 1;
+    min-height: 0; // CRITICAL for nested flex scrolling
+    margin-top: 20px;
+
+    .ant-col {
+      height: 100%;
+    }
+  }
+
+  .base64_card {
+    height: 100%;
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+    display: flex;
+    flex-direction: column;
+
+    .ant-card-head {
+      border-bottom: 1px solid #f0f0f0;
+      min-height: 40px;
+      .ant-card-head-title {
+        font-size: 14px;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        font-weight: 600;
+        color: #444;
+      }
+    }
+
+    .ant-card-body {
+      padding: 16px;
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+    }
+  }
+
+  .side_textarea {
+    flex: 1;
+    resize: none !important;
+    border-radius: 8px;
+    font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, monospace;
+    font-size: 13px;
+    line-height: 1.6;
+    border: 1px solid #d9d9d9;
+    background-color: #fff;
+    padding: 12px;
+
+    &.output_textarea {
+      background-color: #fcfcfc;
+    }
+
+    &:focus {
+      border-color: #f67373;
+      box-shadow: 0 0 0 2px rgba(246, 115, 115, 0.1);
+    }
+  }
+
+  .middle_actions {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0 8px;
+
+    .ant-space {
+      width: 100%;
+    }
+
+    button {
+      height: 40px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      font-size: 12px;
+      padding: 4px 12px;
+    }
+  }
+
+  .output_container {
+    position: relative;
+
+    .copy_button {
+      position: absolute;
+      top: 8px;
+      right: 8px;
+      z-index: 10;
+      background: rgba(255, 255, 255, 0.8);
+      backdrop-filter: blur(4px);
+      border: 1px solid #eee;
+
+      &:hover {
+        border-color: #f67373;
+        color: #f67373;
+      }
+    }
+  }
+}
+
+/* Dark Mode */
+[data-theme='dark'] .Base64Page {
+  .base64_card {
+    background-color: #1f1f1f;
+    border-color: #333;
+
+    .ant-card-head {
+      border-bottom-color: #333;
+      .ant-card-head-title {
+        color: #aaa;
+      }
+    }
+  }
+
+  .side_textarea {
+    background-color: #141414;
+    border-color: #333;
+    color: #e0e0e0;
+
+    &.output_textarea {
+      background-color: #0d0d0d;
+    }
+  }
+
+  .middle_actions button {
+    border-color: #444;
+  }
+
+  .output_container {
+    .copy_button {
+      background: rgba(0, 0, 0, 0.6);
+      border-color: #444;
+      color: #999;
+    }
+  }
+}
