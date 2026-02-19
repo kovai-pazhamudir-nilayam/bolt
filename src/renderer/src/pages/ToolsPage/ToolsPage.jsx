@@ -76,6 +76,12 @@ const TOOLS = [
     description: 'Retrieve and view logs stored locally for debugging.',
     path: '/tools/logs-fetch',
     icon: FileSearch
+  },
+  {
+    name: 'JWT Decoder',
+    description: 'Decode and inspect JSON Web Tokens (JWT) easily.',
+    path: '/tools/jwt-decoder',
+    icon: Binary
   }
 ]
 const ToolsPage = () => {

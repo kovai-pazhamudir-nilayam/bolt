@@ -39,6 +39,7 @@ import FeatureConfigPage from './pages/FeatureConfigPage/FeatureConfigPage'
 import DBSecretsPage from './pages/DBSecretsPage/DBSecretsPage'
 import ConnectPostgresPage from './pages/ConnectPostgresPage/ConnectPostgresPage'
 import Base64Page from './pages/Base64Page/Base64Page'
+import JWTDecoderPage from './pages/JWTDecoderPage/JWTDecoderPage'
 
 export const ROUTES = [
   {
@@ -54,6 +55,13 @@ export const ROUTES = [
     icon: ToolCase,
     hideInMenu: true,
     element: <Base64Page />
+  },
+  {
+    label: 'JWT Decoder',
+    path: '/tools/jwt-decoder',
+    icon: ToolCase,
+    hideInMenu: true,
+    element: <JWTDecoderPage />
   },
   {
     label: 'Welcome',

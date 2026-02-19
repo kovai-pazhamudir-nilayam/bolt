@@ -1,0 +1,246 @@
+.JWTDecoderPage {
+  height: calc(100vh - 64px);
+  overflow-y: auto;
+
+  .jwt_content_row {
+    margin-top: 24px;
+  }
+
+  .jwt_card {
+    height: 100%;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+    border-radius: 12px;
+
+    .ant-card-head {
+      border-bottom: 1px solid #f0f0f0;
+      font-weight: bold;
+    }
+
+    .ant-card-body {
+      padding: 20px;
+    }
+  }
+
+  .jwt_input_container {
+    position: relative;
+    width: 100%;
+    background-color: #fafafa;
+    border-radius: 8px;
+
+    .highlighted_overlay {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      padding: 8px 12px;
+      font-size: 14px;
+      line-height: 1.5;
+      pointer-events: none;
+      white-space: pre-wrap;
+      word-break: break-all;
+      overflow: hidden;
+      z-index: 1;
+
+      .jwt_header {
+        color: #fb015b;
+      }
+      .jwt_payload {
+        color: #d63aff;
+      }
+      .jwt_signature {
+        color: #00b9f1;
+      }
+      .jwt_dot {
+        color: #666;
+      }
+    }
+
+    .jwt_textarea {
+      position: relative;
+      z-index: 2;
+      font-size: 14px;
+      line-height: 1.5;
+      padding: 8px 12px !important;
+      border-radius: 8px;
+      resize: none;
+      background-color: transparent !important;
+      color: transparent !important;
+      caret-color: #333;
+
+      &:focus {
+        background-color: transparent !important;
+      }
+    }
+  }
+
+  .json_viewer {
+    background-color: #f6f8fa;
+    padding: 16px;
+    border-radius: 8px;
+    font-size: 13px;
+    margin: 0;
+    white-space: pre-wrap;
+    word-break: break-all;
+    border: 1px solid #e1e4e8;
+    color: #24292e;
+  }
+
+  .section_header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 8px;
+
+    h5.ant-typography {
+      margin-bottom: 0;
+      color: #1890ff;
+    }
+
+    &.header_section h5.ant-typography {
+      color: #fb015b;
+    }
+    &.payload_section h5.ant-typography {
+      color: #d63aff;
+    }
+    &.signature_section h5.ant-typography {
+      color: #00b9f1;
+    }
+  }
+
+  .signature_text {
+    font-size: 12px;
+    word-break: break-all;
+    background-color: #fff1f0;
+    padding: 8px;
+    border-radius: 4px;
+    display: block;
+    border: 1px dashed #ffa39e;
+  }
+
+  .error_message {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background-color: #fff2f0;
+    border: 1px solid #ffccc7;
+    padding: 12px;
+    border-radius: 8px;
+  }
+
+  .empty_state {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 300px;
+    text-align: center;
+  }
+
+  .timestamp_info {
+    background-color: #f6f8fa;
+    padding: 16px;
+    border-radius: 8px;
+    border: 1px solid #e1e4e8;
+
+    .timestamp_row {
+      display: flex;
+      margin-bottom: 8px;
+      &:last-child {
+        margin-bottom: 0;
+      }
+
+      .timestamp_label {
+        width: 180px;
+        color: #444;
+      }
+      .timestamp_value {
+        color: #1890ff;
+
+        font-size: 13px;
+
+        &.expired_text {
+          color: #ff4d4f;
+          font-weight: 600;
+        }
+      }
+    }
+  }
+}
+
+/* Dark Mode Overrides */
+[data-theme='dark'] .JWTDecoderPage {
+  .jwt_card {
+    background-color: #1f1f1f;
+    border-color: #333;
+
+    .ant-card-head {
+      border-bottom-color: #333;
+    }
+  }
+
+  .jwt_input_container {
+    background-color: #141414;
+    border-color: #333;
+
+    .highlighted_overlay {
+      .jwt_dot {
+        color: #888;
+      }
+    }
+
+    .jwt_textarea {
+      background-color: transparent !important;
+      color: transparent !important;
+      caret-color: #fff;
+
+      &:focus {
+        background-color: transparent !important;
+        border-color: #1890ff;
+      }
+    }
+  }
+
+  .json_viewer {
+    background-color: #141414;
+    border-color: #333;
+    color: #e0e0e0;
+  }
+
+  .section_header h5.ant-typography {
+    color: #177ddc;
+  }
+
+  .signature_text {
+    background-color: #2a1215;
+    border-color: #5c2526;
+    color: #ffccc7;
+  }
+
+  .error_message {
+    background-color: #2a1215;
+    border-color: #5c2526;
+    color: #ff4d4f;
+  }
+
+  .empty_state {
+    color: #8c8c8c;
+  }
+
+  .timestamp_info {
+    background-color: #141414;
+    border-color: #333;
+
+    .timestamp_row {
+      .timestamp_label {
+        color: #aaa;
+      }
+      .timestamp_value {
+        color: #177ddc;
+
+        &.expired_text {
+          color: #ff4d4f;
+        }
+      }
+    }
+  }
+}
