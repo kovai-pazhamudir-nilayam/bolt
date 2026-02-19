@@ -40,6 +40,7 @@ import DBSecretsPage from './pages/DBSecretsPage/DBSecretsPage'
 import ConnectPostgresPage from './pages/ConnectPostgresPage/ConnectPostgresPage'
 import Base64Page from './pages/Base64Page/Base64Page'
 import JWTDecoderPage from './pages/JWTDecoderPage/JWTDecoderPage'
+import TimeConverterPage from './pages/TimeConverterPage/TimeConverterPage'
 
 export const ROUTES = [
   {
@@ -62,6 +63,13 @@ export const ROUTES = [
     icon: ToolCase,
     hideInMenu: true,
     element: <JWTDecoderPage />
+  },
+  {
+    label: 'Time Converter',
+    path: '/tools/time-converter',
+    icon: ToolCase,
+    hideInMenu: true,
+    element: <TimeConverterPage />
   },
   {
     label: 'Welcome',

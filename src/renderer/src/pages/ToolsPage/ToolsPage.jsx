@@ -11,7 +11,8 @@ import {
   CloudUpload,
   FileSearch,
   ListChecks,
-  Binary
+  Binary,
+  Clock
 } from 'lucide-react'
 
 import './ToolsPage.less'
@@ -22,6 +23,12 @@ const TOOLS = [
     description: 'Encode and decode text to/from Base64 format easily.',
     path: '/tools/base64',
     icon: Binary
+  },
+  {
+    name: 'Time Converter',
+    description: 'Convert between Epoch, IST, and UTC time formats.',
+    path: '/tools/time-converter',
+    icon: Clock
   },
   {
     name: 'Page Builder',
