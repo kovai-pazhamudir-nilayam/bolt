@@ -23,7 +23,7 @@ export const registerShellHandler = (ipcMain) => {
 
       // Handle stdout
       child.stdout.on('data', (data) => {
-        const output = data.toString().trim()
+        const output = data.toString()
         if (output) {
           event.sender.send('shell:log', { processId, output, type: 'stdout' })
         }
@@ -31,7 +31,7 @@ export const registerShellHandler = (ipcMain) => {
 
       // Handle stderr
       child.stderr.on('data', (data) => {
-        const output = data.toString().trim()
+        const output = data.toString()
         if (output) {
           event.sender.send('shell:log', { processId, output, type: 'stderr' })
         }
