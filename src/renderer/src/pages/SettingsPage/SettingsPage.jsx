@@ -9,7 +9,9 @@ import CompanySettingsTab from './_tabs/CompanySettingsTab'
 import CoreConfigsSettingsPageTab from './_tabs/CoreConfigsSettingsPageTab'
 import GcpProjectConfigsSettingsTab from './_tabs/GcpProjectConfigsSettingsTab'
 import MediaConfigSettingsTab from './_tabs/MediaConfigSettingsTab'
+import DBSecretsTab from './_tabs/DBSecretsTab'
 import { useFeatureConfig } from '../../context/featureConfigContext'
+import { Key } from 'lucide-react'
 
 const SettingsPage = () => {
   const { isFeatureHidden } = useFeatureConfig()
@@ -69,11 +71,22 @@ const SettingsPage = () => {
         </span>
       ),
       children: <MediaConfigSettingsTab />
+    },
+    {
+      key: 'db-secrets',
+      featureKey: 'settings-db-secrets',
+      label: (
+        <span>
+          <Key size={16} style={{ marginRight: 8 }} />
+          DB Secrets
+        </span>
+      ),
+      children: <DBSecretsTab />
     }
   ]
 
   // Filter out hidden tabs
-  const tabItems = allTabItems.filter(tab => !isFeatureHidden(tab.featureKey))
+  const tabItems = allTabItems.filter((tab) => !isFeatureHidden(tab.featureKey))
 
   return (
     <div>

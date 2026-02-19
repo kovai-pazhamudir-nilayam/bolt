@@ -163,7 +163,7 @@ export const ROUTES = [
     label: 'Redis',
     path: '/connect-redis',
     icon: HardDrive,
-    hideInMenu: true,
+    hideInMenu: false,
     element: <ConnectRedisPage />
   },
   {
@@ -202,6 +202,7 @@ export const ROUTES = [
     label: 'DB Secrets',
     path: '/db-secrets',
     icon: DatabaseZap,
+    hideInMenu: true,
     element: <DBSecretsPage />
   },
   {
