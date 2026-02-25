@@ -7,18 +7,17 @@ import {
   Row,
   Space,
   Table,
-  Tabs,
   Typography,
   Tooltip,
   Alert,
   Modal,
   Descriptions,
-  Tag
+  Tag,
+  Popconfirm
 } from 'antd'
 import {
   BookOpen,
   Terminal as TerminalIcon,
-  Table as TableIcon,
   Trash2,
   RefreshCw,
   Info,
@@ -31,7 +30,6 @@ import SelectFormItem from '../../components/SelectFormItem'
 import withNotification from '../../hoc/withNotification'
 import { settingsFactory } from '../../repos/SettingsPage.repo'
 import { shellFactory } from '../../repos/shell.repo'
-import TerminalViewer from '../../components/TerminalViewer/TerminalViewer'
 
 const { Title, Text } = Typography
 
@@ -58,21 +56,11 @@ const REDIS_DOCS = [
       { key: 'TYPE key', desc: 'Determine type of data at key' },
       { key: 'TTL key', desc: 'Get time to live for a key' }
     ]
-  },
-  {
-    category: 'Data Structures',
-    commands: [
-      { key: 'HGETALL key', desc: 'Get all fields/values in a hash' },
-      { key: 'LRANGE key 0 -1', desc: 'Get all elements from a list' },
-      { key: 'SMEMBERS key', desc: 'Get all members of a set' },
-      { key: 'ZRANGE key 0 -1', desc: 'Get range of members in sorted set' }
-    ]
   }
 ]
 
 const ConnectRedisPageWoc = ({ renderErrorNotification, renderSuccessNotification }) => {
   const [form] = Form.useForm()
-  const [logs, setLogs] = useState([])
   const [loading, setLoading] = useState(false)
   const [connected, setConnected] = useState(false)
   const [datasource, setDatasource] = useState({
@@ -85,11 +73,12 @@ const ConnectRedisPageWoc = ({ renderErrorNotification, renderSuccessNotificatio
   const [selectedRowKeys, setSelectedRowKeys] = useState([])
   const [query, setQuery] = useState('')
   const [keyFilter, setKeyFilter] = useState('')
-  const [activeTab, setActiveTab] = useState('terminal')
+  const [searchPattern, setSearchPattern] = useState('*')
+  const [bulkDeleteModalOpen, setBulkDeleteModalOpen] = useState(false)
 
   // Details Modal State
   const [detailModal, setDetailModal] = useState({
-    visible: false,
+    open: false,
     key: null,
     loading: false,
     info: {},
@@ -149,7 +138,6 @@ const ConnectRedisPageWoc = ({ renderErrorNotification, renderSuccessNotificatio
         if (data.type === 'stdout' || data.type === 'stderr') {
           output += data.output
         }
-        setLogs((prev) => [...prev, data.output])
       })
       const eUnsub = shellRepo.onEnd((data) => {
         lUnsub()
@@ -165,19 +153,19 @@ const ConnectRedisPageWoc = ({ renderErrorNotification, renderSuccessNotificatio
     })
   }
 
-  const runRedisCommand = async (redisCommand) => {
-    if (!context.pod || !context.config) {
-      renderErrorNotification({ message: 'Please connect to Redis first' })
+  const runRedisCommand = async (redisCommand, ctxOverride = null) => {
+    const activeCtx = ctxOverride || context
+    if (!activeCtx.pod || !activeCtx.config) {
+      // renderErrorNotification({ message: 'Please connect to Redis first' })
       return null
     }
-    const { redis_host: host, redis_password: password } = context.config
-    const command = `kubectl exec ${context.pod} -- sh -c "export REDISCLI_AUTH='${password}' && redis-cli -h ${host} --no-auth-warning --raw ${redisCommand}"`
+    const { redis_host: host, redis_password: password } = activeCtx.config
+    const command = `kubectl exec ${activeCtx.pod} -- sh -c "export REDISCLI_AUTH='${password}' && redis-cli -h ${host} --no-auth-warning --raw ${redisCommand}"`
     return await runShellCommand(command, `Redis: ${redisCommand}`)
   }
 
   const onConnect = async (values) => {
     setLoading(true)
-    setLogs([])
     try {
       const config = await gcpProjectConfigRepo.getOne({
         company_code: values.company_code,
@@ -195,10 +183,11 @@ const ConnectRedisPageWoc = ({ renderErrorNotification, renderSuccessNotificatio
       renderSuccessNotification({ message: `Connected to jumpbox: ${pod}` })
 
       // Initial ping check
-      const ping = await runRedisCommand('ping')
-      if (ping.includes('PONG')) {
+      const newCtx = { pod, config }
+      const ping = await runRedisCommand('ping', newCtx)
+      if (ping && ping.includes('PONG')) {
         renderSuccessNotification({ message: 'Redis connection successful' })
-        fetchKeys()
+        setKeysData([])
       }
     } catch (error) {
       renderErrorNotification({ message: error.message })
@@ -207,10 +196,10 @@ const ConnectRedisPageWoc = ({ renderErrorNotification, renderSuccessNotificatio
     }
   }
 
-  const fetchKeys = async () => {
+  const fetchKeys = async (pattern = '*', ctxOverride = null) => {
     setLoading(true)
     try {
-      const output = await runRedisCommand("keys '*'")
+      const output = await runRedisCommand(`keys '${pattern}'`, ctxOverride)
       const keys = output
         .split('\n')
         .map((k) => k.trim())
@@ -230,9 +219,9 @@ const ConnectRedisPageWoc = ({ renderErrorNotification, renderSuccessNotificatio
     try {
       await runRedisCommand(query)
       setQuery('')
-      // If user ran a command that might change keys, refresh table
+      // If user ran a command that might change keys, refresh table with current search pattern
       if (query.toUpperCase().includes('SET') || query.toUpperCase().includes('DEL')) {
-        fetchKeys()
+        fetchKeys(searchPattern)
       }
     } catch (error) {
       renderErrorNotification({ message: error.message })
@@ -249,7 +238,7 @@ const ConnectRedisPageWoc = ({ renderErrorNotification, renderSuccessNotificatio
       }
       renderSuccessNotification({ message: `Deleted ${keysToDelete.length} key(s)` })
       setSelectedRowKeys([])
-      fetchKeys()
+      fetchKeys(searchPattern)
     } catch (error) {
       renderErrorNotification({ message: error.message })
     } finally {
@@ -258,7 +247,7 @@ const ConnectRedisPageWoc = ({ renderErrorNotification, renderSuccessNotificatio
   }
 
   const fetchKeyDetails = async (key) => {
-    setDetailModal({ visible: true, key, loading: true, info: {} })
+    setDetailModal({ open: true, key, loading: true, info: {} })
     try {
       const getCleanOutput = (raw, firstLineOnly = false) => {
         const lines = raw
@@ -342,14 +331,20 @@ const ConnectRedisPageWoc = ({ renderErrorNotification, renderSuccessNotificatio
       key: 'action',
       width: 100,
       render: (_, record) => (
-        <Tooltip title="Delete Key">
-          <Button
-            type="text"
-            danger
-            icon={<Trash2 size={16} />}
-            onClick={() => handleDeleteKeys([record.key])}
-          />
-        </Tooltip>
+        <div onClick={(e) => e.stopPropagation()}>
+          <Popconfirm
+            title="Delete Key"
+            description={`Are you sure you want to delete ${record.key}?`}
+            onConfirm={() => handleDeleteKeys([record.key])}
+            okText="Yes"
+            cancelText="No"
+            placement="left"
+          >
+            <Tooltip title="Delete Key">
+              <Button type="text" danger icon={<Trash2 size={16} />} />
+            </Tooltip>
+          </Popconfirm>
+        </div>
       )
     }
   ]
@@ -427,88 +422,60 @@ const ConnectRedisPageWoc = ({ renderErrorNotification, renderSuccessNotificatio
                   />
                 </div>
 
-                <Tabs
-                  activeKey={activeTab}
-                  onChange={setActiveTab}
-                  items={[
-                    {
-                      key: 'terminal',
-                      label: (
-                        <span>
-                          <TerminalIcon size={16} style={{ marginRight: 8 }} />
-                          Terminal
-                        </span>
-                      ),
-                      children: <TerminalViewer logs={logs} height={500} />
-                    },
-                    {
-                      key: 'table',
-                      label: (
-                        <span>
-                          <TableIcon size={16} style={{ marginRight: 8 }} />
-                          Explore Keys
-                        </span>
-                      ),
-                      children: (
-                        <div style={{ background: '#fff', padding: 16 }}>
-                          <Row gutter={16} style={{ marginBottom: 16 }}>
-                            <Col flex="auto">
-                              <Space>
-                                <Button
-                                  icon={<RefreshCw size={16} />}
-                                  onClick={fetchKeys}
-                                  loading={loading}
-                                >
-                                  Refresh
-                                </Button>
-                                <Button
-                                  danger
-                                  icon={<Trash2 size={16} />}
-                                  disabled={selectedRowKeys.length === 0}
-                                  onClick={() => {
-                                    const keys = keysData
-                                      .filter((item) => selectedRowKeys.includes(item.id))
-                                      .map((item) => item.key)
-                                    handleDeleteKeys(keys)
-                                  }}
-                                >
-                                  Delete ({selectedRowKeys.length})
-                                </Button>
-                              </Space>
-                            </Col>
-                            <Col span={8}>
-                              <Input
-                                placeholder="Filter keys..."
-                                prefix={<Search size={14} />}
-                                value={keyFilter}
-                                onChange={(e) => setKeyFilter(e.target.value)}
-                                allowClear
-                              />
-                            </Col>
-                          </Row>
-                          <Table
-                            size="small"
-                            rowSelection={{
-                              selectedRowKeys,
-                              onChange: setSelectedRowKeys
-                            }}
-                            columns={columns}
-                            dataSource={keysData.filter((item) =>
-                              item.key.toLowerCase().includes(keyFilter.toLowerCase())
-                            )}
-                            rowKey="id"
-                            loading={loading}
-                            pagination={{ pageSize: 15 }}
-                            onRow={(record) => ({
-                              onClick: () => fetchKeyDetails(record.key),
-                              style: { cursor: 'pointer' }
-                            })}
-                          />
-                        </div>
-                      )
-                    }
-                  ]}
-                />
+                <div style={{ background: '#fff', padding: 16, borderRadius: 8 }}>
+                  <Row gutter={16} style={{ marginBottom: 16 }}>
+                    <Col flex="auto">
+                      <Space>
+                        <Input.Search
+                          placeholder="Key pattern (e.g. user:*)"
+                          value={searchPattern}
+                          onChange={(e) => setSearchPattern(e.target.value)}
+                          onSearch={(val) => fetchKeys(val || '*')}
+                          style={{ width: 250 }}
+                          enterButton="Search Keys"
+                        />
+                        <Button onClick={() => fetchKeys('*')} loading={loading}>
+                          Get All
+                        </Button>
+                        <Button
+                          danger
+                          icon={<Trash2 size={16} />}
+                          disabled={selectedRowKeys.length === 0}
+                          onClick={() => setBulkDeleteModalOpen(true)}
+                        >
+                          Delete ({selectedRowKeys.length})
+                        </Button>
+                      </Space>
+                    </Col>
+                    <Col span={8}>
+                      <Input
+                        placeholder="Filter keys..."
+                        prefix={<Search size={14} />}
+                        value={keyFilter}
+                        onChange={(e) => setKeyFilter(e.target.value)}
+                        allowClear
+                      />
+                    </Col>
+                  </Row>
+                  <Table
+                    size="small"
+                    rowSelection={{
+                      selectedRowKeys,
+                      onChange: setSelectedRowKeys
+                    }}
+                    columns={columns}
+                    dataSource={keysData.filter((item) =>
+                      item.key.toLowerCase().includes(keyFilter.toLowerCase())
+                    )}
+                    rowKey="id"
+                    loading={loading}
+                    pagination={{ pageSize: 15 }}
+                    onRow={(record) => ({
+                      onClick: () => fetchKeyDetails(record.key),
+                      style: { cursor: 'pointer' }
+                    })}
+                  />
+                </div>
 
                 <Modal
                   title={
@@ -517,8 +484,8 @@ const ConnectRedisPageWoc = ({ renderErrorNotification, renderSuccessNotificatio
                       <Text strong>{detailModal.key}</Text>
                     </Space>
                   }
-                  open={detailModal.visible}
-                  onCancel={() => setDetailModal({ ...detailModal, visible: false })}
+                  open={detailModal.open}
+                  onCancel={() => setDetailModal({ ...detailModal, open: false })}
                   footer={null}
                   width={700}
                 >
@@ -582,6 +549,33 @@ const ConnectRedisPageWoc = ({ renderErrorNotification, renderSuccessNotificatio
                       </div>
                     </Descriptions.Item>
                   </Descriptions>
+                </Modal>
+
+                <Modal
+                  title={
+                    <Space>
+                      <Trash2 size={18} color="#ff4d4f" />
+                      <Text strong>Delete {selectedRowKeys.length} Keys?</Text>
+                    </Space>
+                  }
+                  open={bulkDeleteModalOpen}
+                  onOk={() => {
+                    const keys = keysData
+                      .filter((item) => selectedRowKeys.includes(item.id))
+                      .map((item) => item.key)
+                    handleDeleteKeys(keys)
+                    setBulkDeleteModalOpen(false)
+                  }}
+                  onCancel={() => setBulkDeleteModalOpen(false)}
+                  okText="Yes, Delete"
+                  okButtonProps={{ danger: true, loading: loading }}
+                  cancelText="Cancel"
+                >
+                  <Alert
+                    type="warning"
+                    showIcon
+                    message={`Are you sure you want to delete ${selectedRowKeys.length} selected key(s)? This action cannot be undone.`}
+                  />
                 </Modal>
               </>
             )}
