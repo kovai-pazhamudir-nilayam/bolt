@@ -1,19 +1,7 @@
 import { Card, Col, Row } from 'antd'
-import PageHeader from '../../components/PageHeader/PageHeader'
+import { Binary, Clock, CloudUpload, FileSearch } from 'lucide-react'
 import { Link } from 'react-router-dom'
-import {
-  LayoutDashboard,
-  Palette,
-  Table,
-  Network,
-  Workflow,
-  ServerCog,
-  CloudUpload,
-  FileSearch,
-  ListChecks,
-  Binary,
-  Clock
-} from 'lucide-react'
+import PageHeader from '../../components/PageHeader/PageHeader'
 
 import './ToolsPage.less'
 
@@ -29,48 +17,6 @@ const TOOLS = [
     description: 'Convert between Epoch, IST, and UTC time formats.',
     path: '/tools/time-converter',
     icon: Clock
-  },
-  {
-    name: 'Page Builder',
-    description: 'Design and generate new application pages with templates.',
-    path: '/tools/page-builder',
-    icon: LayoutDashboard
-  },
-  {
-    name: 'UI Builder',
-    description: 'Create and customize reusable UI components visually.',
-    path: '/tools/ui-builder',
-    icon: Palette
-  },
-  {
-    name: 'Table Builder',
-    description: 'Configure and generate data tables with sorting and filters.',
-    path: '/tools/table-builder',
-    icon: Table
-  },
-  {
-    name: 'Proxy Configurator',
-    description: 'Manage and configure CC proxy rules for your app.',
-    path: '/tools/proxy-builder',
-    icon: Network
-  },
-  {
-    name: 'Task Manager DI',
-    description: 'Orchestrate and manage dependency-injected background tasks.',
-    path: '/tools/task-manager-di',
-    icon: Workflow
-  },
-  {
-    name: 'Task Manager Config',
-    description: 'Configure and orchestrate background tasks with dependency injection.',
-    path: '/tools/task-manager-config',
-    icon: ListChecks
-  },
-  {
-    name: 'API Builder',
-    description: 'Design, generate, and test REST APIs with schema validation.',
-    path: '/tools/api-builder',
-    icon: ServerCog
   },
   {
     name: 'Push Logs to GCP',

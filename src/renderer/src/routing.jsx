@@ -13,34 +13,32 @@ import {
   ToolCase,
   User
 } from 'lucide-react'
-import APIBuilderPage from './pages/APIBuilderPage/APIBuilderPage'
+import Base64Page from './pages/Base64Page/Base64Page'
+import ConnectPostgresPage from './pages/ConnectPostgresPage/ConnectPostgresPage'
 import ConnectRedisPage from './pages/ConnectRedisPage/ConnectRedisPage'
 import DBBackpupPage from './pages/DBBackpupPage/DBBackpupPage'
+import DBSecretsPage from './pages/DBSecretsPage/DBSecretsPage'
+import FeatureConfigPage from './pages/FeatureConfigPage/FeatureConfigPage'
 import FetchLocalLogsPage from './pages/FetchLocalLogsPage/FetchLocalLogsPage'
 import GithubSettingsPage from './pages/GithubSettingsPage/GithubSettingsPage'
+import JWTDecoderPage from './pages/JWTDecoderPage/JWTDecoderPage'
 import MediaProcessPage from './pages/MediaProcessPage/MediaProcessPage'
+import NotesPage from './pages/NotesPage/NotesPage'
 import OsTicketPage from './pages/OsTicketPage/OsTicketPage'
 import PageBuilderPage from './pages/PageBuilderPage/PageBuilderPage'
 import PasswordManagerPage from './pages/PasswordManagerPage/PasswordManagerPage'
-import UserProfilePage from './pages/UserProfilePage/UserProfilePage'
 import ProxyConfiguratorPage from './pages/ProxyConfiguratorPage/ProxyConfiguratorPage'
 import PushLogsToGCPPage from './pages/PushLogsToGCPPage/PushLogsToGCPPage'
 import SavedDBQueryPage from './pages/SavedDBQueryPage/SavedDBQueryPage'
 import SettingsPage from './pages/SettingsPage/SettingsPage'
-import TableBuilderPage from './pages/TableBuilderPage/TableBuilderPage'
+import ShellCommandPage from './pages/ShellCommandPage/ShellCommandPage'
 import TaskListPage from './pages/TaskListPage/TaskListPage'
 import TaskManagerConfigPage from './pages/TaskManagerConfigPage/TaskManagerConfigPage'
 import TaskManagerDIPage from './pages/TaskManagerDIPage/TaskManagerDIPage'
-import ToolsPage from './pages/ToolsPage/ToolsPage'
-import WelcomePage from './pages/WelcomePage/WelcomePage'
-import ShellCommandPage from './pages/ShellCommandPage/ShellCommandPage'
-import NotesPage from './pages/NotesPage/NotesPage'
-import FeatureConfigPage from './pages/FeatureConfigPage/FeatureConfigPage'
-import DBSecretsPage from './pages/DBSecretsPage/DBSecretsPage'
-import ConnectPostgresPage from './pages/ConnectPostgresPage/ConnectPostgresPage'
-import Base64Page from './pages/Base64Page/Base64Page'
-import JWTDecoderPage from './pages/JWTDecoderPage/JWTDecoderPage'
 import TimeConverterPage from './pages/TimeConverterPage/TimeConverterPage'
+import ToolsPage from './pages/ToolsPage/ToolsPage'
+import UserProfilePage from './pages/UserProfilePage/UserProfilePage'
+import WelcomePage from './pages/WelcomePage/WelcomePage'
 
 export const ROUTES = [
   {
@@ -100,13 +98,6 @@ export const ROUTES = [
     element: <PageBuilderPage />
   },
   {
-    label: 'Table Builder',
-    path: '/tools/table-builder',
-    icon: ToolCase,
-    hideInMenu: true,
-    element: <TableBuilderPage />
-  },
-  {
     label: 'Proxy Configurator',
     path: '/tools/proxy-configurator',
     icon: ToolCase,
@@ -119,13 +110,6 @@ export const ROUTES = [
     icon: ToolCase,
     hideInMenu: true,
     element: <TaskManagerConfigPage />
-  },
-  {
-    label: 'API Builder',
-    path: '/tools/api-builder',
-    icon: ToolCase,
-    hideInMenu: true,
-    element: <APIBuilderPage />
   },
   {
     label: 'Push Logs to GCP',
