@@ -17,6 +17,7 @@ import { registerUserProfileHandler } from './ipc/userProfile.ipc'
 import { registerNotesHandler } from './ipc/notes.ipc'
 import { registerFeatureConfigHandler } from './ipc/featureConfig.ipc'
 import { registerDBSecretsHandler } from './ipc/dbSecrets.ipc'
+import { registerSavedDbQueryHandler } from './ipc/savedDbQuery.ipc'
 
 function createWindow() {
   // Get the primary display dimensions
@@ -92,6 +93,7 @@ app.whenReady().then(async () => {
   registerNotesHandler(ipcMain, configDb)
   registerFeatureConfigHandler(ipcMain, configDb)
   registerDBSecretsHandler(ipcMain, configDb)
+  registerSavedDbQueryHandler(ipcMain, configDb)
 
   createWindow()
 

@@ -27,7 +27,6 @@ import NotesPage from './pages/NotesPage/NotesPage'
 import OsTicketPage from './pages/OsTicketPage/OsTicketPage'
 import PageBuilderPage from './pages/PageBuilderPage/PageBuilderPage'
 import PasswordManagerPage from './pages/PasswordManagerPage/PasswordManagerPage'
-import ProxyConfiguratorPage from './pages/ProxyConfiguratorPage/ProxyConfiguratorPage'
 import PushLogsToGCPPage from './pages/PushLogsToGCPPage/PushLogsToGCPPage'
 import SavedDBQueryPage from './pages/SavedDBQueryPage/SavedDBQueryPage'
 import SettingsPage from './pages/SettingsPage/SettingsPage'
@@ -96,13 +95,6 @@ export const ROUTES = [
     icon: ToolCase,
     hideInMenu: true,
     element: <PageBuilderPage />
-  },
-  {
-    label: 'Proxy Configurator',
-    path: '/tools/proxy-configurator',
-    icon: ToolCase,
-    hideInMenu: true,
-    element: <ProxyConfiguratorPage />
   },
   {
     label: 'Task Manager Config',

@@ -50,7 +50,7 @@ const ConnectPostgresPageWoc = ({ renderErrorNotification, renderSuccessNotifica
   const getJumpboxPod = async () => {
     const kubectlCommand = 'kubectl get pods -o=name --field-selector=status.phase=Running'
     let output = ''
-    
+
     const logUnsub = shellRepo.onLog((data) => {
       if (data.type === 'stdout') output += data.output
     })
@@ -128,9 +128,9 @@ const ConnectPostgresPageWoc = ({ renderErrorNotification, renderSuccessNotifica
     // Robust escaping for nested shell layers
     const escapedPassword = password.replace(/'/g, "'\\''")
     const escapedQuery = query.replace(/'/g, "'\\''")
-    
+
     // Construct the command using a simpler env PGPASSWORD wrapper
-    const psqlCmd = `PGPASSWORD='${escapedPassword}' psql -h ${host} -U ${dbName} ${user} -A -F , -q -c '${escapedQuery}'`
+    const psqlCmd = `PGPASSWORD='${escapedPassword}' psql -h ${host} -U ${user} ${dbName} -A -F , -q -c '${escapedQuery}'`
     const command = `kubectl exec ${jumpboxPod} -- sh -c "${psqlCmd.replace(/"/g, '\\"')}"`
 
     // Log the command for debugging (sensitive info should be handled carefully in production)
@@ -144,7 +144,7 @@ const ConnectPostgresPageWoc = ({ renderErrorNotification, renderSuccessNotifica
         procId = data.processId
       }
       if (procId && data.processId !== procId) return
-      
+
       if (data.type === 'stdout') output += data.output + '\n'
       setLogs((prev) => [...prev, data.output])
       if (logRef.current) logRef.current.scrollTop = logRef.current.scrollHeight
@@ -165,7 +165,10 @@ const ConnectPostgresPageWoc = ({ renderErrorNotification, renderSuccessNotifica
           setQueryResult(parsed)
           renderSuccessNotification({ message: 'Query executed successfully' })
         } else {
-          setLogs((prev) => [...prev, '# Query finished. No tabular results found (check logs for output).'])
+          setLogs((prev) => [
+            ...prev,
+            '# Query finished. No tabular results found (check logs for output).'
+          ])
         }
       } else {
         renderErrorNotification({ message: `Query failed (Exit Code: ${result.code})` })
@@ -304,9 +307,19 @@ const ConnectPostgresPageWoc = ({ renderErrorNotification, renderSuccessNotifica
         <Row gutter={[16, 16]}>
           <Col lg={8} xs={24}>
             <Card
-              title={<Space><Database size={16} /> Connection</Space>}
+              title={
+                <Space>
+                  <Database size={16} /> Connection
+                </Space>
+              }
               size="small"
-              extra={activeConnection && <Text type="success" size="small">Connected</Text>}
+              extra={
+                activeConnection && (
+                  <Text type="success" size="small">
+                    Connected
+                  </Text>
+                )
+              }
             >
               <SelectFormItem
                 options={datasource.companies}
@@ -350,7 +363,11 @@ const ConnectPostgresPageWoc = ({ renderErrorNotification, renderSuccessNotifica
                   type="primary"
                   ghost
                   icon={<RefreshCcw size={14} />}
-                  onClick={() => form.validateFields(['company_code', 'env_code', 'db_id']).then(establishConnection)}
+                  onClick={() =>
+                    form
+                      .validateFields(['company_code', 'env_code', 'db_id'])
+                      .then(establishConnection)
+                  }
                   loading={loading}
                 >
                   Connect
@@ -362,7 +379,11 @@ const ConnectPostgresPageWoc = ({ renderErrorNotification, renderSuccessNotifica
           <Col lg={16} xs={24}>
             <Card
               size="small"
-              title={<Space><Play size={16} /> SQL Editor</Space>}
+              title={
+                <Space>
+                  <Play size={16} /> SQL Editor
+                </Space>
+              }
               extra={
                 <Button
                   type="primary"
@@ -374,7 +395,11 @@ const ConnectPostgresPageWoc = ({ renderErrorNotification, renderSuccessNotifica
                 </Button>
               }
             >
-              <Form.Item name="query" noStyle rules={[{ required: true, message: 'Please enter a query' }]}>
+              <Form.Item
+                name="query"
+                noStyle
+                rules={[{ required: true, message: 'Please enter a query' }]}
+              >
                 <TextArea
                   rows={8}
                   placeholder="SELECT * FROM table LIMIT 10;"
@@ -388,7 +413,11 @@ const ConnectPostgresPageWoc = ({ renderErrorNotification, renderSuccessNotifica
                 items={[
                   {
                     key: 'results',
-                    label: <Space><TableIcon size={14} /> Results</Space>,
+                    label: (
+                      <Space>
+                        <TableIcon size={14} /> Results
+                      </Space>
+                    ),
                     children: (
                       <Table
                         dataSource={queryResult?.dataSource || []}
@@ -396,13 +425,19 @@ const ConnectPostgresPageWoc = ({ renderErrorNotification, renderSuccessNotifica
                         size="small"
                         scroll={{ x: 'max-content', y: 400 }}
                         pagination={{ size: 'small', pageSize: 10 }}
-                        locale={{ emptyText: queryResult ? 'No data found' : 'Run a query to see results' }}
+                        locale={{
+                          emptyText: queryResult ? 'No data found' : 'Run a query to see results'
+                        }}
                       />
                     )
                   },
                   {
                     key: 'logs',
-                    label: <Space><Terminal size={14} /> Logs</Space>,
+                    label: (
+                      <Space>
+                        <Terminal size={14} /> Logs
+                      </Space>
+                    ),
                     children: <LogsViewer logRef={logRef} logs={logs} height={400} />
                   }
                 ]}

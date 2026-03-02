@@ -12,6 +12,7 @@ import { userProfileAPI } from './userProfile.preload'
 import { notesAPI } from './notes.preload'
 import { featureConfigAPI } from './featureConfig.preload'
 import { dbSecretsAPI } from './dbSecrets.preload'
+import { savedDbQueryAPI } from './savedDbQuery.preload'
 
 if (process.contextIsolated) {
   try {
@@ -28,6 +29,7 @@ if (process.contextIsolated) {
     contextBridge.exposeInMainWorld('notesAPI', notesAPI)
     contextBridge.exposeInMainWorld('featureConfigAPI', featureConfigAPI)
     contextBridge.exposeInMainWorld('dbSecretsAPI', dbSecretsAPI)
+    contextBridge.exposeInMainWorld('savedDbQueryAPI', savedDbQueryAPI)
   } catch (error) {
     console.error('Error exposing APIs:', error)
   }
@@ -45,4 +47,5 @@ if (process.contextIsolated) {
   window.notesAPI = notesAPI
   window.featureConfigAPI = featureConfigAPI
   window.dbSecretsAPI = dbSecretsAPI
+  window.savedDbQueryAPI = savedDbQueryAPI
 }
