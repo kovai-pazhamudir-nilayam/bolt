@@ -309,15 +309,6 @@ const DBSecretsTabWOC = ({ renderErrorNotification, renderSuccessNotification })
                         >
                           <Input.Password placeholder="Database password" />
                         </Form.Item>
-
-                        <Form.Item
-                          {...field}
-                          name={[field.name, 'notes']}
-                          label="Notes"
-                          style={{ flex: 2 }}
-                        >
-                          <Input placeholder="Additional info" />
-                        </Form.Item>
                       </div>
                     </Card>
                   ))}

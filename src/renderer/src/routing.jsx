@@ -17,9 +17,7 @@ import Base64Page from './pages/Base64Page/Base64Page'
 import ConnectPostgresPage from './pages/ConnectPostgresPage/ConnectPostgresPage'
 import ConnectRedisPage from './pages/ConnectRedisPage/ConnectRedisPage'
 import DBBackpupPage from './pages/DBBackpupPage/DBBackpupPage'
-import DBSecretsPage from './pages/DBSecretsPage/DBSecretsPage'
 import FeatureConfigPage from './pages/FeatureConfigPage/FeatureConfigPage'
-import FetchLocalLogsPage from './pages/FetchLocalLogsPage/FetchLocalLogsPage'
 import GithubSettingsPage from './pages/GithubSettingsPage/GithubSettingsPage'
 import JWTDecoderPage from './pages/JWTDecoderPage/JWTDecoderPage'
 import MediaProcessPage from './pages/MediaProcessPage/MediaProcessPage'
@@ -27,7 +25,6 @@ import NotesPage from './pages/NotesPage/NotesPage'
 import OsTicketPage from './pages/OsTicketPage/OsTicketPage'
 import PageBuilderPage from './pages/PageBuilderPage/PageBuilderPage'
 import PasswordManagerPage from './pages/PasswordManagerPage/PasswordManagerPage'
-import PushLogsToGCPPage from './pages/PushLogsToGCPPage/PushLogsToGCPPage'
 import SavedDBQueryPage from './pages/SavedDBQueryPage/SavedDBQueryPage'
 import SettingsPage from './pages/SettingsPage/SettingsPage'
 import ShellCommandPage from './pages/ShellCommandPage/ShellCommandPage'
@@ -104,20 +101,6 @@ export const ROUTES = [
     element: <TaskManagerConfigPage />
   },
   {
-    label: 'Push Logs to GCP',
-    path: '/tools/logs-push',
-    icon: ToolCase,
-    hideInMenu: true,
-    element: <PushLogsToGCPPage />
-  },
-  {
-    label: 'Fetch Local Logs',
-    path: '/tools/logs-fetch',
-    icon: ToolCase,
-    hideInMenu: true,
-    element: <FetchLocalLogsPage />
-  },
-  {
     label: 'GitHub Settings',
     path: '/github-settings',
     icon: Github,
@@ -174,13 +157,7 @@ export const ROUTES = [
     icon: Key,
     element: <PasswordManagerPage />
   },
-  {
-    label: 'DB Secrets',
-    path: '/db-secrets',
-    icon: DatabaseZap,
-    hideInMenu: true,
-    element: <DBSecretsPage />
-  },
+
   {
     label: 'User Profile',
     path: '/user-profile',

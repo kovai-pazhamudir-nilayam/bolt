@@ -1,5 +1,5 @@
 import { Card, Col, Row } from 'antd'
-import { Binary, Clock, CloudUpload, FileSearch } from 'lucide-react'
+import { Binary, Clock } from 'lucide-react'
 import { Link } from 'react-router-dom'
 import PageHeader from '../../components/PageHeader/PageHeader'
 
@@ -17,18 +17,6 @@ const TOOLS = [
     description: 'Convert between Epoch, IST, and UTC time formats.',
     path: '/tools/time-converter',
     icon: Clock
-  },
-  {
-    name: 'Push Logs to GCP',
-    description: 'Upload and sync local logs securely to Google Cloud Platform.',
-    path: '/tools/logs-push',
-    icon: CloudUpload
-  },
-  {
-    name: 'Fetch Local Logs',
-    description: 'Retrieve and view logs stored locally for debugging.',
-    path: '/tools/logs-fetch',
-    icon: FileSearch
   },
   {
     name: 'JWT Decoder',
