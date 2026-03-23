@@ -14,6 +14,9 @@ import { FeatureConfigProvider } from './context/featureConfigContext'
 import { AuthProvider } from './context/authContext'
 import { darkTheme, lightTheme } from './theme/theme'
 import NavigationBar from './components/NavigationBar'
+import BottomPanel from './components/BottomPanel/BottomPanel'
+import { DevPanelProvider } from './context/devPanelContext'
+import { useDevPanel } from './context/useDevPanel'
 // Custom theme tokens for menu states
 // const menuAccent = '#f67373'
 const { Header, Content, Sider } = Layout
@@ -32,16 +35,18 @@ function App() {
       <NotificationContext.Provider value={api}>
         <AuthProvider>
           <FeatureConfigProvider>
-            <Router>
-              <div data-theme={isDark ? 'dark' : 'light'}>
-                <AppLayout
-                  collapsed={collapsed}
-                  setCollapsed={setCollapsed}
-                  isDark={isDark}
-                  setIsDark={setIsDark}
-                />
-              </div>
-            </Router>
+            <DevPanelProvider>
+              <Router>
+                <div data-theme={isDark ? 'dark' : 'light'}>
+                  <AppLayout
+                    collapsed={collapsed}
+                    setCollapsed={setCollapsed}
+                    isDark={isDark}
+                    setIsDark={setIsDark}
+                  />
+                </div>
+              </Router>
+            </DevPanelProvider>
           </FeatureConfigProvider>
         </AuthProvider>
       </NotificationContext.Provider>
@@ -53,6 +58,7 @@ function AppLayout({ collapsed, setCollapsed, isDark, setIsDark }) {
   const navigate = useNavigate()
   const location = useLocation()
   const { getFilteredRoutes } = useFeatureConfig()
+  const { isOpen, panelHeight } = useDevPanel()
 
   // Map path to menu key
   const pathKey = {
@@ -126,7 +132,7 @@ function AppLayout({ collapsed, setCollapsed, isDark, setIsDark }) {
           onClick={() => setIsDark((d) => !d)}
           style={{
             position: 'fixed',
-            bottom: 32,
+            bottom: isOpen ? panelHeight + 28 + 16 : 44,
             right: 32,
             zIndex: 1000,
             width: 48,
@@ -145,7 +151,8 @@ function AppLayout({ collapsed, setCollapsed, isDark, setIsDark }) {
         <Content
           style={{
             margin: '88px 16px 24px 16px',
-            marginLeft: collapsed ? '96px' : '216px'
+            marginLeft: collapsed ? '96px' : '216px',
+            paddingBottom: isOpen ? panelHeight + 28 : 28
           }}
         >
           <div
@@ -181,6 +188,7 @@ function AppLayout({ collapsed, setCollapsed, isDark, setIsDark }) {
         </Layout.Footer>
       </Layout>
       <CommandPalette ROUTES={ROUTES} />
+      <BottomPanel siderWidth={collapsed ? 80 : 200} />
     </Layout>
   )
 }

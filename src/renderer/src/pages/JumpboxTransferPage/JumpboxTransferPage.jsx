@@ -1,21 +1,9 @@
-import {
-  Badge,
-  Button,
-  Card,
-  Col,
-  Divider,
-  Form,
-  Input,
-  Row,
-  Space,
-  Typography,
-  Upload
-} from 'antd'
+import { Badge, Button, Card, Col, Form, Input, Row, Space, Typography, Upload } from 'antd'
 import { CloudDownload, CloudUpload, FolderOpen, Plug, Unplug } from 'lucide-react'
-import { useEffect, useRef, useState } from 'react'
-import LogsViewer from '../../components/LogsViewer/LogsViewer'
+import { useEffect, useState } from 'react'
 import PageHeader from '../../components/PageHeader/PageHeader'
 import SelectFormItem from '../../components/SelectFormItem'
+import { useDevPanel } from '../../context/useDevPanel'
 import withNotification from '../../hoc/withNotification'
 import { shellFactory } from '../../repos/shell.repo'
 import { settingsFactory } from '../../repos/SettingsPage.repo'
@@ -43,8 +31,7 @@ const statusBadge = {
 }
 
 const JumpboxTransferPageWOC = ({ renderSuccessNotification, renderErrorNotification }) => {
-  const logRef = useRef(null)
-  const [logs, setLogs] = useState([])
+  const { appendLog, openTab } = useDevPanel()
   const [loading, setLoading] = useState(false)
 
   const [connectionStatus, setConnectionStatus] = useState(CONNECTION_STATUS.IDLE)
@@ -57,13 +44,6 @@ const JumpboxTransferPageWOC = ({ renderSuccessNotification, renderErrorNotifica
 
   const [selectedFilePath, setSelectedFilePath] = useState(null)
   const [selectedFileName, setSelectedFileName] = useState(null)
-
-  const appendLog = (line) => {
-    setLogs((prev) => [...prev, line])
-    setTimeout(() => {
-      if (logRef.current) logRef.current.scrollTop = logRef.current.scrollHeight
-    }, 50)
-  }
 
   const loadDatasource = async () => {
     const [companies, environments] = await Promise.all([
@@ -99,8 +79,8 @@ const JumpboxTransferPageWOC = ({ renderSuccessNotification, renderErrorNotifica
   const handleConnect = async (values) => {
     setConnectionStatus(CONNECTION_STATUS.CONNECTING)
     setJumpboxPod(null)
-    setLogs([])
     setLoading(true)
+    openTab('logs')
 
     const gcpConfig = await gcpProjectConfigRepo.getOne({
       company_code: values.company_code,
@@ -137,7 +117,6 @@ const JumpboxTransferPageWOC = ({ renderSuccessNotification, renderErrorNotifica
   const handleDisconnect = () => {
     setJumpboxPod(null)
     setConnectionStatus(CONNECTION_STATUS.IDLE)
-    setLogs([])
   }
 
   const handleSelectFile = async () => {
@@ -160,6 +139,7 @@ const JumpboxTransferPageWOC = ({ renderSuccessNotification, renderErrorNotifica
     }
 
     setLoading(true)
+    openTab('logs')
     const destPath = values.dest_path || `/tmp/${selectedFileName}`
     const command = `kubectl cp "${selectedFilePath}" default/${jumpboxPod}:${destPath}`
 
@@ -195,6 +175,7 @@ const JumpboxTransferPageWOC = ({ renderSuccessNotification, renderErrorNotifica
     if (!savePath) return
 
     setLoading(true)
+    openTab('logs')
     const command = `kubectl cp default/${jumpboxPod}:${jumpboxPath} "${savePath}"`
 
     appendLog(`# Downloading ${jumpboxPath} → ${savePath}`)
@@ -267,7 +248,14 @@ const JumpboxTransferPageWOC = ({ renderSuccessNotification, renderErrorNotifica
 
         <div style={{ marginTop: 8 }}>
           {isConnected ? (
-            <Badge status="success" text={<Text>Connected: <Text strong>{jumpboxPod}</Text></Text>} />
+            <Badge
+              status="success"
+              text={
+                <Text>
+                  Connected: <Text strong>{jumpboxPod}</Text>
+                </Text>
+              }
+            />
           ) : (
             <Badge
               status={statusBadge[connectionStatus].status}
@@ -392,11 +380,6 @@ const JumpboxTransferPageWOC = ({ renderSuccessNotification, renderErrorNotifica
         </Col>
       </Row>
 
-      {/* Logs */}
-      <Divider orientation="left" style={{ marginTop: 24 }}>
-        Transfer Logs
-      </Divider>
-      <LogsViewer logRef={logRef} logs={logs} height={220} />
     </div>
   )
 }
