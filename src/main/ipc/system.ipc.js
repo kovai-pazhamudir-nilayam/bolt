@@ -53,8 +53,25 @@ export const registerSystemHandler = (ipcMain) => {
     }
   }
 
+  async function selectFile() {
+    const result = await dialog.showOpenDialog({ properties: ['openFile'] })
+    if (result.canceled || !result.filePaths.length) return null
+    return result.filePaths[0]
+  }
+
+  async function saveFileDialog(_event, defaultName) {
+    const result = await dialog.showSaveDialog({
+      defaultPath: defaultName,
+      properties: ['createDirectory', 'showOverwriteConfirmation']
+    })
+    if (result.canceled) return null
+    return result.filePath
+  }
+
   ipcMain.handle('system:select-folder', selectFolder)
   ipcMain.handle('system:list-files', listFiles)
   ipcMain.handle('system:list-directories', listDirectories)
   ipcMain.handle('system:http-request', makeHTTPRequest)
+  ipcMain.handle('system:select-file', selectFile)
+  ipcMain.handle('system:save-file-dialog', saveFileDialog)
 }

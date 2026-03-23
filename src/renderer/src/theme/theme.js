@@ -10,7 +10,8 @@ const darkTheme = {
     colorText: '#fff',
     colorBgContainer: '#181818',
     colorBorder: '#333',
-    borderRadius: 8
+    borderRadius: 8,
+    zIndexPopupBase: 9999
   },
   components: {
     Button: {
@@ -52,7 +53,8 @@ const lightTheme = {
     colorText: '#000',
     colorBgContainer: '#f8f8f8',
     colorBorder: '#ccc',
-    borderRadius: 8
+    borderRadius: 8,
+    zIndexPopupBase: 9999
   },
   components: {
     Button: {

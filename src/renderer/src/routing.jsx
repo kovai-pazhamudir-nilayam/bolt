@@ -20,6 +20,7 @@ import DBBackpupPage from './pages/DBBackpupPage/DBBackpupPage'
 import FeatureConfigPage from './pages/FeatureConfigPage/FeatureConfigPage'
 import GithubSettingsPage from './pages/GithubSettingsPage/GithubSettingsPage'
 import JWTDecoderPage from './pages/JWTDecoderPage/JWTDecoderPage'
+import JumpboxTransferPage from './pages/JumpboxTransferPage/JumpboxTransferPage'
 import MediaProcessPage from './pages/MediaProcessPage/MediaProcessPage'
 import NotesPage from './pages/NotesPage/NotesPage'
 import OsTicketPage from './pages/OsTicketPage/OsTicketPage'
@@ -71,6 +72,13 @@ export const ROUTES = [
     icon: ToolCase,
     hideInMenu: true,
     element: <WelcomePage />
+  },
+  {
+    label: 'Jumpbox Transfer',
+    path: '/tools/jumpbox-transfer',
+    icon: ToolCase,
+    hideInMenu: true,
+    element: <JumpboxTransferPage />
   },
   {
     label: 'Task Manager DI',

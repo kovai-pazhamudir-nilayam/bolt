@@ -1,5 +1,5 @@
 import { Card, Col, Row } from 'antd'
-import { Binary, Clock } from 'lucide-react'
+import { Binary, Clock, FolderSync } from 'lucide-react'
 import { Link } from 'react-router-dom'
 import PageHeader from '../../components/PageHeader/PageHeader'
 
@@ -23,6 +23,12 @@ const TOOLS = [
     description: 'Decode and inspect JSON Web Tokens (JWT) easily.',
     path: '/tools/jwt-decoder',
     icon: Binary
+  },
+  {
+    name: 'Jumpbox Transfer',
+    description: 'Copy files to and from your GCP Kubernetes jumpbox pod.',
+    path: '/tools/jumpbox-transfer',
+    icon: FolderSync
   }
 ]
 const ToolsPage = () => {

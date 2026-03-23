@@ -64,11 +64,17 @@ Every new feature requires all five pieces wired together:
 
 ## Coding Standards
 
-- **JavaScript only** — no TypeScript
-- **No try-catch** — let errors propagate naturally
+- **JavaScript only** — no TypeScript, do not suggest migrating
+- **No try-catch** — let errors propagate naturally; skip try-catch boilerplate suggestions
 - **No Tailwind CSS** — use Ant Design (v5) components and inline styles
 - Use **Lucide React** for all icons
 - Wrap page components with `withNotification` HOC for `renderSuccessNotification` / `renderErrorNotification`
 - Use `EntityTable` component (`src/renderer/src/components/EntityTable.jsx`) for standard CRUD tables
 - Repos support two modes (`mode === 'api'` vs local Electron); default is local via `window.runtimeConfig?.mode`
 - Support for dark theme
+- **Plaintext secret storage is acceptable** — personal internal-use app, not public facing; skip encryption-at-rest recommendations
+
+## UI Conventions
+
+- **Never set `zIndex` on individual Antd components** (Modal, Drawer, Tooltip, etc.) — `zIndexPopupBase: 9999` is set globally in `src/renderer/src/theme/theme.js` for both themes; the sidebar uses `zIndex: 1001` so the global token must stay above that
+- Migrations run automatically on app startup via `ConfigDatabase.initializeDatabase()` — `npm run migrate` won't work outside Electron context due to `better-sqlite3` native binding mismatch

@@ -1,13 +1,13 @@
-import { Button, Col, Form, Modal, Row, Space, Table, Tabs, Typography } from 'antd'
+import { Button, Col, Form, Modal, Row, Space, Tabs } from 'antd'
+import { DataGrid } from 'react-data-grid'
+import 'react-data-grid/lib/styles.css'
 import SelectFormItem from '../../../components/SelectFormItem'
 import { Download, Play, TableIcon, Terminal } from 'lucide-react'
 import LogsViewer from '../../../components/LogsViewer/LogsViewer'
 import withNotification from '../../../hoc/withNotification'
 import { shellFactory } from '../../../repos/shell.repo'
 import { settingsFactory } from '../../../repos/SettingsPage.repo'
-import { useRef, useState } from 'react'
-
-const { Text } = Typography
+import { useRef, useState, useMemo } from 'react'
 
 const downloadCSV = (result) => {
   if (!result || !result.rawOutput) return
@@ -34,50 +34,88 @@ const SavedDBQueryResultModalWOC = ({
   const [queryResult, setQueryResult] = useState(null)
   const [loading, setLoading] = useState(false)
   const [logs, setLogs] = useState([])
+  const [sortColumns, setSortColumns] = useState([])
+  const [filters, setFilters] = useState({})
   const { shellRepo } = shellFactory()
   const { gcpProjectConfigRepo } = settingsFactory()
 
   const parsePsqlCsv = (output) => {
-    try {
-      const allLines = output
-        .split('\n')
-        .map((l) => l.trim())
-        .filter((l) => l.length > 0)
+    const allLines = output
+      .split('\n')
+      .map((l) => l.trim())
+      .filter((l) => l.length > 0)
 
-      const lines = allLines.filter((line) => {
-        if (line.match(/^\(\d+ row/)) return false
-        if (line.startsWith('--')) return false
-        return true
+    const lines = allLines.filter((line) => {
+      if (line.match(/^\(\d+ row/)) return false
+      if (line.startsWith('--')) return false
+      return true
+    })
+
+    if (lines.length < 1) return null
+
+    const headers = lines[0].split(',')
+    if (headers.length < 1) return null
+
+    const columns = headers.map((h) => ({
+      key: h,
+      name: h,
+      resizable: true,
+      sortable: true,
+      minWidth: 100
+    }))
+
+    const dataSource = lines.slice(1).map((line, idx) => {
+      const values = line.split(',')
+      const row = { key: idx }
+      headers.forEach((h, i) => {
+        row[h] = values[i] || ''
       })
+      return row
+    })
 
-      if (lines.length < 1) return null
-
-      const headers = lines[0].split(',')
-      if (headers.length < 1) return null
-
-      const columns = headers.map((h) => ({
-        title: h,
-        dataIndex: h,
-        key: h,
-        ellipsis: true,
-        render: (text) => <Text copyable={{ text: String(text) }}>{String(text)}</Text>
-      }))
-
-      const dataSource = lines.slice(1).map((line, idx) => {
-        const values = line.split(',')
-        const row = { key: idx }
-        headers.forEach((h, i) => {
-          row[h] = values[i] || ''
-        })
-        return row
-      })
-
-      return { columns, dataSource, rawOutput: output }
-    } catch (error) {
-      console.error('Failed to parse CSV:', error)
-      return null
-    }
+    return { columns, dataSource, rawOutput: output }
   }
+
+  const gridColumns = useMemo(() => {
+    return (queryResult?.columns || []).map((col) => ({
+      ...col,
+      renderHeaderCell: () => (
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+          <span>{col.name}</span>
+          <input
+            style={{ width: '100%', fontSize: 11, padding: '1px 4px', boxSizing: 'border-box' }}
+            placeholder="Filter..."
+            value={filters[col.key] || ''}
+            onChange={(e) => setFilters((prev) => ({ ...prev, [col.key]: e.target.value }))}
+            onClick={(e) => e.stopPropagation()}
+          />
+        </div>
+      )
+    }))
+  }, [queryResult, filters])
+
+  const displayRows = useMemo(() => {
+    let rows = queryResult?.dataSource || []
+
+    Object.entries(filters).forEach(([key, val]) => {
+      if (val)
+        rows = rows.filter((r) =>
+          String(r[key] ?? '')
+            .toLowerCase()
+            .includes(val.toLowerCase())
+        )
+    })
+
+    if (sortColumns.length > 0) {
+      const { columnKey, direction } = sortColumns[0]
+      rows = [...rows].sort((a, b) => {
+        const cmp = String(a[columnKey] ?? '').localeCompare(String(b[columnKey] ?? ''))
+        return direction === 'ASC' ? cmp : -cmp
+      })
+    }
+
+    return rows
+  }, [queryResult, sortColumns, filters])
 
   const validateGCPConfig = (config) => {
     const { gcp_cluster: cluster, gcp_region: region, gcp_project: project } = config
@@ -214,6 +252,8 @@ const SavedDBQueryResultModalWOC = ({
     setLoading(true)
     setQueryResult(null)
     setLogs([])
+    setSortColumns([])
+    setFilters({})
     const dbSecret = datasource.allDbSecrets.find(
       (db) =>
         db.company_code === queryToRun.company_code &&
@@ -236,15 +276,23 @@ const SavedDBQueryResultModalWOC = ({
       await runPostgresQuery(queryToRun.query, conn.pod, dbSecret)
     }
   }
+
+  const gridHeight = 'calc(100vh - 260px)'
+
   return (
     <Modal
       title={`Run: ${queryToRun?.title}`}
       open
       onCancel={() => setIsRunModalOpen(false)}
       footer={null}
-      width={900}
+      width="100vw"
+      style={{ top: 0, margin: 0, maxWidth: '100vw', paddingBottom: 0 }}
+      styles={{
+        content: { borderRadius: 0, height: '100vh' },
+        body: { padding: '16px 24px', overflow: 'hidden' }
+      }}
     >
-      <Form form={runForm} onFinish={onRunSubmit} layout="vertical">
+      <Form form={runForm} onFinish={onRunSubmit} layout="vertical" style={{ flexShrink: 0 }}>
         <Row gutter={[16, 16]} align="bottom">
           <Col span={20}>
             <SelectFormItem
@@ -267,7 +315,14 @@ const SavedDBQueryResultModalWOC = ({
       </Form>
       <Tabs
         defaultActiveKey="results"
-        style={{ marginTop: 16 }}
+        style={{ marginTop: 8 }}
+        tabBarExtraContent={
+          queryResult && (
+            <Button size="small" icon={<Download size={14} />} onClick={() => downloadCSV(queryResult)}>
+              Download CSV
+            </Button>
+          )
+        }
         items={[
           {
             key: 'results',
@@ -277,31 +332,15 @@ const SavedDBQueryResultModalWOC = ({
               </Space>
             ),
             children: (
-              <div>
-                {queryResult && (
-                  <Row justify={'end'}>
-                    <Col>
-                      <Button
-                        icon={<Download size={14} />}
-                        onClick={() => downloadCSV(queryResult)}
-                        style={{ marginBottom: 8 }}
-                      >
-                        Download CSV
-                      </Button>
-                    </Col>
-                  </Row>
-                )}
-                <Table
-                  dataSource={queryResult?.dataSource || []}
-                  columns={queryResult?.columns || []}
-                  size="small"
-                  scroll={{ x: 'max-content', y: 400 }}
-                  pagination={{ size: 'small', pageSize: 10 }}
-                  locale={{
-                    emptyText: queryResult ? 'No data found' : 'Run query to see results'
-                  }}
-                />
-              </div>
+              <DataGrid
+                columns={gridColumns}
+                rows={displayRows}
+                rowKeyGetter={(row) => row.key}
+                sortColumns={sortColumns}
+                onSortColumnsChange={setSortColumns}
+                defaultColumnOptions={{ resizable: true }}
+                style={{ height: gridHeight, blockSize: gridHeight }}
+              />
             )
           },
           {
@@ -311,7 +350,7 @@ const SavedDBQueryResultModalWOC = ({
                 <Terminal size={14} /> Logs
               </Space>
             ),
-            children: <LogsViewer logRef={logRef} logs={logs} height={400} />
+            children: <LogsViewer logRef={logRef} logs={logs} height={gridHeight} />
           }
         ]}
       />

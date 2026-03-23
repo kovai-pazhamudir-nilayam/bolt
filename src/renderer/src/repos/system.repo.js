@@ -16,6 +16,12 @@ const systemDB = {
   },
   httpRequest: async (url, options) => {
     return window.systemAPI.httpRequest(url, options)
+  },
+  selectFile: () => {
+    return window.systemAPI.selectFile()
+  },
+  saveFileDialog: (defaultName) => {
+    return window.systemAPI.saveFileDialog(defaultName)
   }
 }
 
