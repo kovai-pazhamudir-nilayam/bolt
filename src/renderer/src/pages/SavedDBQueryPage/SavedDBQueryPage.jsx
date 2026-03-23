@@ -22,11 +22,10 @@ const getSavedDBQueryColumns = ({
     { title: 'Description', dataIndex: 'description', key: 'description' },
     {
       title: 'Database',
-      key: 'db_id',
+      key: 'db_name',
       render: (_, record) => {
-        const db = datasource.allDbSecrets.find((db) => db.id === record.db_id)
-        if (!db) return <Text type="danger">Not Found</Text>
-        return `${db.db_name} (${db.company_code} - ${db.environment})`
+        if (!record.db_name) return <Text type="danger">Not Set</Text>
+        return `${record.db_name} (${record.company_code})`
       }
     },
     {
@@ -118,7 +117,10 @@ const SavedDBQueryPageWOC = ({ renderErrorNotification, renderSuccessNotificatio
         title: record.title,
         description: record.description,
         query: record.query,
-        db_id: record.db_id
+        db_key:
+          record.company_code && record.db_name
+            ? `${record.company_code}::${record.db_name}`
+            : undefined
       })
     } else {
       setEditingId(null)
@@ -128,17 +130,14 @@ const SavedDBQueryPageWOC = ({ renderErrorNotification, renderSuccessNotificatio
   }
 
   const handleSaveQuery = async (values) => {
-    try {
-      setLoading(true)
-      await savedDbQueryRepo.upsert({ ...values, id: editingId })
-      renderSuccessNotification({ message: 'Saved query successfully.' })
-      setIsModalOpen(false)
-      fetchData()
-    } catch (error) {
-      renderErrorNotification({ message: error.message })
-    } finally {
-      setLoading(false)
-    }
+    setLoading(true)
+    const { db_key, ...rest } = values
+    const [company_code, db_name] = (db_key || '::').split('::')
+    await savedDbQueryRepo.upsert({ ...rest, company_code, db_name, id: editingId })
+    renderSuccessNotification({ message: 'Saved query successfully.' })
+    setIsModalOpen(false)
+    fetchData()
+    setLoading(false)
   }
 
   const handleDelete = async (id) => {
@@ -163,11 +162,18 @@ const SavedDBQueryPageWOC = ({ renderErrorNotification, renderSuccessNotificatio
   }
 
   const allDbOptions = useMemo(() => {
-    return datasource.allDbSecrets.map((db) => ({
-      label: `${db.db_name} (${db.environment} - ${db.company_code})`,
-      value: db.id,
-      key: db.id
-    }))
+    const seen = new Set()
+    return datasource.allDbSecrets
+      .filter((db) => {
+        const key = `${db.company_code}::${db.db_name}`
+        if (seen.has(key)) return false
+        seen.add(key)
+        return true
+      })
+      .map((db) => ({
+        label: `${db.db_name} (${db.company_code})`,
+        value: `${db.company_code}::${db.db_name}`
+      }))
   }, [datasource.allDbSecrets])
 
   return (

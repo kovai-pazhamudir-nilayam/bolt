@@ -9,10 +9,9 @@ export const registerSavedDbQueryHandler = (ipcMain, configDb) => {
   }
 
   async function upsert(event, input) {
-    const { id, title, description, query, db_id } = input
+    const { id, title, description, query, company_code, db_name } = input
 
     if (id) {
-      // Update existing entry
       const [entry] = await configDb
         .knex('saved_db_query')
         .where({ id })
@@ -20,20 +19,21 @@ export const registerSavedDbQueryHandler = (ipcMain, configDb) => {
           title,
           description,
           query,
-          db_id,
+          company_code,
+          db_name,
           updated_at: configDb.knex.fn.now()
         })
         .returning('*')
       return entry
     } else {
-      // Create new entry
       const [entry] = await configDb
         .knex('saved_db_query')
         .insert({
           title,
           description,
           query,
-          db_id,
+          company_code,
+          db_name,
           created_at: configDb.knex.fn.now(),
           updated_at: configDb.knex.fn.now()
         })

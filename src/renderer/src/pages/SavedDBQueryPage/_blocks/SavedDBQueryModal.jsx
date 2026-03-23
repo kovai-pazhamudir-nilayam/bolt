@@ -25,8 +25,8 @@ const SavedDBQueryModal = ({
         <Form.Item name="description" label="Description">
           <Input />
         </Form.Item>
-        <Form.Item name="db_id" label="Database" rules={[{ required: true }]}>
-          <Select options={allDbOptions} showSearch placeholder="Select associated database" />
+        <Form.Item name="db_key" label="Database" rules={[{ required: true }]}>
+          <Select options={allDbOptions} showSearch placeholder="Select database" />
         </Form.Item>
         <Form.Item name="query" label="SQL Query" rules={[{ required: true }]}>
           <TextArea rows={6} style={{ fontFamily: 'monospace' }} />

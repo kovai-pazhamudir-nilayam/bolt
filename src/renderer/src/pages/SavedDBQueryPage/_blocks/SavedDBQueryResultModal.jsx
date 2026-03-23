@@ -211,13 +211,27 @@ const SavedDBQueryResultModalWOC = ({
   }
 
   const onRunSubmit = async (values) => {
-    const dbSecret = datasource.allDbSecrets.find((db) => db.id === queryToRun.db_id)
+    setLoading(true)
+    setQueryResult(null)
+    setLogs([])
+    const dbSecret = datasource.allDbSecrets.find(
+      (db) =>
+        db.company_code === queryToRun.company_code &&
+        db.db_name === queryToRun.db_name &&
+        db.environment === values.env_code
+    )
     if (!dbSecret) {
-      renderErrorNotification({ message: 'Database configuration not found for this saved query.' })
+      renderErrorNotification({
+        message: `No DB secret found for ${queryToRun.db_name} in the selected environment.`
+      })
+      setLoading(false)
       return
     }
 
-    const conn = await establishConnection(values, dbSecret)
+    const conn = await establishConnection(
+      { ...values, company_code: queryToRun.company_code },
+      dbSecret
+    )
     if (conn) {
       await runPostgresQuery(queryToRun.query, conn.pod, dbSecret)
     }
@@ -231,18 +245,8 @@ const SavedDBQueryResultModalWOC = ({
       width={900}
     >
       <Form form={runForm} onFinish={onRunSubmit} layout="vertical">
-        <Row gutter={[16, 16]}>
-          <Col span={10}>
-            <SelectFormItem
-              options={datasource.companies}
-              name="company_code"
-              label="Company"
-              transform="COMPANIES"
-              placeholder="Select Company"
-              loading={loading}
-            />
-          </Col>
-          <Col span={10}>
+        <Row gutter={[16, 16]} align="bottom">
+          <Col span={20}>
             <SelectFormItem
               options={datasource.environments}
               name="env_code"
