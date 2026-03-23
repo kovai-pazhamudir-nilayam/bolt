@@ -46,7 +46,7 @@ const HelpDocsSidebar = ({ onCommandClick }) => {
               <div
                 key={cmd.key}
                 style={{ marginBottom: 16, cursor: 'pointer' }}
-                onClick={() => onCommandClick(cmd.key.split(' ')[0])}
+                onClick={() => onCommandClick(cmd.key)}
               >
                 <Text strong code style={{ color: '#1890ff', display: 'block' }}>
                   {cmd.key}

@@ -1,5 +1,5 @@
-import { Form, Space, Button } from 'antd'
-import { RefreshCw } from 'lucide-react'
+import { Form, Space, Button, Badge } from 'antd'
+import { RefreshCw, Wifi, WifiOff } from 'lucide-react'
 import { useState, useEffect } from 'react'
 import SelectFormItem from '../../../components/SelectFormItem'
 import { settingsFactory } from '../../../repos/SettingsPage.repo'
@@ -27,7 +27,8 @@ const ConnectionForm = ({
   renderSuccessNotification,
   connected,
   setConnected,
-  setContext
+  setContext,
+  setConnectionLabel
 }) => {
   const [form] = Form.useForm()
   const [loading, setLoading] = useState(false)
@@ -66,6 +67,11 @@ const ConnectionForm = ({
       const pod = await getJumpboxPod()
       setContext({ pod, config })
       setConnected(true)
+      const company = datasource.companies.find((c) => c.company_code === values.company_code)
+      const env = datasource.environments.find((e) => e.env_code === values.env_code)
+      if (setConnectionLabel) {
+        setConnectionLabel(`${company?.name || values.company_code} · ${env?.name || values.env_code}`)
+      }
       renderSuccessNotification({ message: `Connected to jumpbox: ${pod}` })
 
       // Initial ping check
@@ -83,7 +89,7 @@ const ConnectionForm = ({
 
   return (
     <Form form={form} onFinish={onConnect} layout="inline" style={{ marginBottom: 24 }}>
-      <Space>
+      <Space align="center">
         <SelectFormItem
           options={datasource.companies}
           name="company_code"
@@ -101,6 +107,11 @@ const ConnectionForm = ({
         <Button type="primary" htmlType="submit" loading={loading} icon={<RefreshCw size={16} />}>
           {connected ? 'Reconnect' : 'Connect'}
         </Button>
+        {connected ? (
+          <Badge status="success" text={<span style={{ fontSize: 12 }}><Wifi size={12} style={{ marginRight: 4, verticalAlign: 'middle' }} />Connected</span>} />
+        ) : (
+          <Badge status="default" text={<span style={{ fontSize: 12 }}><WifiOff size={12} style={{ marginRight: 4, verticalAlign: 'middle' }} />Not connected</span>} />
+        )}
       </Space>
     </Form>
   )

@@ -1,4 +1,4 @@
-import { Modal, Space, Typography, Descriptions, Tag, Button } from 'antd'
+import { Modal, Space, Typography, Descriptions, Tag, Button, Spin } from 'antd'
 import { Info, ExternalLink } from 'lucide-react'
 import { useState, useEffect } from 'react'
 import { runRedisCommand } from '../services/redisService'
@@ -74,12 +74,13 @@ const KeyDetailsModal = ({ open, onClose, redisKey, context, renderErrorNotifica
       footer={null}
       width={700}
     >
-      <Descriptions bordered column={1} size="small" loading={loading}>
+      <Spin spinning={loading}>
+      <Descriptions bordered column={1} size="small">
         <Descriptions.Item label="Type">
           <Tag color="blue">{info.type || '...'}</Tag>
         </Descriptions.Item>
         <Descriptions.Item label="TTL">
-          <Tag color={info.ttl < 0 ? 'default' : 'orange'}>{formatTTL(info.ttl)}</Tag>
+          <Tag color={parseInt(info.ttl) < 0 ? 'default' : 'orange'}>{formatTTL(info.ttl)}</Tag>
         </Descriptions.Item>
         <Descriptions.Item label="Value">
           <div
@@ -123,6 +124,7 @@ const KeyDetailsModal = ({ open, onClose, redisKey, context, renderErrorNotifica
           </div>
         </Descriptions.Item>
       </Descriptions>
+      </Spin>
     </Modal>
   )
 }

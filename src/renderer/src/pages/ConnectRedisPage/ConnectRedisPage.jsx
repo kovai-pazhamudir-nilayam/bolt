@@ -1,23 +1,27 @@
-import { Row, Col, Card, Alert } from 'antd'
-import { Info } from 'lucide-react'
+import { Card, Col, Row } from 'antd'
 import { useState } from 'react'
 import PageHeader from '../../components/PageHeader/PageHeader'
 import withNotification from '../../hoc/withNotification'
 
 import ConnectionForm from './components/ConnectionForm'
-import KeysManager from './components/KeysManager'
 import HelpDocsSidebar from './components/HelpDocsSidebar'
+import KeysManager from './components/KeysManager'
 
 const ConnectRedisPageWoc = ({ renderErrorNotification, renderSuccessNotification }) => {
   const [connected, setConnected] = useState(false)
   const [context, setContext] = useState({ pod: null, config: null })
   const [query, setQuery] = useState('')
+  const [connectionLabel, setConnectionLabel] = useState('')
 
   return (
     <div className="ConnectRedisPage">
       <PageHeader
         title="Redis Management"
-        description="Securely connect and manage Redis instances via GCP Jumpbox."
+        description={
+          connected && connectionLabel
+            ? `Connected to ${connectionLabel}`
+            : 'Securely connect and manage Redis instances via GCP Jumpbox.'
+        }
       />
 
       <Row gutter={[24, 24]}>
@@ -30,6 +34,7 @@ const ConnectRedisPageWoc = ({ renderErrorNotification, renderSuccessNotificatio
               connected={connected}
               setConnected={setConnected}
               setContext={setContext}
+              setConnectionLabel={setConnectionLabel}
             />
 
             {connected && (
@@ -39,16 +44,6 @@ const ConnectRedisPageWoc = ({ renderErrorNotification, renderSuccessNotificatio
                 renderSuccessNotification={renderSuccessNotification}
                 query={query}
                 setQuery={setQuery}
-              />
-            )}
-
-            {!connected && (
-              <Alert
-                message="Not Connected"
-                description="Please select a company and environment to establish a connection to Redis."
-                type="info"
-                showIcon
-                icon={<Info />}
               />
             )}
           </Card>

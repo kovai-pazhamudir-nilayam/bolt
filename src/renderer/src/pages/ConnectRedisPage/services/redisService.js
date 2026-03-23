@@ -31,7 +31,9 @@ export const runRedisCommand = async (redisCommand, context) => {
     return null
   }
   const { redis_host: host, redis_password: password } = context.config
-  const command = `kubectl exec ${context.pod} -- sh -c "export REDISCLI_AUTH='${password}' && redis-cli -h ${host} --no-auth-warning --raw ${redisCommand}"`
+  // Escape shell glob characters so sh -c doesn't expand them before redis-cli sees them
+  const safeCmd = redisCommand.replace(/\*/g, '\\*').replace(/\?/g, '\\?').replace(/\[/g, '\\[')
+  const command = `kubectl exec ${context.pod} -- sh -c "export REDISCLI_AUTH='${password}' && redis-cli -h ${host} --no-auth-warning --raw ${safeCmd}"`
   return await runShellCommand(command, `Redis: ${redisCommand}`)
 }
 
@@ -39,8 +41,14 @@ export const getJumpboxPod = async () => {
   const kubectlCommand = 'kubectl get pods -o=name --field-selector=status.phase=Running'
   return new Promise((resolve, reject) => {
     let output = ''
-    const handleLog = (data) => (output += data.output)
-    const handleEnd = (data) => {
+    const lUnsub = shellRepo.onLog((data) => {
+      if (data.type === 'stdout' || data.type === 'stderr') {
+        output += data.output
+      }
+    })
+    const eUnsub = shellRepo.onEnd((data) => {
+      lUnsub()
+      eUnsub()
       if (data.code === 0) {
         const jumpboxPod = output
           .split('\n')
@@ -51,9 +59,11 @@ export const getJumpboxPod = async () => {
       } else {
         reject(new Error(`Failed to get jumpbox pod with code ${data.code}`))
       }
-    }
-    shellRepo.onLog(handleLog)
-    shellRepo.onEnd(handleEnd)
-    shellRepo.run(kubectlCommand).catch(reject)
+    })
+    shellRepo.run(kubectlCommand).catch((err) => {
+      lUnsub()
+      eUnsub()
+      reject(err)
+    })
   })
 }
