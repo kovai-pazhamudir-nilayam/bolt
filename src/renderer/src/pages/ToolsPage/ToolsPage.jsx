@@ -1,5 +1,5 @@
 import { Card, Col, Row } from 'antd'
-import { Binary, Clock, FolderSync } from 'lucide-react'
+import { Binary, Braces, Clock, FolderSync } from 'lucide-react'
 import { Link } from 'react-router-dom'
 import PageHeader from '../../components/PageHeader/PageHeader'
 
@@ -29,6 +29,12 @@ const TOOLS = [
     description: 'Copy files to and from your GCP Kubernetes jumpbox pod.',
     path: '/tools/jumpbox-transfer',
     icon: FolderSync
+  },
+  {
+    name: 'JSON Formatter',
+    description: 'Beautify, minify JSON, and convert between JSON and CSV.',
+    path: '/tools/json-formatter',
+    icon: Braces
   }
 ]
 const ToolsPage = () => {

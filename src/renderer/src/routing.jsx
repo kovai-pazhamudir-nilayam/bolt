@@ -33,6 +33,7 @@ import TaskListPage from './pages/TaskListPage/TaskListPage'
 import TaskManagerConfigPage from './pages/TaskManagerConfigPage/TaskManagerConfigPage'
 import TaskManagerDIPage from './pages/TaskManagerDIPage/TaskManagerDIPage'
 import TimeConverterPage from './pages/TimeConverterPage/TimeConverterPage'
+import JsonFormatterPage from './pages/JsonFormatterPage/JsonFormatterPage'
 import ToolsPage from './pages/ToolsPage/ToolsPage'
 import UserProfilePage from './pages/UserProfilePage/UserProfilePage'
 import WelcomePage from './pages/WelcomePage/WelcomePage'
@@ -65,6 +66,13 @@ export const ROUTES = [
     icon: ToolCase,
     hideInMenu: true,
     element: <TimeConverterPage />
+  },
+  {
+    label: 'JSON Formatter',
+    path: '/tools/json-formatter',
+    icon: ToolCase,
+    hideInMenu: true,
+    element: <JsonFormatterPage />
   },
   {
     label: 'Welcome',
