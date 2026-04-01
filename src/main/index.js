@@ -5,7 +5,6 @@ import { join } from 'path'
 // Import IPC Handler
 import { ConfigDatabase } from './database/ConfigDatabase.js'
 import { registerSystemHandler } from './ipc/system.ipc.js'
-import { registerTaskManagerDIHandler } from './ipc/taskManagerDI.ipc.js'
 import { registerSettingsHandler } from './ipc/settings.ipc/settings.ipc.js'
 import { registerGithubSettingsHandler } from './ipc/githubSettings.ipc/githubSettings.ipc'
 import { registerPasswordManagerHandler } from './ipc/passwordManager.ipc'
@@ -85,7 +84,6 @@ app.whenReady().then(async () => {
   registerSettingsHandler(ipcMain, configDb)
   registerTaskHandler(ipcMain, configDb)
   registerSystemHandler(ipcMain)
-  registerTaskManagerDIHandler(ipcMain)
   registerToolsHandler(ipcMain)
   registerShellHandler(ipcMain)
   registerWebviewHandler(ipcMain)

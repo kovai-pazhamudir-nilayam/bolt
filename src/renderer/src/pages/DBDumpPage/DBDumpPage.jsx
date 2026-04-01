@@ -1,7 +1,8 @@
-import { Button, Col, Form, Input, Row, Select } from 'antd'
+import { Button, Col, Form, Input, Row } from 'antd'
 import { DatabaseZap } from 'lucide-react'
 import { useEffect, useState } from 'react'
 import CompanySelection from '../../components/CompanySelection'
+import DBSelection from '../../components/DBSelection'
 import EnvironmentSelection from '../../components/EnvironmentSelection'
 import PageHeader from '../../components/PageHeader/PageHeader'
 import { getJumpboxPod } from '../../helpers/jumpbox.helper'
@@ -15,28 +16,15 @@ const DBDumpPageWOC = ({ renderSuccessNotification, renderErrorNotification }) =
   const [form] = Form.useForm()
   const [loading, setLoading] = useState(false)
   const [allDbSecrets, setAllDbSecrets] = useState([])
-  const [databases, setDatabases] = useState([])
 
   const { gcpProjectConfigRepo } = settingsFactory()
   const { dbSecretsRepo } = dbSecretsFactory()
   const { shellRepo } = shellFactory()
   const { systemRepo } = systemFactory()
 
-  const selectedCompany = Form.useWatch('company_code', form)
-
   useEffect(() => {
     dbSecretsRepo.getAll().then(setAllDbSecrets)
   }, [])
-
-  useEffect(() => {
-    form.setFieldsValue({ db_name: undefined })
-    const dbs = [
-      ...new Set(
-        allDbSecrets.filter((s) => s.company_code === selectedCompany).map((s) => s.db_name)
-      )
-    ]
-    setDatabases(dbs)
-  }, [selectedCompany, allDbSecrets])
 
   const onFinish = async (values) => {
     const { company_code, env_code, db_name, query } = values
@@ -112,26 +100,19 @@ const DBDumpPageWOC = ({ renderSuccessNotification, renderErrorNotification }) =
 
   return (
     <div style={{ padding: '0 24px' }}>
-      <PageHeader
-        title="DB Dump"
-        description="Export a SQL query result directly to a CSV file using COPY TO STDOUT."
-      />
+      <PageHeader title="DB Dump" description="Export a SQL query result directly to a CSV file" />
       <Form form={form} layout="vertical" onFinish={onFinish} style={{ maxWidth: 600 }}>
         <Row gutter={[16, 0]}>
-          <Col span={12}>
+          <Col span={8}>
             <CompanySelection />
           </Col>
-          <Col span={12}>
+          <Col span={8}>
             <EnvironmentSelection />
           </Col>
+          <Col span={8}>
+            <DBSelection />
+          </Col>
         </Row>
-        <Form.Item name="db_name" label="Database" rules={[{ required: true }]}>
-          <Select
-            placeholder="Select database"
-            options={databases.map((d) => ({ label: d, value: d }))}
-            loading={loading}
-          />
-        </Form.Item>
         <Form.Item name="query" label="SQL Query" rules={[{ required: true }]}>
           <Input.TextArea rows={6} placeholder="SELECT * FROM your_table WHERE ..." />
         </Form.Item>

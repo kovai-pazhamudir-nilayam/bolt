@@ -24,14 +24,11 @@ import JumpboxTransferPage from './pages/JumpboxTransferPage/JumpboxTransferPage
 import MediaProcessPage from './pages/MediaProcessPage/MediaProcessPage'
 import NotesPage from './pages/NotesPage/NotesPage'
 import OsTicketPage from './pages/OsTicketPage/OsTicketPage'
-import PageBuilderPage from './pages/PageBuilderPage/PageBuilderPage'
 import PasswordManagerPage from './pages/PasswordManagerPage/PasswordManagerPage'
 import SavedDBQueryPage from './pages/SavedDBQueryPage/SavedDBQueryPage'
 import SettingsPage from './pages/SettingsPage/SettingsPage'
-import ShellCommandPage from './pages/ShellCommandPage/ShellCommandPage'
 import TaskListPage from './pages/TaskListPage/TaskListPage'
 import TaskManagerConfigPage from './pages/TaskManagerConfigPage/TaskManagerConfigPage'
-import TaskManagerDIPage from './pages/TaskManagerDIPage/TaskManagerDIPage'
 import TimeConverterPage from './pages/TimeConverterPage/TimeConverterPage'
 import DBDumpPage from './pages/DBDumpPage/DBDumpPage'
 import JsonFormatterPage from './pages/JsonFormatterPage/JsonFormatterPage'
@@ -95,27 +92,6 @@ export const ROUTES = [
     icon: ToolCase,
     hideInMenu: true,
     element: <DBDumpPage />
-  },
-  {
-    label: 'Task Manager DI',
-    path: '/tools/task-manager-di',
-    icon: ToolCase,
-    hideInMenu: true,
-    element: <TaskManagerDIPage />
-  },
-  {
-    label: 'Page Builder',
-    path: '/tools/page-builder',
-    icon: ToolCase,
-    hideInMenu: true,
-    element: <PageBuilderPage />
-  },
-  {
-    label: 'UI Builder',
-    path: '/tools/ui-builder',
-    icon: ToolCase,
-    hideInMenu: true,
-    element: <PageBuilderPage />
   },
   {
     label: 'Task Manager Config',
@@ -187,13 +163,6 @@ export const ROUTES = [
     path: '/user-profile',
     icon: User,
     element: <UserProfilePage />
-  },
-  {
-    label: 'Shell Command ',
-    path: '/shell-command',
-    icon: User,
-    hideInMenu: true,
-    element: <ShellCommandPage />
   },
   {
     label: 'osTicket',

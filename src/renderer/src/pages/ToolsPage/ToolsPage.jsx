@@ -38,7 +38,7 @@ const TOOLS = [
   },
   {
     name: 'DB Dump',
-    description: 'Export a SQL query result directly to a CSV file via COPY TO STDOUT.',
+    description: 'Export a SQL query result directly to a CSV file.',
     path: '/tools/db-dump',
     icon: DatabaseZap
   }
