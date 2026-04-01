@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react'
 import CompanySelection from '../../components/CompanySelection'
 import EnvironmentSelection from '../../components/EnvironmentSelection'
 import PageHeader from '../../components/PageHeader/PageHeader'
+import { getJumpboxPod } from '../../helpers/jumpbox.helper'
 import withNotification from '../../hoc/withNotification'
 import { dbSecretsFactory } from '../../repos/DBSecretsPage.repo'
 import { settingsFactory } from '../../repos/SettingsPage.repo'
@@ -36,30 +37,6 @@ const DBDumpPageWOC = ({ renderSuccessNotification, renderErrorNotification }) =
     ]
     setDatabases(dbs)
   }, [selectedCompany, allDbSecrets])
-
-  const getJumpboxPod = async () => {
-    const kubectlCommand = 'kubectl get pods -o=name --field-selector=status.phase=Running'
-    let output = ''
-
-    const logUnsub = shellRepo.onLog((data) => {
-      if (data.type === 'stdout') output += data.output
-    })
-
-    const result = await shellRepo.run(kubectlCommand)
-    logUnsub()
-
-    if (result.code === 0) {
-      const jumpboxPod = output
-        .split('\n')
-        .find((line) => line.includes('jumpbox') || line.includes('pod'))
-        ?.split('/')[1]
-        ?.trim()
-
-      if (jumpboxPod) return jumpboxPod
-      throw new Error('No running jumpbox pod found')
-    }
-    throw new Error(`Failed to get jumpbox pods (code ${result.code})`)
-  }
 
   const onFinish = async (values) => {
     const { company_code, env_code, db_name, query } = values

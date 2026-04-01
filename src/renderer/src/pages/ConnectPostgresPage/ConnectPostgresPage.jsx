@@ -5,6 +5,7 @@ import PageHeader from '../../components/PageHeader/PageHeader'
 import LogsViewer from '../../components/LogsViewer/LogsViewer'
 import SelectFormItem from '../../components/SelectFormItem'
 import withNotification from '../../hoc/withNotification'
+import { getJumpboxPod } from '../../helpers/jumpbox.helper'
 import { settingsFactory } from '../../repos/SettingsPage.repo'
 import { shellFactory } from '../../repos/shell.repo'
 import { dbSecretsFactory } from '../../repos/DBSecretsPage.repo'
@@ -45,33 +46,6 @@ const ConnectPostgresPageWoc = ({ renderErrorNotification, renderSuccessNotifica
   const buildGcloudCommand = (config) => {
     const { gcp_cluster: cluster, gcp_region: region, gcp_project: project } = config
     return `gcloud container clusters get-credentials ${cluster} --region ${region} --project ${project}`
-  }
-
-  const getJumpboxPod = async () => {
-    const kubectlCommand = 'kubectl get pods -o=name --field-selector=status.phase=Running'
-    let output = ''
-
-    const logUnsub = shellRepo.onLog((data) => {
-      if (data.type === 'stdout') output += data.output
-    })
-
-    try {
-      const result = await shellRepo.run(kubectlCommand)
-      if (result.code === 0) {
-        const jumpboxPod = output
-          .split('\n')
-          .find((line) => line.includes('jumpbox') || line.includes('pod'))
-          ?.split('/')[1]
-          ?.trim()
-
-        if (jumpboxPod) return jumpboxPod
-        throw new Error('No running jumpbox pod found')
-      } else {
-        throw new Error(`Failed to get jumpbox pods (code ${result.code})`)
-      }
-    } finally {
-      logUnsub()
-    }
   }
 
   const parsePsqlCsv = (output) => {

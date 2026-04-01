@@ -3,7 +3,8 @@ import { RefreshCw, Wifi, WifiOff } from 'lucide-react'
 import { useState, useEffect } from 'react'
 import SelectFormItem from '../../../components/SelectFormItem'
 import { settingsFactory } from '../../../repos/SettingsPage.repo'
-import { runShellCommand, getJumpboxPod, runRedisCommand } from '../services/redisService'
+import { runShellCommand, runRedisCommand } from '../services/redisService'
+import { getJumpboxPod } from '../../../helpers/jumpbox.helper'
 
 const { companyRepo, environmentRepo, gcpProjectConfigRepo } = settingsFactory()
 

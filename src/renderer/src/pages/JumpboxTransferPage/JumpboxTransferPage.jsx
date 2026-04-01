@@ -5,6 +5,7 @@ import PageHeader from '../../components/PageHeader/PageHeader'
 import SelectFormItem from '../../components/SelectFormItem'
 import { useDevPanel } from '../../context/useDevPanel'
 import withNotification from '../../hoc/withNotification'
+import { getJumpboxPod } from '../../helpers/jumpbox.helper'
 import { shellFactory } from '../../repos/shell.repo'
 import { settingsFactory } from '../../repos/SettingsPage.repo'
 import { systemFactory } from '../../repos/system.repo'
@@ -56,25 +57,6 @@ const JumpboxTransferPageWOC = ({ renderSuccessNotification, renderErrorNotifica
   useEffect(() => {
     loadDatasource()
   }, [])
-
-  const getJumpboxPod = async () => {
-    let output = ''
-    const unsub = shellRepo.onLog((data) => {
-      if (data.type === 'stdout') output += data.output
-    })
-    const result = await shellRepo.run(
-      'kubectl get pods -o=name --field-selector=status.phase=Running'
-    )
-    unsub()
-    if (result.code !== 0) throw new Error('Failed to list kubectl pods')
-    const pod = output
-      .split('\n')
-      .find((l) => l.includes('jumpbox'))
-      ?.split('/')[1]
-      ?.trim()
-    if (!pod) throw new Error('No running jumpbox pod found')
-    return pod
-  }
 
   const handleConnect = async (values) => {
     setConnectionStatus(CONNECTION_STATUS.CONNECTING)
