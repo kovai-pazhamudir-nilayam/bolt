@@ -74,6 +74,12 @@ Every new feature requires all five pieces wired together:
 - Support for dark theme
 - **Plaintext secret storage is acceptable** — personal internal-use app, not public facing; skip encryption-at-rest recommendations
 
+## Shared Components
+
+- **Company dropdown** — always use `CompanySelection` (`src/renderer/src/components/CompanySelection.jsx`); never build a raw `Select` with manual fetching
+- **Environment dropdown** — always use `EnvironmentSelection` (`src/renderer/src/components/EnvironmentSelection.jsx`); never build a raw `Select` with manual fetching
+- To react to company/environment selection changes, use `Form.useWatch('company_code', form)` (or `'env_code'`) in a `useEffect` — `SelectFormItem` does not forward `onChange`
+
 ## UI Conventions
 
 - **Never set `zIndex` on individual Antd components** (Modal, Drawer, Tooltip, etc.) — `zIndexPopupBase: 9999` is set globally in `src/renderer/src/theme/theme.js` for both themes; the sidebar uses `zIndex: 1001` so the global token must stay above that

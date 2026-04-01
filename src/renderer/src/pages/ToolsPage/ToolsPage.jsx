@@ -1,5 +1,5 @@
 import { Card, Col, Row } from 'antd'
-import { Binary, Braces, Clock, FolderSync } from 'lucide-react'
+import { Binary, Braces, Clock, DatabaseZap, FolderSync } from 'lucide-react'
 import { Link } from 'react-router-dom'
 import PageHeader from '../../components/PageHeader/PageHeader'
 
@@ -35,6 +35,12 @@ const TOOLS = [
     description: 'Beautify, minify JSON, and convert between JSON and CSV.',
     path: '/tools/json-formatter',
     icon: Braces
+  },
+  {
+    name: 'DB Dump',
+    description: 'Export a SQL query result directly to a CSV file via COPY TO STDOUT.',
+    path: '/tools/db-dump',
+    icon: DatabaseZap
   }
 ]
 const ToolsPage = () => {

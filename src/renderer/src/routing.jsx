@@ -33,6 +33,7 @@ import TaskListPage from './pages/TaskListPage/TaskListPage'
 import TaskManagerConfigPage from './pages/TaskManagerConfigPage/TaskManagerConfigPage'
 import TaskManagerDIPage from './pages/TaskManagerDIPage/TaskManagerDIPage'
 import TimeConverterPage from './pages/TimeConverterPage/TimeConverterPage'
+import DBDumpPage from './pages/DBDumpPage/DBDumpPage'
 import JsonFormatterPage from './pages/JsonFormatterPage/JsonFormatterPage'
 import ToolsPage from './pages/ToolsPage/ToolsPage'
 import UserProfilePage from './pages/UserProfilePage/UserProfilePage'
@@ -87,6 +88,13 @@ export const ROUTES = [
     icon: ToolCase,
     hideInMenu: true,
     element: <JumpboxTransferPage />
+  },
+  {
+    label: 'DB Dump',
+    path: '/tools/db-dump',
+    icon: ToolCase,
+    hideInMenu: true,
+    element: <DBDumpPage />
   },
   {
     label: 'Task Manager DI',
