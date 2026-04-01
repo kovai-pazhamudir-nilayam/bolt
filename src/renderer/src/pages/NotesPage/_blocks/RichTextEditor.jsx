@@ -1,4 +1,5 @@
 import { useEditor, EditorContent } from '@tiptap/react'
+import { useEffect } from 'react'
 import StarterKit from '@tiptap/starter-kit'
 import Placeholder from '@tiptap/extension-placeholder'
 import Underline from '@tiptap/extension-underline'
@@ -188,11 +189,12 @@ const RichTextEditor = ({ content, onChange, onBlur, placeholder = 'Start typing
     }
   })
 
-  // Update editor content when prop changes (from external source)
-  // But only if it's different to avoid cursor jumping
-  if (editor && content !== editor.getHTML() && !editor.isFocused) {
-    editor.commands.setContent(content, false)
-  }
+  // Sync content when it changes externally (e.g. switching notes), but not while typing
+  useEffect(() => {
+    if (editor && !editor.isFocused && content !== editor.getHTML()) {
+      editor.commands.setContent(content || '', false)
+    }
+  }, [content, editor])
 
   return (
     <div className="rich-text-editor-container">

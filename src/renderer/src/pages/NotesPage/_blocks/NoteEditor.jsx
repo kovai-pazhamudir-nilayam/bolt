@@ -1,4 +1,5 @@
-import { Button, Input, Select, Space, Typography } from 'antd'
+import { Button, Input, Select, Space, Tag, Typography } from 'antd'
+import { Check, Loader2 } from 'lucide-react'
 import RichTextEditor from './RichTextEditor'
 
 const { Text } = Typography
@@ -15,11 +16,36 @@ const formatDate = (dateString) => {
   })
 }
 
+const getWordCount = (html) => {
+  if (!html) return 0
+  const text = html.replace(/<[^>]*>/g, ' ').replace(/&[^;]+;/g, ' ').replace(/\s+/g, ' ').trim()
+  return text ? text.split(' ').filter((w) => w.length > 0).length : 0
+}
+
+const SaveIndicator = ({ saveStatus }) => {
+  if (saveStatus === 'saving') {
+    return (
+      <Text className="save-indicator saving">
+        <Loader2 size={12} className="spin-icon" /> Saving...
+      </Text>
+    )
+  }
+  if (saveStatus === 'saved') {
+    return (
+      <Text className="save-indicator saved">
+        <Check size={12} /> Saved
+      </Text>
+    )
+  }
+  return null
+}
+
 const NoteEditor = ({
   isCreatingNew = false,
   selectedNote = null,
   editingState,
   companies,
+  saveStatus,
   onTitleChange,
   onCompanyChange,
   onContentChange,
@@ -27,70 +53,74 @@ const NoteEditor = ({
   onSaveNewNote,
   onCancelNewNote
 }) => {
+  const wordCount = getWordCount(editingState.content)
+
   return (
     <>
-      {/* Header */}
       <div className="content-header">
-        <div className="header-content">
-          <div className="note-info">
-            <Input
-              value={editingState.title}
-              onChange={(e) => onTitleChange(e.target.value)}
-              onBlur={isCreatingNew ? undefined : onFocusOut}
-              placeholder="Enter note title..."
-              variant="borderless"
-              className={isCreatingNew ? 'new-note-title-input' : 'editable-title-input'}
-            />
-            <div className="note-meta">
-              {!isCreatingNew && selectedNote && (
-                <Text className="date">{formatDate(selectedNote.created_at)}</Text>
-              )}
-              <div className={isCreatingNew ? 'note-meta' : 'editable-meta'}>
-                <Select
-                  value={editingState.company}
-                  onChange={onCompanyChange}
-                  onBlur={isCreatingNew ? undefined : onFocusOut}
-                  placeholder="Company (optional)"
-                  options={companies.map((c) => ({
-                    label: `${c.company_code} - ${c.company_name}`,
-                    value: c.company_code
-                  }))}
-                  variant="borderless"
-                  className={isCreatingNew ? 'new-note-company-select' : 'editable-company-select'}
-                  allowClear
-                />
-              </div>
-            </div>
-          </div>
+        <Input
+          value={editingState.title}
+          onChange={(e) => onTitleChange(e.target.value)}
+          onBlur={isCreatingNew ? undefined : onFocusOut}
+          placeholder="Untitled note"
+          variant="borderless"
+          className="title-input"
+        />
 
-          <div className="actions">
+        <div className="header-meta-row">
+          <Space size={12} className="meta-left">
+            {!isCreatingNew && selectedNote && (
+              <Text className="date-text">{formatDate(selectedNote.created_at)}</Text>
+            )}
+            <Select
+              value={editingState.company || undefined}
+              onChange={onCompanyChange}
+              onBlur={isCreatingNew ? undefined : onFocusOut}
+              placeholder="No company"
+              options={companies.map((c) => ({
+                label: `${c.company_code} - ${c.company_name}`,
+                value: c.company_code
+              }))}
+              variant="borderless"
+              className="company-select"
+              allowClear
+              style={{ minWidth: 160 }}
+            />
+          </Space>
+
+          <Space size={8} className="meta-right">
+            {wordCount > 0 && (
+              <Tag bordered={false} color="default" className="word-count-tag">
+                {wordCount} {wordCount === 1 ? 'word' : 'words'}
+              </Tag>
+            )}
             {isCreatingNew ? (
-              <Space>
+              <Space size={8}>
                 <Button
                   type="primary"
+                  size="small"
                   onClick={onSaveNewNote}
                   disabled={!editingState.title.trim()}
                 >
                   Save
                 </Button>
-                <Button onClick={onCancelNewNote}>Cancel</Button>
+                <Button size="small" onClick={onCancelNewNote}>
+                  Cancel
+                </Button>
               </Space>
             ) : (
-              editingState.hasUnsavedChanges && (
-                <Text className="auto-save-indicator">Saving...</Text>
-              )
+              <SaveIndicator saveStatus={saveStatus} />
             )}
-          </div>
+          </Space>
         </div>
       </div>
 
-      {/* Content */}
       <div className="content-area">
         <RichTextEditor
           content={editingState.content}
           onChange={onContentChange}
           onBlur={onFocusOut}
-          placeholder="Start typing your note here..."
+          placeholder="Start writing..."
         />
       </div>
     </>

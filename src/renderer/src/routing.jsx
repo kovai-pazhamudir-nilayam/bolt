@@ -28,7 +28,6 @@ import PasswordManagerPage from './pages/PasswordManagerPage/PasswordManagerPage
 import SavedDBQueryPage from './pages/SavedDBQueryPage/SavedDBQueryPage'
 import SettingsPage from './pages/SettingsPage/SettingsPage'
 import TaskListPage from './pages/TaskListPage/TaskListPage'
-import TaskManagerConfigPage from './pages/TaskManagerConfigPage/TaskManagerConfigPage'
 import TimeConverterPage from './pages/TimeConverterPage/TimeConverterPage'
 import DBDumpPage from './pages/DBDumpPage/DBDumpPage'
 import JsonFormatterPage from './pages/JsonFormatterPage/JsonFormatterPage'
@@ -92,13 +91,6 @@ export const ROUTES = [
     icon: ToolCase,
     hideInMenu: true,
     element: <DBDumpPage />
-  },
-  {
-    label: 'Task Manager Config',
-    path: '/tools/task-manager-config',
-    icon: ToolCase,
-    hideInMenu: true,
-    element: <TaskManagerConfigPage />
   },
   {
     label: 'GitHub Settings',
