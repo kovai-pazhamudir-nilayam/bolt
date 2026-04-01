@@ -1,4 +1,4 @@
-export async function up(knex) {
+exports.up = async function (knex) {
   await knex.schema.createTable('user_profile', (t) => {
     t.string('phone_number').primary().notNullable()
     t.string('name').notNullable()
@@ -10,6 +10,6 @@ export async function up(knex) {
   })
 }
 
-export async function down(knex) {
+exports.down = async function (knex) {
   await knex.schema.dropTableIfExists('user_profile')
 }

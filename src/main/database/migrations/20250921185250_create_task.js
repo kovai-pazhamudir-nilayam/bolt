@@ -1,5 +1,5 @@
 // migrations/xxxx_create_task.js
-export async function up(knex) {
+exports.up = async function (knex) {
   await knex.schema.createTable('task', (t) => {
     t.increments('task_id').primary()
     t.string('title').notNullable()
@@ -12,6 +12,6 @@ export async function up(knex) {
   })
 }
 
-export async function down(knex) {
+exports.down = async function (knex) {
   await knex.schema.dropTableIfExists('task')
 }

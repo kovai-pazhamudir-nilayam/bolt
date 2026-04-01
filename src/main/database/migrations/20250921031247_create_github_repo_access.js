@@ -1,4 +1,4 @@
-export async function up(knex) {
+exports.up = async function (knex) {
   await knex.schema.createTable('github_repo_access', (t) => {
     t.string('github_handle').notNullable()
     t.string('access_level').notNullable()
@@ -10,6 +10,6 @@ export async function up(knex) {
   })
 }
 
-export async function down(knex) {
+exports.down = async function (knex) {
   await knex.schema.dropTableIfExists('github_repo_access')
 }

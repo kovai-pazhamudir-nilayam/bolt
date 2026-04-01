@@ -1,4 +1,4 @@
-export async function up(knex) {
+exports.up = async function (knex) {
   await knex.schema.createTable('core_config', (t) => {
     t.string('company_code').notNullable()
     t.string('env_code').notNullable()
@@ -11,6 +11,6 @@ export async function up(knex) {
   })
 }
 
-export async function down(knex) {
+exports.down = async function (knex) {
   await knex.schema.dropTableIfExists('core_config')
 }

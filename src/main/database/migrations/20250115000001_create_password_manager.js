@@ -1,4 +1,4 @@
-export async function up(knex) {
+exports.up = async function (knex) {
   await knex.schema.createTable('password_manager', (t) => {
     t.increments('id').primary()
     t.string('company_url').nullable()
@@ -12,6 +12,6 @@ export async function up(knex) {
   })
 }
 
-export async function down(knex) {
+exports.down = async function (knex) {
   await knex.schema.dropTableIfExists('password_manager')
 }

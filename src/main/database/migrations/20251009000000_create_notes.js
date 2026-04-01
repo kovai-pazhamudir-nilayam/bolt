@@ -1,4 +1,4 @@
-export async function up(knex) {
+exports.up = async function (knex) {
   // Create notes table
   await knex.schema.createTable('notes', (t) => {
     t.increments('id').primary()
@@ -32,7 +32,7 @@ export async function up(knex) {
   })
 }
 
-export async function down(knex) {
+exports.down = async function (knex) {
   await knex.schema.dropTableIfExists('note_attachments')
   await knex.schema.dropTableIfExists('notes')
 }

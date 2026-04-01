@@ -1,4 +1,4 @@
-export async function up(knex) {
+exports.up = async function (knex) {
   await knex.schema.createTable('github_user', (t) => {
     t.string('name').notNullable()
     t.string('github_handle').primary()
@@ -7,6 +7,6 @@ export async function up(knex) {
   })
 }
 
-export async function down(knex) {
+exports.down = async function (knex) {
   await knex.schema.dropTableIfExists('github_user')
 }
