@@ -25,21 +25,22 @@ class ConfigDatabase {
     const dbPath = path.join(userDataPath, 'config.db')
 
     const migrationsDir = resolveResourceDir('migrations')
-    const seedsDir = resolveResourceDir('seeds')
+    // const seedsDir = resolveResourceDir('seeds')
 
     if (!fs.existsSync(migrationsDir)) {
       console.warn('[DB] Missing migrations dir:', migrationsDir)
     }
-    if (!fs.existsSync(seedsDir)) {
-      console.warn('[DB] Missing seeds dir:', seedsDir)
-    }
+
+    // if (!fs.existsSync(seedsDir)) {
+    //   console.warn('[DB] Missing seeds dir:', seedsDir)
+    // }
 
     this.knex = knexFactory({
       client: 'better-sqlite3',
       connection: { filename: dbPath },
       useNullAsDefault: true,
-      migrations: { directory: migrationsDir },
-      seeds: { directory: seedsDir }
+      migrations: { directory: migrationsDir }
+      // seeds: { directory: seedsDir }
     })
 
     this.initialized = false

@@ -27,10 +27,6 @@
       {
         "from": "src/main/database/migrations/",
         "to": "migrations"
-      },
-      {
-        "from": "src/main/database/seeds/",
-        "to": "seeds"
       }
     ]
   },

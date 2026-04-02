@@ -35,12 +35,23 @@ function createWindow() {
       sandbox: false,
       webviewTag: true,
       nodeIntegration: false,
-      contextIsolation: true
+      contextIsolation: true,
+      devTools: true // Enable devTools for both dev and prod for now, can be gated behind env variable if needed
     }
   })
 
   mainWindow.on('ready-to-show', () => {
     mainWindow.show()
+  })
+
+  mainWindow.webContents.openDevTools()
+
+  mainWindow.webContents.on('did-finish-load', () => {
+    console.log('[Renderer] did-finish-load:', mainWindow.webContents.getURL())
+  })
+
+  mainWindow.webContents.on('did-fail-load', (event, errorCode, errorDescription, validatedURL) => {
+    console.error('[Renderer] did-fail-load:', errorCode, errorDescription, validatedURL)
   })
 
   mainWindow.webContents.setWindowOpenHandler((details) => {
@@ -53,7 +64,9 @@ function createWindow() {
   if (is.dev && process.env['ELECTRON_RENDERER_URL']) {
     mainWindow.loadURL(process.env['ELECTRON_RENDERER_URL'])
   } else {
-    mainWindow.loadFile(join(__dirname, '../renderer/index.html'))
+    const htmlPath = join(__dirname, '../renderer/index.html')
+    console.log('[Main] loading file:', htmlPath)
+    mainWindow.loadFile(htmlPath)
   }
 }
 
@@ -63,17 +76,24 @@ let configDb
 // This method will be called when Electron has finished
 // initialization and is ready to create browser windows.
 // Some APIs can only be used after this event occurs.
+process.on('uncaughtException', (err) => {
+  console.error('[Main] uncaughtException:', err)
+})
+
+process.on('unhandledRejection', (reason) => {
+  console.error('[Main] unhandledRejection:', reason)
+})
+
 app.whenReady().then(async () => {
+  console.log('[Main] app ready')
   // Set app user model id for windows
   electronApp.setAppUserModelId('com.bolt')
 
   // Initialize database
   configDb = new ConfigDatabase()
   await configDb.initializeDatabase()
+  console.log('[Main] DB ready, registering IPC handlers')
 
-  // Default open or close DevTools by F12 in development
-  // and ignore CommandOrControl + R in production.
-  // see https://github.com/alex8088/electron-toolkit/tree/master/packages/utils
   app.on('browser-window-created', (_, window) => {
     optimizer.watchWindowShortcuts(window)
   })
@@ -92,6 +112,7 @@ app.whenReady().then(async () => {
   registerFeatureConfigHandler(ipcMain, configDb)
   registerDBSecretsHandler(ipcMain, configDb)
   registerSavedDbQueryHandler(ipcMain, configDb)
+  console.log('[Main] IPC handlers registered, creating window')
 
   createWindow()
 
