@@ -4,6 +4,7 @@ import { useState } from 'react'
 import { Route, HashRouter as Router, Routes, useLocation, useNavigate } from 'react-router-dom'
 import { useFeatureConfig } from './context/featureConfigContext'
 import logo from './assets/logo.png'
+import iconlogo from './assets/icon-logo.png'
 import './assets/main.css'
 import { ROUTES } from './routing'
 // import Versions from './components/Versions'
@@ -86,7 +87,11 @@ function AppLayout({ collapsed, setCollapsed, isDark, setIsDark }) {
         }}
       >
         <div style={{ height: 64, margin: 16, textAlign: 'center' }}>
-          <img src={logo} alt="logo" style={{ width: 148 }} />
+          <img
+            src={collapsed ? iconlogo : logo}
+            alt="logo"
+            style={{ width: collapsed ? 32 : 148 }}
+          />
         </div>
         <Menu
           theme={isDark ? 'dark' : 'light'}
@@ -124,30 +129,23 @@ function AppLayout({ collapsed, setCollapsed, isDark, setIsDark }) {
           }}
         >
           <NavigationBar />
+          <Button
+            type="text"
+            shape="circle"
+            onClick={() => setIsDark((d) => !d)}
+            style={{
+              width: 36,
+              height: 36,
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              color: isDark ? '#fff' : '#000'
+            }}
+            aria-label="Toggle theme"
+          >
+            {isDark ? <Sun size={18} /> : <Moon size={18} />}
+          </Button>
         </Header>
-        {/* Floating Theme Toggle Button */}
-        <Button
-          type="primary"
-          shape="circle"
-          onClick={() => setIsDark((d) => !d)}
-          style={{
-            position: 'fixed',
-            bottom: isOpen ? panelHeight + 28 + 16 : 44,
-            right: 32,
-            zIndex: 1000,
-            width: 48,
-            height: 48,
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            background: isDark ? '#222' : '#fff',
-            color: isDark ? '#fff' : '#000',
-            boxShadow: '0 2px 8px rgba(0,0,0,0.15)'
-          }}
-          aria-label="Toggle theme"
-        >
-          {isDark ? <Sun size={24} /> : <Moon size={24} />}
-        </Button>
         <Content
           style={{
             margin: '88px 16px 24px 16px',
@@ -157,7 +155,7 @@ function AppLayout({ collapsed, setCollapsed, isDark, setIsDark }) {
         >
           <div
             style={{
-              padding: 24,
+              padding: 12,
               background: isDark ? '#181818' : '#fff',
               color: isDark ? '#fff' : '#000',
               borderRadius: 8

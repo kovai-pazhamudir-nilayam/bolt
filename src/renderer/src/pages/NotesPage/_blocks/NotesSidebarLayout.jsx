@@ -19,7 +19,7 @@ const initialEditingState = {
   hasUnsavedChanges: false
 }
 
-const NotesSidebarLayoutWOC = ({ renderErrorNotification, renderSuccessNotification }) => {
+const NotesSidebarLayoutWOC = ({ renderSuccessNotification }) => {
   const [notes, setNotes] = useState([])
   const [companies, setCompanies] = useState([])
   const [searchText, setSearchText] = useState('')

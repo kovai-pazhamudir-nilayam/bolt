@@ -17,7 +17,7 @@ import {
 import Base64Page from './pages/Base64Page/Base64Page'
 import ConnectPostgresPage from './pages/ConnectPostgresPage/ConnectPostgresPage'
 import ConnectRedisPage from './pages/ConnectRedisPage/ConnectRedisPage'
-import DBBackpupPage from './pages/DBBackpupPage/DBBackpupPage'
+import DBBackupPage from './pages/DBBackupPage/DBBackupPage'
 import FeatureConfigPage from './pages/FeatureConfigPage/FeatureConfigPage'
 import GithubSettingsPage from './pages/GithubSettingsPage/GithubSettingsPage'
 import JWTDecoderPage from './pages/JWTDecoderPage/JWTDecoderPage'
@@ -149,7 +149,7 @@ export const ROUTES = [
     label: 'DB Backup',
     path: '/db-backup',
     icon: Database,
-    element: <DBBackpupPage />
+    element: <DBBackupPage />
   },
   {
     label: 'Password Manager',

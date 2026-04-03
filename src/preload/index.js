@@ -14,6 +14,7 @@ import { featureConfigAPI } from './featureConfig.preload'
 import { dbSecretsAPI } from './dbSecrets.preload'
 import { savedDbQueryAPI } from './savedDbQuery.preload'
 import { apiCollectionAPI } from './apiCollection.preload'
+import { dbBackupAPI } from './dbBackup.preload'
 
 if (process.contextIsolated) {
   try {
@@ -32,6 +33,7 @@ if (process.contextIsolated) {
     contextBridge.exposeInMainWorld('dbSecretsAPI', dbSecretsAPI)
     contextBridge.exposeInMainWorld('savedDbQueryAPI', savedDbQueryAPI)
     contextBridge.exposeInMainWorld('apiCollectionAPI', apiCollectionAPI)
+    contextBridge.exposeInMainWorld('dbBackupAPI', dbBackupAPI)
   } catch (error) {
     console.error('Error exposing APIs:', error)
   }
@@ -51,4 +53,5 @@ if (process.contextIsolated) {
   window.dbSecretsAPI = dbSecretsAPI
   window.savedDbQueryAPI = savedDbQueryAPI
   window.apiCollectionAPI = apiCollectionAPI
+  window.dbBackupAPI = dbBackupAPI
 }

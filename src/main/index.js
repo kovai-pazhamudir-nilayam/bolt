@@ -1,5 +1,5 @@
 import { electronApp, is, optimizer } from '@electron-toolkit/utils'
-import { app, BrowserWindow, ipcMain, screen } from 'electron'
+import { app, BrowserWindow, ipcMain, nativeImage, screen } from 'electron'
 import { join } from 'path'
 
 // Import IPC Handler
@@ -18,6 +18,7 @@ import { registerFeatureConfigHandler } from './ipc/featureConfig.ipc'
 import { registerDBSecretsHandler } from './ipc/dbSecrets.ipc'
 import { registerSavedDbQueryHandler } from './ipc/savedDbQuery.ipc'
 import { registerApiCollectionHandler } from './ipc/apiCollection.ipc.js'
+import { registerDbBackupHandler } from './ipc/dbBackup.ipc.js'
 
 function createWindow() {
   // Get the primary display dimensions
@@ -30,6 +31,7 @@ function createWindow() {
     fullscreen: false,
     show: false,
     autoHideMenuBar: true,
+    title: 'Bolt',
     // ...(process.platform === 'linux' ? { icon } : {}),
     webPreferences: {
       preload: join(__dirname, '../preload/index.js'),
@@ -78,6 +80,8 @@ let configDb
 // This method will be called when Electron has finished
 // initialization and is ready to create browser windows.
 // Some APIs can only be used after this event occurs.
+app.setName('Bolt')
+
 process.on('uncaughtException', (err) => {
   console.error('[Main] uncaughtException:', err)
 })
@@ -90,6 +94,13 @@ app.whenReady().then(async () => {
   console.log('[Main] app ready')
   // Set app user model id for windows
   electronApp.setAppUserModelId('com.bolt')
+
+  // Set dock/taskbar icon (important for dev mode; production uses electron-builder config)
+  const iconPath = join(__dirname, '../../resources/icon.png')
+  const icon = nativeImage.createFromPath(iconPath)
+  if (process.platform === 'darwin' && app.dock) {
+    app.dock.setIcon(icon)
+  }
 
   // Initialize database
   configDb = new ConfigDatabase()
@@ -115,6 +126,7 @@ app.whenReady().then(async () => {
   registerDBSecretsHandler(ipcMain, configDb)
   registerSavedDbQueryHandler(ipcMain, configDb)
   registerApiCollectionHandler(ipcMain, configDb)
+  registerDbBackupHandler(ipcMain, configDb)
   console.log('[Main] IPC handlers registered, creating window')
 
   createWindow()
