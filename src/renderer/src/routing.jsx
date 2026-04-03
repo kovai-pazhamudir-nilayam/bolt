@@ -7,6 +7,7 @@ import {
   ImageUp,
   Key,
   ListCheck,
+  Play,
   Settings as SettingsIcon,
   Shield,
   Ticket,
@@ -30,6 +31,7 @@ import SettingsPage from './pages/SettingsPage/SettingsPage'
 import TaskListPage from './pages/TaskListPage/TaskListPage'
 import TimeConverterPage from './pages/TimeConverterPage/TimeConverterPage'
 import DBDumpPage from './pages/DBDumpPage/DBDumpPage'
+import ApiCollectionPage from './pages/ApiCollectionPage/ApiCollectionPage'
 import JsonFormatterPage from './pages/JsonFormatterPage/JsonFormatterPage'
 import ToolsPage from './pages/ToolsPage/ToolsPage'
 import UserProfilePage from './pages/UserProfilePage/UserProfilePage'
@@ -91,6 +93,12 @@ export const ROUTES = [
     icon: ToolCase,
     hideInMenu: true,
     element: <DBDumpPage />
+  },
+  {
+    label: 'API Collection',
+    path: '/api-collection',
+    icon: Play,
+    element: <ApiCollectionPage />
   },
   {
     label: 'GitHub Settings',

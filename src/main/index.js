@@ -17,6 +17,7 @@ import { registerNotesHandler } from './ipc/notes.ipc'
 import { registerFeatureConfigHandler } from './ipc/featureConfig.ipc'
 import { registerDBSecretsHandler } from './ipc/dbSecrets.ipc'
 import { registerSavedDbQueryHandler } from './ipc/savedDbQuery.ipc'
+import { registerApiCollectionHandler } from './ipc/apiCollection.ipc.js'
 
 function createWindow() {
   // Get the primary display dimensions
@@ -36,7 +37,7 @@ function createWindow() {
       webviewTag: true,
       nodeIntegration: false,
       contextIsolation: true,
-      devTools: true // Enable devTools for both dev and prod for now, can be gated behind env variable if needed
+      devTools: false // Enable devTools for both dev and prod for now, can be gated behind env variable if needed
     }
   })
 
@@ -44,7 +45,7 @@ function createWindow() {
     mainWindow.show()
   })
 
-  mainWindow.webContents.openDevTools()
+  // mainWindow.webContents.openDevTools()
 
   mainWindow.webContents.on('did-finish-load', () => {
     console.log('[Renderer] did-finish-load:', mainWindow.webContents.getURL())
@@ -112,6 +113,7 @@ app.whenReady().then(async () => {
   registerFeatureConfigHandler(ipcMain, configDb)
   registerDBSecretsHandler(ipcMain, configDb)
   registerSavedDbQueryHandler(ipcMain, configDb)
+  registerApiCollectionHandler(ipcMain, configDb)
   console.log('[Main] IPC handlers registered, creating window')
 
   createWindow()
