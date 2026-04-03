@@ -1,7 +1,7 @@
 import { Button, ConfigProvider, Layout, Menu, notification } from 'antd'
 import { Moon, Sun } from 'lucide-react'
 import { useState } from 'react'
-import { Route, BrowserRouter as Router, Routes, useLocation, useNavigate } from 'react-router-dom'
+import { Route, HashRouter as Router, Routes, useLocation, useNavigate } from 'react-router-dom'
 import { useFeatureConfig } from './context/featureConfigContext'
 import logo from './assets/logo.png'
 import './assets/main.css'

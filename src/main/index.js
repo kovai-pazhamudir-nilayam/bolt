@@ -37,7 +37,7 @@ function createWindow() {
       webviewTag: true,
       nodeIntegration: false,
       contextIsolation: true,
-      devTools: false // Enable devTools for both dev and prod for now, can be gated behind env variable if needed
+      devTools: is.dev // Enable devTools for both dev and prod for now, can be gated behind env variable if needed
     }
   })
 
@@ -45,6 +45,7 @@ function createWindow() {
     mainWindow.show()
   })
 
+  // Use this to open dev tools for renderer process, but it will cause some issues with dev tools in main process, so we can open it manually when needed.
   // mainWindow.webContents.openDevTools()
 
   mainWindow.webContents.on('did-finish-load', () => {
