@@ -31,7 +31,7 @@ export const FeatureConfigProvider = ({ children }) => {
 
   // Check if user has access to a feature
   const hasFeatureAccess = (featureKey, requiredLevel = 'read') => {
-    const config = featureConfigs.find(fc => fc.feature_key === featureKey)
+    const config = featureConfigs.find((fc) => fc.feature_key === featureKey)
     if (!config) return false
 
     // Superadmin mode overrides all restrictions
@@ -50,13 +50,13 @@ export const FeatureConfigProvider = ({ children }) => {
 
   // Check if feature is hidden
   const isFeatureHidden = (featureKey) => {
-    const config = featureConfigs.find(fc => fc.feature_key === featureKey)
+    const config = featureConfigs.find((fc) => fc.feature_key === featureKey)
     return config ? config.access_level === 'hidden' : false
   }
 
   // Check if feature is read-only
   const isFeatureReadOnly = (featureKey) => {
-    const config = featureConfigs.find(fc => fc.feature_key === featureKey)
+    const config = featureConfigs.find((fc) => fc.feature_key === featureKey)
     return config ? config.access_level === 'read' : false
   }
 
@@ -89,16 +89,16 @@ export const FeatureConfigProvider = ({ children }) => {
 
   // Check if feature is superadmin only
   const isSuperadminOnlyFeature = (featureKey) => {
-    const config = featureConfigs.find(fc => fc.feature_key === featureKey)
+    const config = featureConfigs.find((fc) => fc.feature_key === featureKey)
     return config ? config.is_superadmin_only : false
   }
 
   // Get filtered routes based on feature access
   const getFilteredRoutes = (routes) => {
-    return routes.filter(route => {
+    return routes.filter((route) => {
       // Always show routes with hideInMenu: true (they're accessed programmatically)
       if (route.hideInMenu) return true
-      
+
       // Check if route should be hidden
       return !isFeatureHidden(route.path.replace('/', ''))
     })
@@ -125,9 +125,5 @@ export const FeatureConfigProvider = ({ children }) => {
     loadFeatureConfigs
   }
 
-  return (
-    <FeatureConfigContext.Provider value={value}>
-      {children}
-    </FeatureConfigContext.Provider>
-  )
+  return <FeatureConfigContext.Provider value={value}>{children}</FeatureConfigContext.Provider>
 }

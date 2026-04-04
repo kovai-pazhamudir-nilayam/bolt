@@ -1,5 +1,5 @@
 import { Modal, Form, Input, Button } from 'antd'
-import { Lock, Phone } from 'lucide-react'
+import { Lock, User } from 'lucide-react'
 import { useAuth } from '../context/authContext'
 
 const LoginModal = ({ open, onClose }) => {
@@ -8,7 +8,7 @@ const LoginModal = ({ open, onClose }) => {
 
   const handleLogin = async (values) => {
     try {
-      await login(values.phone, values.password)
+      await login(values.username, values.password)
       onClose()
       form.resetFields()
     } catch (error) {
@@ -16,14 +16,14 @@ const LoginModal = ({ open, onClose }) => {
       form.setFields([
         {
           name: 'password',
-          errors: ['Invalid Phone or Password']
+          errors: ['Invalid username or password']
         }
       ])
     }
   }
 
   return (
-    <Modal title="Login" open={open} onCancel={onClose} footer={null} destroyOnHidden>
+    <Modal title="Admin Login" open={open} onCancel={onClose} footer={null} destroyOnHidden>
       <Form
         form={form}
         name="login_form"
@@ -33,23 +33,16 @@ const LoginModal = ({ open, onClose }) => {
         style={{ marginTop: 20 }}
       >
         <Form.Item
-          name="phone"
-          rules={[
-            { required: true, message: 'Please input your phone number!' },
-            { pattern: /^\d{10}$/, message: 'Please enter a valid 10-digit phone number' }
-          ]}
+          name="username"
+          rules={[{ required: true, message: 'Please input your username!' }]}
         >
-          <Input
-            prefix={<Phone size={16} />}
-            placeholder="Phone Number (e.g. 9999999999)"
-            maxLength={10}
-          />
+          <Input prefix={<User size={16} />} placeholder="Username" />
         </Form.Item>
         <Form.Item
           name="password"
           rules={[{ required: true, message: 'Please input your password!' }]}
         >
-          <Input.Password prefix={<Lock size={16} />} placeholder="Password (e.g. admin)" />
+          <Input.Password prefix={<Lock size={16} />} placeholder="Password" />
         </Form.Item>
         <Form.Item>
           <Button type="primary" htmlType="submit" block>

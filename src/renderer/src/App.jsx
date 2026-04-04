@@ -3,6 +3,7 @@ import { Moon, Sun } from 'lucide-react'
 import { useState } from 'react'
 import { Route, HashRouter as Router, Routes, useLocation, useNavigate } from 'react-router-dom'
 import { useFeatureConfig } from './context/featureConfigContext'
+import { useAuth } from './context/authContext'
 import logo from './assets/logo.png'
 import iconlogo from './assets/icon-logo.png'
 import './assets/main.css'
@@ -59,6 +60,7 @@ function AppLayout({ collapsed, setCollapsed, isDark, setIsDark }) {
   const navigate = useNavigate()
   const location = useLocation()
   const { getFilteredRoutes } = useFeatureConfig()
+  const { isAuthenticated } = useAuth()
   const { isOpen, panelHeight } = useDevPanel()
 
   // Map path to menu key
@@ -69,8 +71,10 @@ function AppLayout({ collapsed, setCollapsed, isDark, setIsDark }) {
     '/backup': '4'
   }
 
-  // Filter routes based on feature configuration
-  const visibleRoutes = getFilteredRoutes(ROUTES)
+  // Filter routes based on feature configuration and auth
+  const visibleRoutes = getFilteredRoutes(ROUTES).filter(
+    (r) => !r.requiresAuth || isAuthenticated
+  )
   return (
     <Layout style={{ minHeight: '100vh' }}>
       <Sider

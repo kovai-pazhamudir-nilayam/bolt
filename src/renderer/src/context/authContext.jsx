@@ -13,17 +13,17 @@ export const useAuth = () => {
 
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null)
+  const [previewRole, setPreviewRole] = useState(null)
   // Hardcoded credentials
-  const HARDCODED_PHONE = '9999999999'
-  const HARDCODED_PASSWORD = 'admin'
+  const HARDCODED_USERNAME = '9731203535'
+  const HARDCODED_PASSWORD = 'P@ssw0rd@100'
 
-  const login = (phone, password) => {
+  const login = (username, password) => {
     return new Promise((resolve, reject) => {
-      // Simulate validation
-      if (phone === HARDCODED_PHONE && password === HARDCODED_PASSWORD) {
+      if (username === HARDCODED_USERNAME && password === HARDCODED_PASSWORD) {
         const fakeUser = {
           name: 'Admin User',
-          phone: phone,
+          username: username,
           role: 'admin'
         }
         setUser(fakeUser)
@@ -46,7 +46,9 @@ export const AuthProvider = ({ children }) => {
     user,
     isAuthenticated,
     login,
-    logout
+    logout,
+    previewRole,
+    setPreviewRole
   }
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>

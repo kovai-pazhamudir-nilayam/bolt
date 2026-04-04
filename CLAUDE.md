@@ -80,6 +80,26 @@ Every new feature requires all five pieces wired together:
 - **Environment dropdown** — always use `EnvironmentSelection` (`src/renderer/src/components/EnvironmentSelection.jsx`); never build a raw `Select` with manual fetching
 - To react to company/environment selection changes, use `Form.useWatch('company_code', form)` (or `'env_code'`) in a `useEffect` — `SelectFormItem` does not forward `onChange`
 
+## Page File Structure
+
+Every page folder (`src/renderer/src/pages/<FeaturePage>/`) must be split as follows:
+
+- **`<FeaturePage>.jsx`** — the main page component only; imports blocks and wires them together. No inline component definitions here.
+- **`_blocks/`** — one file per sub-component used exclusively by this page (e.g. `_blocks/SomeModal.jsx`, `_blocks/SomeTable.jsx`)
+- **`<featurePage>.helpers.js`** — pure helper functions, constants, and data (e.g. `ACCESS_OPTIONS`, label maps, mock response functions). **No JSX** — keep this a plain `.js` file; move any icon/element rendering into the block components.
+
+Example layout:
+```
+pages/FeatureConfigPage/
+  FeatureConfigPage.jsx          ← main page (thin, imports blocks)
+  featureConfig.helpers.js       ← constants + pure functions
+  _blocks/
+    FeatureTable.jsx
+    AddFeatureModal.jsx
+    AppPreviewModal.jsx
+    ConfigAssistant.jsx
+```
+
 ## UI Conventions
 
 - **Never set `zIndex` on individual Antd components** (Modal, Drawer, Tooltip, etc.) — `zIndexPopupBase: 9999` is set globally in `src/renderer/src/theme/theme.js` for both themes; the sidebar uses `zIndex: 1001` so the global token must stay above that

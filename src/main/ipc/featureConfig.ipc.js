@@ -9,17 +9,20 @@ export const registerFeatureConfigHandler = (ipcMain, configDb) => {
   }
 
   async function getFeatureConfigsByType(event, featureType) {
-    return configDb.knex('feature_config').where({ feature_type: featureType }).orderBy('feature_name')
+    return configDb
+      .knex('feature_config')
+      .where({ feature_type: featureType })
+      .orderBy('feature_name')
   }
 
   async function upsertFeatureConfig(event, input) {
-    const { 
-      feature_key, 
-      feature_name, 
-      feature_type, 
-      access_level, 
-      description, 
-      is_superadmin_only 
+    const {
+      feature_key,
+      feature_name,
+      feature_type,
+      access_level,
+      description,
+      is_superadmin_only
     } = input
 
     return configDb
@@ -45,11 +48,19 @@ export const registerFeatureConfigHandler = (ipcMain, configDb) => {
   }
 
   async function updateFeatureConfigAccessLevel(event, { featureKey, accessLevel }) {
+    return configDb.knex('feature_config').where({ feature_key: featureKey }).update({
+      access_level: accessLevel,
+      updated_at: configDb.knex.fn.now()
+    })
+  }
+
+  async function updateRoleAccess(event, { featureKey, role, access }) {
+    const column = role === 'editor' ? 'editor_access' : 'viewer_access'
     return configDb
       .knex('feature_config')
       .where({ feature_key: featureKey })
       .update({
-        access_level: accessLevel,
+        [column]: access,
         updated_at: configDb.knex.fn.now()
       })
   }
@@ -60,12 +71,10 @@ export const registerFeatureConfigHandler = (ipcMain, configDb) => {
 
   async function resetFeatureConfigs(event) {
     // Reset all feature configs to default 'write' access level
-    return configDb
-      .knex('feature_config')
-      .update({
-        access_level: 'write',
-        updated_at: configDb.knex.fn.now()
-      })
+    return configDb.knex('feature_config').update({
+      access_level: 'write',
+      updated_at: configDb.knex.fn.now()
+    })
   }
 
   async function getSuperadminFeatures() {
@@ -80,6 +89,7 @@ export const registerFeatureConfigHandler = (ipcMain, configDb) => {
   ipcMain.handle('feature-config:getByType', getFeatureConfigsByType)
   ipcMain.handle('feature-config:upsert', upsertFeatureConfig)
   ipcMain.handle('feature-config:updateAccessLevel', updateFeatureConfigAccessLevel)
+  ipcMain.handle('feature-config:updateRoleAccess', updateRoleAccess)
   ipcMain.handle('feature-config:delete', deleteFeatureConfig)
   ipcMain.handle('feature-config:reset', resetFeatureConfigs)
   ipcMain.handle('feature-config:getSuperadminFeatures', getSuperadminFeatures)

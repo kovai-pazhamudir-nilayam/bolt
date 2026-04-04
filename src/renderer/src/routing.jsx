@@ -174,6 +174,7 @@ export const ROUTES = [
     label: 'Feature Config',
     path: '/feature-config',
     icon: Shield,
+    requiresAuth: true,
     element: <FeatureConfigPage />
   },
   {

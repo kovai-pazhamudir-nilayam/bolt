@@ -18,6 +18,10 @@ const featureConfigAPI = {
   updateFeatureConfigAccessLevel: (featureKey, accessLevel) =>
     ipcRenderer.invoke('feature-config:updateAccessLevel', { featureKey, accessLevel }),
 
+  // Update per-role access (role: 'editor' | 'viewer', access: 'edit' | 'view' | 'hidden')
+  updateRoleAccess: (featureKey, role, access) =>
+    ipcRenderer.invoke('feature-config:updateRoleAccess', { featureKey, role, access }),
+
   // Delete feature configuration
   deleteFeatureConfig: (featureKey) => ipcRenderer.invoke('feature-config:delete', featureKey),
 
