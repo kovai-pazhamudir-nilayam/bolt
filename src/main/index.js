@@ -19,6 +19,7 @@ import { registerDBSecretsHandler } from './ipc/dbSecrets.ipc'
 import { registerSavedDbQueryHandler } from './ipc/savedDbQuery.ipc'
 import { registerApiCollectionHandler } from './ipc/apiCollection.ipc.js'
 import { registerDbBackupHandler } from './ipc/dbBackup.ipc.js'
+import { registerKanbanTaskHandler } from './ipc/kanbanTask.ipc.js'
 
 function createWindow() {
   // Get the primary display dimensions
@@ -127,6 +128,7 @@ app.whenReady().then(async () => {
   registerSavedDbQueryHandler(ipcMain, configDb)
   registerApiCollectionHandler(ipcMain, configDb)
   registerDbBackupHandler(ipcMain, configDb)
+  registerKanbanTaskHandler(ipcMain, configDb)
   console.log('[Main] IPC handlers registered, creating window')
 
   createWindow()

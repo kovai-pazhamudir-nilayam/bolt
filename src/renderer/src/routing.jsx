@@ -141,7 +141,7 @@ export const ROUTES = [
   {
     label: 'Tasks',
     path: '/task-list',
-    hideInMenu: true,
+    hideInMenu: false,
     icon: ListCheck,
     element: <TaskListPage />
   },
