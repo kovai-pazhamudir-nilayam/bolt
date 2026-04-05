@@ -16,6 +16,7 @@ import { savedDbQueryAPI } from './savedDbQuery.preload'
 import { apiCollectionAPI } from './apiCollection.preload'
 import { dbBackupAPI } from './dbBackup.preload'
 import { kanbanTaskAPI } from './kanbanTask.preload'
+import { fileAPI } from './file.preload'
 
 if (process.contextIsolated) {
   try {
@@ -36,6 +37,7 @@ if (process.contextIsolated) {
     contextBridge.exposeInMainWorld('apiCollectionAPI', apiCollectionAPI)
     contextBridge.exposeInMainWorld('dbBackupAPI', dbBackupAPI)
     contextBridge.exposeInMainWorld('kanbanTaskAPI', kanbanTaskAPI)
+    contextBridge.exposeInMainWorld('fileAPI', fileAPI)
   } catch (error) {
     console.error('Error exposing APIs:', error)
   }
@@ -57,4 +59,5 @@ if (process.contextIsolated) {
   window.apiCollectionAPI = apiCollectionAPI
   window.dbBackupAPI = dbBackupAPI
   window.kanbanTaskAPI = kanbanTaskAPI
+  window.fileAPI = fileAPI
 }

@@ -190,7 +190,7 @@ function AppLayout({ collapsed, setCollapsed, isDark, setIsDark }) {
         </Layout.Footer>
       </Layout>
       <CommandPalette ROUTES={ROUTES} />
-      <BottomPanel siderWidth={collapsed ? 80 : 200} />
+      {/* <BottomPanel siderWidth={collapsed ? 80 : 200} /> */}
     </Layout>
   )
 }

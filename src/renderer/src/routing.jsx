@@ -12,7 +12,8 @@ import {
   Shield,
   Ticket,
   ToolCase,
-  User
+  User,
+  Workflow
 } from 'lucide-react'
 import Base64Page from './pages/Base64Page/Base64Page'
 import ConnectPostgresPage from './pages/ConnectPostgresPage/ConnectPostgresPage'
@@ -36,6 +37,7 @@ import JsonFormatterPage from './pages/JsonFormatterPage/JsonFormatterPage'
 import ToolsPage from './pages/ToolsPage/ToolsPage'
 import UserProfilePage from './pages/UserProfilePage/UserProfilePage'
 import WelcomePage from './pages/WelcomePage/WelcomePage'
+import WorkflowPage from './pages/WorkflowPage/WorkflowPage'
 
 export const ROUTES = [
   {
@@ -169,6 +171,12 @@ export const ROUTES = [
     path: '/os-ticket',
     icon: Ticket,
     element: <OsTicketPage />
+  },
+  {
+    label: 'Workflow',
+    path: '/workflow',
+    icon: Workflow,
+    element: <WorkflowPage />
   },
   {
     label: 'Feature Config',
