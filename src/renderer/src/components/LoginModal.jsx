@@ -1,8 +1,8 @@
-import { Modal, Form, Input, Button } from 'antd'
+import { Button, Form, Input, Modal, Typography } from 'antd'
 import { Lock, User } from 'lucide-react'
 import { useAuth } from '../context/authContext'
 
-const LoginModal = ({ open, onClose }) => {
+const LoginModal = ({ onClose }) => {
   const { login } = useAuth()
   const [form] = Form.useForm()
 
@@ -22,8 +22,22 @@ const LoginModal = ({ open, onClose }) => {
     }
   }
 
+  //
   return (
-    <Modal title="Admin Login" open={open} onCancel={onClose} footer={null} destroyOnHidden>
+    <Modal
+      title={
+        <div style={{ display: 'flex', flexDirection: 'column' }}>
+          <Typography.Title style={{ marginBottom: 0 }} level={4}>
+            Admin Login
+          </Typography.Title>
+          <Typography.Text>Special config login</Typography.Text>
+        </div>
+      }
+      open={true}
+      onCancel={onClose}
+      footer={null}
+      destroyOnHidden
+    >
       <Form
         form={form}
         name="login_form"

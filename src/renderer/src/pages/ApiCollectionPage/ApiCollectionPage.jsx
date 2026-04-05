@@ -15,10 +15,9 @@ import {
   Typography,
   Upload
 } from 'antd'
-import { ArrowLeft, FileUp, Play, Plus, Trash2, X } from 'lucide-react'
+import { Check, ChevronDown, ChevronRight, Copy, FileUp, Pencil, Play, Plus, Trash2, X } from 'lucide-react'
 import { Highlight, themes } from 'prism-react-renderer'
 import { useEffect, useMemo, useRef, useState } from 'react'
-import EntityTable from '../../components/EntityTable'
 import PageHeader from '../../components/PageHeader/PageHeader'
 import SubmitBtnForm from '../../components/SubmitBtnForm'
 import withNotification from '../../hoc/withNotification'
@@ -306,6 +305,62 @@ const CodeEditor = ({ value, onChange }) => {
 
 // ─── detail panel (right side) ───────────────────────────────────────────────
 
+// ─── copy hook ───────────────────────────────────────────────────────────────
+
+function useCopy() {
+  const [copied, setCopied] = useState(false)
+  const copy = (text) => {
+    navigator.clipboard.writeText(text)
+    setCopied(true)
+    setTimeout(() => setCopied(false), 1500)
+  }
+  return [copied, copy]
+}
+
+// ─── collapsible section ──────────────────────────────────────────────────────
+
+const CollapsibleSection = ({ label, count, children, defaultOpen = true }) => {
+  const [open, setOpen] = useState(defaultOpen)
+  return (
+    <div style={{ marginBottom: 4 }}>
+      <button
+        onClick={() => setOpen((v) => !v)}
+        style={{
+          display: 'flex',
+          alignItems: 'center',
+          gap: 4,
+          background: 'none',
+          border: 'none',
+          cursor: 'pointer',
+          padding: '4px 0',
+          marginBottom: open ? 6 : 0,
+          outline: 'none',
+          width: '100%',
+          textAlign: 'left'
+        }}
+      >
+        {open ? (
+          <ChevronDown size={12} style={{ opacity: 0.5, flexShrink: 0 }} />
+        ) : (
+          <ChevronRight size={12} style={{ opacity: 0.5, flexShrink: 0 }} />
+        )}
+        <Typography.Text
+          type="secondary"
+          style={{ fontSize: 11, letterSpacing: '0.05em', userSelect: 'none' }}
+        >
+          {label}
+        </Typography.Text>
+        {count != null && (
+          <Typography.Text type="secondary" style={{ fontSize: 11, opacity: 0.6 }}>
+            ({count})
+          </Typography.Text>
+        )}
+      </button>
+      {open && children}
+    </div>
+  )
+}
+
 const TAB_STYLE = (active) => ({
   padding: '8px 14px',
   cursor: 'pointer',
@@ -343,6 +398,8 @@ const HeadersTable = ({ headers }) => {
 
 const DetailPanel = ({ result }) => {
   const [tab, setTab] = useState('response')
+  const [respCopied, copyResp] = useCopy()
+  const [bodyCopied, copyBody] = useCopy()
 
   useEffect(() => {
     setTab('response')
@@ -426,12 +483,12 @@ const DetailPanel = ({ result }) => {
           padding: '0 8px'
         }}
       >
-        {['response', 'headers', 'request'].map((t) => (
+        {['response', 'headers', 'body'].map((t) => (
           <button key={t} style={TAB_STYLE(tab === t)} onClick={() => setTab(t)}>
             {t.charAt(0).toUpperCase() + t.slice(1)}
-            {t === 'headers' && result.responseHeaders && (
+            {t === 'headers' && (
               <span style={{ marginLeft: 4, fontSize: 11, opacity: 0.6 }}>
-                ({Object.keys(result.responseHeaders).length})
+                ({reqHeaders.length + Object.keys(result.responseHeaders || {}).length})
               </span>
             )}
           </button>
@@ -440,56 +497,94 @@ const DetailPanel = ({ result }) => {
 
       {/* Content */}
       <div style={{ flex: 1, overflowY: 'auto', padding: '0 16px' }}>
-        {tab === 'response' &&
-          (isError ? (
-            <div style={{ padding: '16px 0' }}>
-              <Typography.Text type="danger" style={{ fontFamily: 'monospace' }}>
-                {result.error}
-              </Typography.Text>
-            </div>
-          ) : (
-            <JsonViewer content={result.body || ''} />
-          ))}
-        {tab === 'headers' && (
-          <div style={{ paddingTop: 12 }}>
-            <HeadersTable headers={result.responseHeaders} />
+        {tab === 'response' && (
+          <div>
+            {!isError && result.body && (
+              <div style={{ display: 'flex', justifyContent: 'flex-end', paddingTop: 8 }}>
+                <Tooltip title={respCopied ? 'Copied!' : 'Copy response'}>
+                  <Button
+                    type="text"
+                    size="small"
+                    icon={respCopied ? <Check size={13} /> : <Copy size={13} />}
+                    onClick={() => copyResp(result.body)}
+                    style={{ color: respCopied ? '#52c41a' : undefined }}
+                  />
+                </Tooltip>
+              </div>
+            )}
+            {isError ? (
+              <div style={{ padding: '16px 0' }}>
+                <Typography.Text type="danger" style={{ fontFamily: 'monospace' }}>
+                  {result.error}
+                </Typography.Text>
+              </div>
+            ) : (
+              <JsonViewer content={result.body || ''} />
+            )}
           </div>
         )}
-        {tab === 'request' && (
+        {tab === 'headers' && (
           <div style={{ paddingTop: 12 }}>
-            <div style={{ fontFamily: 'monospace', fontSize: 12, marginBottom: 12 }}>
-              <span style={{ color: '#d19a66', fontWeight: 600 }}>
-                {result.requestSnapshot?.method}
-              </span>
-              {'  '}
-              <span style={{ color: '#98c379' }}>{result.requestSnapshot?.url}</span>
-            </div>
-            {reqHeaders.length > 0 && (
-              <>
-                <Typography.Text
-                  type="secondary"
-                  style={{ fontSize: 11, display: 'block', marginBottom: 6 }}
-                >
-                  HEADERS
-                </Typography.Text>
+            <CollapsibleSection label="REQUEST HEADERS" count={reqHeaders.length}>
+              {reqHeaders.length > 0 ? (
                 <HeadersTable
                   headers={Object.fromEntries(reqHeaders.map((h) => [h.key, h.value]))}
                 />
-              </>
-            )}
-            {result.requestSnapshot?.body && (
-              <>
-                <Typography.Text
-                  type="secondary"
-                  style={{ fontSize: 11, display: 'block', margin: '12px 0 4px' }}
-                >
-                  BODY
+              ) : (
+                <Typography.Text type="secondary" style={{ fontSize: 12 }}>
+                  No request headers
                 </Typography.Text>
-                <JsonViewer content={result.requestSnapshot.body} />
-              </>
-            )}
-            {!reqHeaders.length && !result.requestSnapshot?.body && (
-              <Typography.Text type="secondary">No headers or body sent</Typography.Text>
+              )}
+            </CollapsibleSection>
+            <div style={{ marginTop: 16 }}>
+              <CollapsibleSection
+                label="RESPONSE HEADERS"
+                count={Object.keys(result.responseHeaders || {}).length}
+              >
+                {result.responseHeaders && Object.keys(result.responseHeaders).length > 0 ? (
+                  <HeadersTable headers={result.responseHeaders} />
+                ) : (
+                  <Typography.Text type="secondary" style={{ fontSize: 12 }}>
+                    No response headers
+                  </Typography.Text>
+                )}
+              </CollapsibleSection>
+            </div>
+          </div>
+        )}
+        {tab === 'body' && (
+          <div style={{ paddingTop: 12 }}>
+            <div
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                marginBottom: 12,
+                gap: 8
+              }}
+            >
+              <div style={{ fontFamily: 'monospace', fontSize: 12, flex: 1 }}>
+                <span style={{ color: '#d19a66', fontWeight: 600 }}>
+                  {result.requestSnapshot?.method}
+                </span>
+                {'  '}
+                <span style={{ color: '#98c379' }}>{result.requestSnapshot?.url}</span>
+              </div>
+              {result.requestSnapshot?.body && (
+                <Tooltip title={bodyCopied ? 'Copied!' : 'Copy body'}>
+                  <Button
+                    type="text"
+                    size="small"
+                    icon={bodyCopied ? <Check size={13} /> : <Copy size={13} />}
+                    onClick={() => copyBody(result.requestSnapshot.body)}
+                    style={{ color: bodyCopied ? '#52c41a' : undefined, flexShrink: 0 }}
+                  />
+                </Tooltip>
+              )}
+            </div>
+            {result.requestSnapshot?.body ? (
+              <JsonViewer content={result.requestSnapshot.body} />
+            ) : (
+              <Typography.Text type="secondary">No body sent</Typography.Text>
             )}
           </div>
         )}
@@ -568,7 +663,7 @@ const StatItem = ({ label, value }) => (
   </div>
 )
 
-const RunView = ({ record, onBack }) => {
+const RunView = ({ record }) => {
   const [phase, setPhase] = useState('idle')
   const [delay, setDelay] = useState(0)
   const [csvData, setCsvData] = useState(null)
@@ -658,35 +753,7 @@ const RunView = ({ record, onBack }) => {
   const selectedResult = results.find((r) => r._key === selectedKey) || null
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', height: 'calc(100vh - 80px)' }}>
-      {/* Top bar */}
-      <div
-        style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 14, flexShrink: 0 }}
-      >
-        <Button icon={<ArrowLeft size={14} />} onClick={onBack}>
-          Back
-        </Button>
-        <Tag color={METHOD_COLORS[record.method]} style={{ margin: 0 }}>
-          {record.method}
-        </Tag>
-        <Typography.Text strong style={{ fontSize: 14 }}>
-          {record.title}
-        </Typography.Text>
-        <Typography.Text
-          type="secondary"
-          style={{
-            fontFamily: 'monospace',
-            fontSize: 12,
-            flex: 1,
-            overflow: 'hidden',
-            textOverflow: 'ellipsis',
-            whiteSpace: 'nowrap'
-          }}
-        >
-          {record.url}
-        </Typography.Text>
-      </div>
-
+    <div style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
       {/* Controls */}
       <div
         style={{
@@ -854,28 +921,67 @@ const RunView = ({ record, onBack }) => {
   )
 }
 
-// ─── collection table columns ────────────────────────────────────────────────
+// ─── sidebar entry item ───────────────────────────────────────────────────────
 
-const getColumns = () => [
-  { title: 'Title', dataIndex: 'title', key: 'title' },
-  {
-    title: 'Method',
-    dataIndex: 'method',
-    key: 'method',
-    width: 90,
-    render: (method) => <Tag color={METHOD_COLORS[method] || 'default'}>{method}</Tag>
-  },
-  {
-    title: 'URL',
-    dataIndex: 'url',
-    key: 'url',
-    render: (url) => (
-      <Typography.Text ellipsis={{ tooltip: url }} style={{ maxWidth: 400 }}>
-        {url}
+const EntryListItem = ({ entry, selected, onSelect, onEdit, onDelete }) => (
+  <div
+    onClick={() => onSelect(entry)}
+    style={{
+      padding: '9px 12px',
+      cursor: 'pointer',
+      borderBottom: '1px solid rgba(0,0,0,0.06)',
+      borderLeft: `3px solid ${selected ? '#1677ff' : 'transparent'}`,
+      background: selected ? 'rgba(22,119,255,0.06)' : 'transparent',
+      transition: 'background 0.1s'
+    }}
+  >
+    <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 3 }}>
+      <Tag
+        color={METHOD_COLORS[entry.method] || 'default'}
+        style={{ margin: 0, fontSize: 10, lineHeight: '16px', padding: '0 5px' }}
+      >
+        {entry.method}
+      </Tag>
+      <Typography.Text
+        style={{ flex: 1, fontSize: 12, fontWeight: 500, minWidth: 0 }}
+        ellipsis={{ tooltip: entry.title }}
+      >
+        {entry.title}
       </Typography.Text>
-    )
-  }
-]
+      <Space size={0} onClick={(e) => e.stopPropagation()}>
+        <Tooltip title="Edit">
+          <Button
+            type="text"
+            size="small"
+            icon={<Pencil size={12} />}
+            onClick={() => onEdit(entry)}
+          />
+        </Tooltip>
+        <Tooltip title="Delete">
+          <Button
+            type="text"
+            size="small"
+            danger
+            icon={<Trash2 size={12} />}
+            onClick={() => onDelete(entry)}
+          />
+        </Tooltip>
+      </Space>
+    </div>
+    <Typography.Text
+      type="secondary"
+      style={{
+        fontSize: 11,
+        display: 'block',
+        overflow: 'hidden',
+        textOverflow: 'ellipsis',
+        whiteSpace: 'nowrap'
+      }}
+    >
+      {entry.url}
+    </Typography.Text>
+  </div>
+)
 
 // ─── curl import section ──────────────────────────────────────────────────────
 
@@ -1044,10 +1150,10 @@ const EditModal = ({ record, onCancel, onFinish }) => {
 
 // ─── page ─────────────────────────────────────────────────────────────────────
 
-const ApiCollectionPageWOC = ({ renderSuccessNotification, renderErrorNotification }) => {
+const ApiCollectionPageWOC = ({ renderSuccessNotification }) => {
   const [entries, setEntries] = useState([])
   const [editingRecord, setEditingRecord] = useState(null)
-  const [runRecord, setRunRecord] = useState(null)
+  const [selectedEntry, setSelectedEntry] = useState(null)
   const [searchText, setSearchText] = useState('')
   const [loading, setLoading] = useState(false)
 
@@ -1063,6 +1169,7 @@ const ApiCollectionPageWOC = ({ renderSuccessNotification, renderErrorNotificati
 
   const handleDelete = async (record) => {
     await apiCollectionRepo.delete(record.id)
+    if (selectedEntry?.id === record.id) setSelectedEntry(null)
     loadData()
     renderSuccessNotification({ message: 'Request deleted' })
   }
@@ -1074,29 +1181,109 @@ const ApiCollectionPageWOC = ({ renderSuccessNotification, renderErrorNotificati
     renderSuccessNotification({ message: `Request ${values.id ? 'updated' : 'saved'}` })
   }
 
-  if (runRecord) {
-    return <RunView record={runRecord} onBack={() => setRunRecord(null)} />
-  }
+  const filteredEntries = entries.filter(
+    (e) =>
+      !searchText ||
+      e.title?.toLowerCase().includes(searchText.toLowerCase()) ||
+      e.url?.toLowerCase().includes(searchText.toLowerCase())
+  )
 
   return (
-    <>
+    <div style={{ display: 'flex', flexDirection: 'column', height: '100vh', overflow: 'hidden' }}>
       <PageHeader
         title="API Collection"
         description="Save and run HTTP requests with iteration support. Import from cURL to get started quickly."
       />
-      <EntityTable
-        rowKey="id"
-        data={entries}
-        columns={getColumns()}
-        loading={loading}
-        onAdd={() => setEditingRecord({})}
-        onEdit={(r) => setEditingRecord(r)}
-        onDelete={handleDelete}
-        searchText={searchText}
-        onSearchChange={(e) => setSearchText(e.target.value)}
-        emptyText="No requests saved. Click 'Add New' or import a cURL command."
-        extraActions={[{ text: 'Run', icon: Play, onClick: (r) => setRunRecord(r) }]}
-      />
+      <div style={{ display: 'flex', flex: 1, overflow: 'hidden' }}>
+        {/* Left sidebar */}
+        <div
+          style={{
+            width: 280,
+            flexShrink: 0,
+            borderRight: '1px solid rgba(0,0,0,0.1)',
+            display: 'flex',
+            flexDirection: 'column',
+            overflow: 'hidden'
+          }}
+        >
+          {/* Sidebar header */}
+          <div
+            style={{
+              padding: '10px 10px',
+              borderBottom: '1px solid rgba(0,0,0,0.06)',
+              display: 'flex',
+              gap: 8,
+              flexShrink: 0
+            }}
+          >
+            <Input
+              placeholder="Search requests..."
+              value={searchText}
+              onChange={(e) => setSearchText(e.target.value)}
+              size="small"
+              style={{ flex: 1 }}
+              allowClear
+            />
+            <Tooltip title="New request">
+              <Button
+                type="primary"
+                size="small"
+                icon={<Plus size={14} />}
+                onClick={() => setEditingRecord({})}
+              />
+            </Tooltip>
+          </div>
+
+          {/* Entry list */}
+          <div style={{ flex: 1, overflowY: 'auto' }}>
+            {loading ? (
+              <div style={{ padding: 16, textAlign: 'center' }}>
+                <Typography.Text type="secondary" style={{ fontSize: 12 }}>
+                  Loading…
+                </Typography.Text>
+              </div>
+            ) : filteredEntries.length === 0 ? (
+              <div style={{ padding: 16, textAlign: 'center' }}>
+                <Typography.Text type="secondary" style={{ fontSize: 12 }}>
+                  {searchText ? 'No matches' : 'No requests yet. Click + to add one.'}
+                </Typography.Text>
+              </div>
+            ) : (
+              filteredEntries.map((entry) => (
+                <EntryListItem
+                  key={entry.id}
+                  entry={entry}
+                  selected={selectedEntry?.id === entry.id}
+                  onSelect={setSelectedEntry}
+                  onEdit={setEditingRecord}
+                  onDelete={handleDelete}
+                />
+              ))
+            )}
+          </div>
+        </div>
+
+        {/* Right pane */}
+        <div style={{ flex: 1, overflow: 'hidden', padding: '16px 20px' }}>
+          {selectedEntry ? (
+            <RunView key={selectedEntry.id} record={selectedEntry} />
+          ) : (
+            <div
+              style={{
+                height: '100%',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center'
+              }}
+            >
+              <Typography.Text type="secondary">
+                ← Select a request from the list to run it
+              </Typography.Text>
+            </div>
+          )}
+        </div>
+      </div>
+
       {editingRecord !== null && (
         <EditModal
           record={editingRecord}
@@ -1104,7 +1291,7 @@ const ApiCollectionPageWOC = ({ renderSuccessNotification, renderErrorNotificati
           onFinish={handleFinish}
         />
       )}
-    </>
+    </div>
   )
 }
 

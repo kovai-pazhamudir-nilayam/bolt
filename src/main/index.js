@@ -41,7 +41,7 @@ function createWindow() {
       webviewTag: true,
       nodeIntegration: false,
       contextIsolation: true,
-      devTools: is.dev // Enable devTools for both dev and prod for now, can be gated behind env variable if needed
+      devTools: true
     }
   })
 

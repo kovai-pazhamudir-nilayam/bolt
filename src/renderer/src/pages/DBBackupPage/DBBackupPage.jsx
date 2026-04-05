@@ -9,7 +9,6 @@ import {
   InputNumber,
   Modal,
   Row,
-  Select,
   Space,
   Table,
   Tabs,
@@ -35,7 +34,8 @@ const getColumns = (records) => {
     key,
     ellipsis: true,
     width: 140,
-    render: (val) => (val === null || val === undefined ? <Text type="secondary">null</Text> : String(val))
+    render: (val) =>
+      val === null || val === undefined ? <Text type="secondary">null</Text> : String(val)
   }))
 }
 
@@ -176,7 +176,10 @@ const DBBackupPage = ({ renderSuccessNotification, renderErrorNotification }) =>
     setSaving(false)
     manualForm.resetFields()
     setModalOpen(false)
-    renderSuccessNotification({ message: 'Record created', description: `Inserted into ${manualTable}` })
+    renderSuccessNotification({
+      message: 'Record created',
+      description: `Inserted into ${manualTable}`
+    })
     loadManualRecords(manualTable)
   }
 
@@ -200,18 +203,39 @@ const DBBackupPage = ({ renderSuccessNotification, renderErrorNotification }) =>
           onClick={handleExport}
         >
           Download JSON
-          {selectedTables.length > 0 && ` (${selectedTables.length} tables · ${totalSelectedRecords} rows)`}
+          {selectedTables.length > 0 &&
+            ` (${selectedTables.length} tables · ${totalSelectedRecords} rows)`}
         </Button>
       }
     >
       <Row gutter={16}>
         {/* Table list */}
         <Col span={6}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
+          <div
+            style={{
+              display: 'flex',
+              justifyContent: 'space-between',
+              alignItems: 'center',
+              marginBottom: 8
+            }}
+          >
             <Text strong>Tables</Text>
-            <Button type="link" size="small" loading={loadingTables} icon={<RefreshCw size={12} />} onClick={loadTables} />
+            <Button
+              type="link"
+              size="small"
+              loading={loadingTables}
+              icon={<RefreshCw size={12} />}
+              onClick={loadTables}
+            />
           </div>
-          <div style={{ border: '1px solid #d9d9d9', borderRadius: 6, maxHeight: 420, overflowY: 'auto' }}>
+          <div
+            style={{
+              border: '1px solid #d9d9d9',
+              borderRadius: 6,
+              maxHeight: 420,
+              overflowY: 'auto'
+            }}
+          >
             {tables.map((name) => (
               <div
                 key={name}
@@ -243,8 +267,12 @@ const DBBackupPage = ({ renderSuccessNotification, renderErrorNotification }) =>
             ))}
           </div>
           <Space style={{ marginTop: 8 }}>
-            <Button size="small" onClick={handleSelectAll}>Select All</Button>
-            <Button size="small" onClick={() => setSelectedTables([])}>Clear</Button>
+            <Button size="small" onClick={handleSelectAll}>
+              Select All
+            </Button>
+            <Button size="small" onClick={() => setSelectedTables([])}>
+              Clear
+            </Button>
           </Space>
         </Col>
 
@@ -254,7 +282,9 @@ const DBBackupPage = ({ renderSuccessNotification, renderErrorNotification }) =>
             <>
               <div style={{ display: 'flex', alignItems: 'center', marginBottom: 8, gap: 8 }}>
                 <Text strong>{activeTable}</Text>
-                <Tag>{activeSelection.records.length} / {activeRecords.length} rows selected</Tag>
+                <Tag>
+                  {activeSelection.records.length} / {activeRecords.length} rows selected
+                </Tag>
                 <Button
                   size="small"
                   onClick={() =>
@@ -365,9 +395,12 @@ const DBBackupPage = ({ renderSuccessNotification, renderErrorNotification }) =>
 
   const renderField = (col) => {
     const type = col.type.toUpperCase()
-    if (type.includes('INT')) return <InputNumber style={{ width: '100%' }} placeholder={col.dflt_value ?? ''} />
+    if (type.includes('INT'))
+      return <InputNumber style={{ width: '100%' }} placeholder={col.dflt_value ?? ''} />
     if (type.includes('REAL') || type.includes('FLOAT') || type.includes('NUMERIC'))
-      return <InputNumber step={0.01} style={{ width: '100%' }} placeholder={col.dflt_value ?? ''} />
+      return (
+        <InputNumber step={0.01} style={{ width: '100%' }} placeholder={col.dflt_value ?? ''} />
+      )
     const longNames = ['content', 'description', 'body', 'notes', 'text', 'message', 'query']
     if (longNames.some((f) => col.name.toLowerCase().includes(f)))
       return <Input.TextArea rows={3} placeholder={col.dflt_value ?? ''} />
@@ -379,11 +412,31 @@ const DBBackupPage = ({ renderSuccessNotification, renderErrorNotification }) =>
       <Row gutter={16}>
         {/* Table list */}
         <Col span={6}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
+          <div
+            style={{
+              display: 'flex',
+              justifyContent: 'space-between',
+              alignItems: 'center',
+              marginBottom: 8
+            }}
+          >
             <Text strong>Tables</Text>
-            <Button type="link" size="small" loading={loadingTables} icon={<RefreshCw size={12} />} onClick={loadTables} />
+            <Button
+              type="link"
+              size="small"
+              loading={loadingTables}
+              icon={<RefreshCw size={12} />}
+              onClick={loadTables}
+            />
           </div>
-          <div style={{ border: '1px solid #d9d9d9', borderRadius: 6, maxHeight: 480, overflowY: 'auto' }}>
+          <div
+            style={{
+              border: '1px solid #d9d9d9',
+              borderRadius: 6,
+              maxHeight: 480,
+              overflowY: 'auto'
+            }}
+          >
             {tables.map((name) => (
               <div
                 key={name}
@@ -406,7 +459,14 @@ const DBBackupPage = ({ renderSuccessNotification, renderErrorNotification }) =>
         <Col span={18}>
           {manualTable ? (
             <>
-              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12 }}>
+              <div
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'space-between',
+                  marginBottom: 12
+                }}
+              >
                 <Space>
                   <Text strong>{manualTable}</Text>
                   <Tag>{manualRecords.length} records</Tag>
@@ -415,7 +475,10 @@ const DBBackupPage = ({ renderSuccessNotification, renderErrorNotification }) =>
                   type="primary"
                   icon={<Plus size={14} />}
                   disabled={loadingSchema || schema.filter((c) => !isAutoCol(c)).length === 0}
-                  onClick={() => { manualForm.resetFields(); setModalOpen(true) }}
+                  onClick={() => {
+                    manualForm.resetFields()
+                    setModalOpen(true)
+                  }}
                 >
                   Add New Record
                 </Button>
@@ -458,7 +521,12 @@ const DBBackupPage = ({ renderSuccessNotification, renderErrorNotification }) =>
         destroyOnClose
       >
         {schema.filter((c) => !isAutoCol(c)).length > 0 ? (
-          <Form form={manualForm} layout="vertical" onFinish={handleManualSave} style={{ marginTop: 8 }}>
+          <Form
+            form={manualForm}
+            layout="vertical"
+            onFinish={handleManualSave}
+            style={{ marginTop: 8 }}
+          >
             {schema
               .filter((col) => !isAutoCol(col))
               .map((col) => (
@@ -479,7 +547,9 @@ const DBBackupPage = ({ renderSuccessNotification, renderErrorNotification }) =>
             <Form.Item style={{ marginBottom: 0, textAlign: 'right' }}>
               <Space>
                 <Button onClick={() => setModalOpen(false)}>Cancel</Button>
-                <Button type="primary" htmlType="submit" loading={saving}>Save Record</Button>
+                <Button type="primary" htmlType="submit" loading={saving}>
+                  Save Record
+                </Button>
               </Space>
             </Form.Item>
           </Form>
@@ -492,7 +562,10 @@ const DBBackupPage = ({ renderSuccessNotification, renderErrorNotification }) =>
 
   return (
     <div>
-      <PageHeader title="DB Backup" description="Export selected tables and records to JSON, or restore from a backup file." />
+      <PageHeader
+        title="DB Backup"
+        description="Export selected tables and records to JSON, or restore from a backup file."
+      />
       <Tabs
         defaultActiveKey="export"
         items={[

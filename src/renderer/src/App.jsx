@@ -1,24 +1,22 @@
-import { Button, ConfigProvider, Layout, Menu, notification } from 'antd'
-import { Moon, Sun } from 'lucide-react'
-import { useState } from 'react'
+import { ConfigProvider, Layout, Menu, notification } from 'antd'
+import { useState, useEffect } from 'react'
 import { Route, HashRouter as Router, Routes, useLocation, useNavigate } from 'react-router-dom'
-import { useFeatureConfig } from './context/featureConfigContext'
-import { useAuth } from './context/authContext'
-import logo from './assets/logo.png'
 import iconlogo from './assets/icon-logo.png'
+import logo from './assets/logo.png'
 import './assets/main.css'
+import { useAuth } from './context/authContext'
+import { useFeatureConfig } from './context/featureConfigContext'
 import { ROUTES } from './routing'
 // import Versions from './components/Versions'
-import Footer from './components/Footer'
-import CommandPalette from './components/CommandPalette/CommandPalette'
-import { NotificationContext } from './context/notificationContext'
-import { FeatureConfigProvider } from './context/featureConfigContext'
-import { AuthProvider } from './context/authContext'
-import { darkTheme, lightTheme } from './theme/theme'
-import NavigationBar from './components/NavigationBar'
 import BottomPanel from './components/BottomPanel/BottomPanel'
+import CommandPalette from './components/CommandPalette/CommandPalette'
+import NavigationBar from './components/NavigationBar'
+import { AuthProvider } from './context/authContext'
 import { DevPanelProvider } from './context/devPanelContext'
+import { FeatureConfigProvider } from './context/featureConfigContext'
+import { NotificationContext } from './context/notificationContext'
 import { useDevPanel } from './context/useDevPanel'
+import { darkTheme, lightTheme } from './theme/theme'
 // Custom theme tokens for menu states
 // const menuAccent = '#f67373'
 const { Header, Content, Sider } = Layout
@@ -26,7 +24,11 @@ const { Header, Content, Sider } = Layout
 function App() {
   const [api, contextHolder] = notification.useNotification()
   const [collapsed, setCollapsed] = useState(false)
-  const [isDark, setIsDark] = useState(false)
+  const [isDark, setIsDark] = useState(() => localStorage.getItem('bolt_theme') === 'dark')
+
+  useEffect(() => {
+    localStorage.setItem('bolt_theme', isDark ? 'dark' : 'light')
+  }, [isDark])
 
   // Merge custom menu accent color into theme
   const customTheme = isDark ? darkTheme : lightTheme
@@ -72,9 +74,7 @@ function AppLayout({ collapsed, setCollapsed, isDark, setIsDark }) {
   }
 
   // Filter routes based on feature configuration and auth
-  const visibleRoutes = getFilteredRoutes(ROUTES).filter(
-    (r) => !r.requiresAuth || isAuthenticated
-  )
+  const visibleRoutes = getFilteredRoutes(ROUTES).filter((r) => !r.requiresAuth || isAuthenticated)
   return (
     <Layout style={{ minHeight: '100vh' }}>
       <Sider
@@ -122,7 +122,6 @@ function AppLayout({ collapsed, setCollapsed, isDark, setIsDark }) {
             color: isDark ? '#fff' : '#000',
             display: 'flex',
             alignItems: 'center',
-            justifyContent: 'space-between',
             position: 'fixed',
             top: 0,
             left: collapsed ? 80 : 200,
@@ -132,23 +131,7 @@ function AppLayout({ collapsed, setCollapsed, isDark, setIsDark }) {
             padding: '0 16px'
           }}
         >
-          <NavigationBar />
-          <Button
-            type="text"
-            shape="circle"
-            onClick={() => setIsDark((d) => !d)}
-            style={{
-              width: 36,
-              height: 36,
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              color: isDark ? '#fff' : '#000'
-            }}
-            aria-label="Toggle theme"
-          >
-            {isDark ? <Sun size={18} /> : <Moon size={18} />}
-          </Button>
+          <NavigationBar isDark={isDark} setIsDark={setIsDark} />
         </Header>
         <Content
           style={{
@@ -186,11 +169,10 @@ function AppLayout({ collapsed, setCollapsed, isDark, setIsDark }) {
             padding: 8
           }}
         >
-          {<Footer />}
+          <BottomPanel siderWidth={collapsed ? 80 : 200} />
         </Layout.Footer>
       </Layout>
       <CommandPalette ROUTES={ROUTES} />
-      {/* <BottomPanel siderWidth={collapsed ? 80 : 200} /> */}
     </Layout>
   )
 }
