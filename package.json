@@ -5,7 +5,11 @@
   "description": "An Electron application with React",
   "main": "./out/main/index.js",
   "author": "example.com",
-  "homepage": "https://electron-vite.org",
+  "homepage": "https://kovai-pazhamudir-nilayam.github.io/bolt/",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/kovai-pazhamudir-nilayam/bolt"
+  },
   "scripts": {
     "format": "prettier --write .",
     "lint": "eslint --cache .",
@@ -24,12 +28,19 @@
     "migrate:down": "npm run knex -- migrate:down --knexfile ./src/main/database/knexfile.js"
   },
   "build": {
+    "publish": [
+      {
+        "provider": "github"
+      }
+    ],
+    "appId": "com.bolt.app",
     "icon": "resources/icon.png",
     "mac": {
       "icon": "resources/icon.icns"
     },
     "win": {
-      "icon": "resources/icon.ico"
+      "icon": "resources/icon.ico",
+      "target": "nsis"
     },
     "linux": {
       "icon": "resources/icon.png"

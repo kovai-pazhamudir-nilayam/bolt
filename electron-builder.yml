@@ -1,5 +1,5 @@
 appId: com.bolt.app
-productName: bolt
+productName: Bolt
 
 directories:
   buildResources: build
@@ -16,6 +16,7 @@ asarUnpack:
 
 win:
   executableName: bolt
+  target: nsis   # ✅ IMPORTANT
 
 nsis:
   artifactName: Bolt-${version}-setup.${ext}
@@ -28,31 +29,26 @@ mac:
   target:
     - target: dmg
       arch:
-        - universal
+        - arm64
     - target: zip
       arch:
-        - universal
+        - arm64
   hardenedRuntime: false
   gatekeeperAssess: false
   entitlementsInherit: build/entitlements.mac.plist
-  extendInfo:
-    - NSCameraUsageDescription: Application requests access to the device’s camera.
-    - NSMicrophoneUsageDescription: Application requests access to the device’s microphone.
-    - NSDocumentsFolderUsageDescription: Application requests access to the user’s Documents folder.
-    - NSDownloadsFolderUsageDescription: Application requests access to the user’s Downloads folder.
 
 dmg:
-  artifactName: Bolt-${version}-universal.dmg
+  artifactName: Bolt-${version}-arm64.dmg
 
 zip:
-  artifactName: Bolt-${version}-universal-mac.zip
-
+  artifactName: Bolt-${version}-arm64-mac.zip
 
 npmRebuild: true
 
 publish:
-  provider: generic
-  url: https://example.com/auto-updates
+  provider: github   # ✅ FIXED
+  owner: kovai-pazhamudir-nilayam
+  repo: bolt
 
 electronDownload:
   mirror: https://npmmirror.com/mirrors/electron/

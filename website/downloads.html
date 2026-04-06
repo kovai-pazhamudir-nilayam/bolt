@@ -235,7 +235,7 @@
       <div>
         <div class="platform-icon">🍎</div>
         <div class="platform-name" style="margin-top:0.5rem">macOS</div>
-        <div class="platform-detail">Universal — Apple Silicon &amp; Intel</div>
+        <div class="platform-detail">Apple Silicon (arm64) · Intel via Rosetta 2</div>
       </div>
       <div class="btn-group">
         <a id="mac-dmg-btn" class="dl-btn dl-btn-primary" href="#" download>
@@ -387,7 +387,7 @@
 
 <script>
   // ── CONFIG: set your GitHub repo here ─────────────────────────────────────
-  const GITHUB_OWNER = 'YOUR_GITHUB_USERNAME'
+  const GITHUB_OWNER = 'kovai-pazhamudir-nilayam'
   const GITHUB_REPO  = 'bolt'
   // ──────────────────────────────────────────────────────────────────────────
 
@@ -469,8 +469,8 @@
     const find = (patterns) =>
       assets.find(a => patterns.some(p => a.name.toLowerCase().includes(p)))
 
-    const macDmg        = find(['universal.dmg'])
-    const macZip        = find(['universal-mac.zip'])
+    const macDmg        = find(['arm64.dmg'])
+    const macZip        = find(['arm64-mac.zip'])
     const winExe        = find(['-setup.exe'])
     setDownloadBtn('mac-dmg-btn', macDmg, `${REPO_BASE}/releases/tag/${version}`)
     setDownloadBtn('mac-zip-btn', macZip, `${REPO_BASE}/releases/tag/${version}`)
