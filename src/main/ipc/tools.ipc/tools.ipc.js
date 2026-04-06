@@ -1,1 +1,1 @@
-export const registerToolsHandler = (_ipcMain) => {}
+export const registerToolsHandler = () => {}

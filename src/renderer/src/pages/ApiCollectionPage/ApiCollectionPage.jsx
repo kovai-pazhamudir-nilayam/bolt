@@ -1085,7 +1085,7 @@ const EditModal = ({ record, onCancel, onFinish }) => {
       form.setFieldsValue({ method: 'GET', headers: [] })
     }
     setActiveTab('manual')
-  }, [record])
+  }, [record, form])
 
   const handleParseCurl = (curlStr) => {
     const p = parseCurl(curlStr)

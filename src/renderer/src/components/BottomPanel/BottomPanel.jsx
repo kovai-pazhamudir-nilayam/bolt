@@ -19,7 +19,6 @@ const BottomPanel = ({ siderWidth = 0 }) => {
     isOpen,
     setIsOpen,
     activeTab,
-    setActiveTab,
     openTab,
     panelHeight = DEFAULT_HEIGHT,
     setPanelHeight,

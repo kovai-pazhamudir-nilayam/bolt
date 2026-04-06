@@ -183,6 +183,7 @@ const KeysManager = ({
   const [keyFilter, setKeyFilter] = useState('')
   const [bulkDeleteModalOpen, setBulkDeleteModalOpen] = useState(false)
   const [detailKey, setDetailKey] = useState(null)
+  const [expandedRowKeys, setExpandedRowKeys] = useState([])
 
   const parseKeys = (output) =>
     (output || '')

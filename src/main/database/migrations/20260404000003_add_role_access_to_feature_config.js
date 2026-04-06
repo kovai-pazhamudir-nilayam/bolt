@@ -6,6 +6,6 @@ exports.up = async function (knex) {
   await knex('feature_config').update({ editor_access: 'edit', viewer_access: 'view' })
 }
 
-exports.down = async function (knex) {
+exports.down = async function (_knex) {
   // SQLite does not support dropColumn natively; no-op for rollback
 }

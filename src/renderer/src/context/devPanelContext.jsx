@@ -1,3 +1,4 @@
+// eslint-disable-next-line react-refresh/only-export-components
 import { createContext, useCallback, useEffect, useState } from 'react'
 import { shellFactory } from '../repos/shell.repo'
 

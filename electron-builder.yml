@@ -6,6 +6,9 @@ directories:
 
 files:
   - '!**/.vscode/*'
+  - '!**/.claude/*'
+  - '!**/.continue/*'
+  - '!**/.cursor/*'
   - '!src/*'
   - '!electron.vite.config.{js,ts,mjs,cjs}'
   - '!{.eslintcache,eslint.config.mjs,.prettierignore,.prettierrc.yaml,dev-app-update.yml,CHANGELOG.md,README.md}'
@@ -29,19 +32,21 @@ mac:
   target:
     - target: dmg
       arch:
+        - x64
         - arm64
     - target: zip
       arch:
+        - x64
         - arm64
   hardenedRuntime: false
   gatekeeperAssess: false
   entitlementsInherit: build/entitlements.mac.plist
 
 dmg:
-  artifactName: Bolt-${version}-arm64.dmg
+  artifactName: Bolt-${version}-${arch}.dmg
 
 zip:
-  artifactName: Bolt-${version}-arm64-mac.zip
+  artifactName: Bolt-${version}-${arch}.zip
 
 npmRebuild: true
 

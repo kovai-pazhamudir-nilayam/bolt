@@ -2,7 +2,6 @@ import { Button, Col, Flex, Form, Input, Radio, Row, Select } from 'antd'
 import { useEffect, useState } from 'react'
 import withNotification from '../../../hoc/withNotification'
 import { settingsFactory } from '../../../repos/SettingsPage.repo'
-import FastifyWhiteIcon from '../../../assets/fastify-white.svg'
 import FastifyBlackIcon from '../../../assets/fastify-black.svg'
 import NestIcon from '../../../assets/nestjs-logo.svg'
 import { githubSettingsPageFactory } from '../../../repos/githubSettingsPage.repo'
@@ -67,7 +66,6 @@ const AddGithubRepoTabWOC = ({ renderErrorNotification, renderSuccessNotificatio
         message: error.message || 'Failed to sync repositories'
       })
     } finally {
-      setRepoForAccess(null)
       setLoading(false)
     }
   }

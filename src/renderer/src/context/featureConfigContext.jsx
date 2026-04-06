@@ -1,4 +1,5 @@
-import React, { createContext, useContext, useState, useEffect } from 'react'
+// eslint-disable-next-line react-refresh/only-export-components
+import { createContext, useContext, useState, useEffect } from 'react'
 
 const FeatureConfigContext = createContext()
 
@@ -13,7 +14,7 @@ export const useFeatureConfig = () => {
 export const FeatureConfigProvider = ({ children }) => {
   const [featureConfigs, setFeatureConfigs] = useState([])
   const [loading, setLoading] = useState(false)
-  const [isSuperadmin, setIsSuperadmin] = useState(false)
+  const [isSuperadmin] = useState(false)
   const [superadminMode, setSuperadminMode] = useState(false)
 
   // Load all feature configurations

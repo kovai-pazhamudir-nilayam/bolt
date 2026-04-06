@@ -3,15 +3,16 @@ name: Build & Release
 on:
   push:
     tags:
-      - "v*.*.*" # trigger on version tags
-  workflow_dispatch: # manual trigger
+      - "v*.*.*"
+  workflow_dispatch:
 
 permissions:
   contents: write
 
 jobs:
+
   # ─────────────────────────────────────────────
-  # 🍏 macOS Build
+  # 🍏 macOS Build (x64 + arm64)
   # ─────────────────────────────────────────────
   build-mac:
     runs-on: macos-latest
@@ -32,12 +33,13 @@ jobs:
       - name: Rebuild native modules
         run: npx electron-builder install-app-deps
 
-      - name: Build macOS
+      # 🔥 Build BOTH architectures
+      - name: Build macOS (x64 + arm64)
         env:
           CSC_IDENTITY_AUTO_DISCOVERY: false
         run: |
           npx electron-vite build
-          npx electron-builder --mac --publish never
+          npx electron-builder --mac --x64 --arm64 --publish never
 
       - name: Debug dist folder (mac)
         run: ls -lh dist
@@ -47,10 +49,13 @@ jobs:
         with:
           name: artifacts-mac
           path: |
-            dist/*.dmg
-            dist/*.zip
+            dist/*-x64.dmg
+            dist/*-arm64.dmg
+            dist/*-x64.zip
+            dist/*-arm64.zip
             dist/*.yml
           if-no-files-found: error
+
 
   # ─────────────────────────────────────────────
   # 🪟 Windows Build
@@ -71,7 +76,6 @@ jobs:
       - name: Install dependencies
         run: npm install
 
-      # Fix for rollup native issue
       - name: Install Rollup Windows binary
         shell: bash
         run: npm install --no-save "@rollup/rollup-win32-x64-msvc@$(node -p "require('./node_modules/rollup/package.json').version")"
@@ -97,6 +101,7 @@ jobs:
             dist/*.exe
             dist/*.yml
           if-no-files-found: error
+
 
   # ─────────────────────────────────────────────
   # 🚀 GitHub Release

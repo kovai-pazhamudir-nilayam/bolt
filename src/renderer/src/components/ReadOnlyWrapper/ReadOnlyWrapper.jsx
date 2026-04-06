@@ -1,5 +1,5 @@
-import React from 'react'
-import { Alert, Space, Lock } from 'lucide-react'
+import { Alert } from 'antd'
+import { Lock } from 'lucide-react'
 
 const ReadOnlyWrapper = ({ 
   children, 

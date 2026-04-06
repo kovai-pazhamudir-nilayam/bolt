@@ -11,7 +11,7 @@ const schema = {
 };
 
 function TEMPLATE_TASK_NAME(fastify) {
-  return async ({ body, logTrace }) => {
+  return async ({ body, logTrace: _logTrace }) => {
     fastify.validateSchema({
       schema,
       data: body,

@@ -69,7 +69,7 @@ export const registerFeatureConfigHandler = (ipcMain, configDb) => {
     return configDb.knex('feature_config').where({ feature_key: featureKey }).del()
   }
 
-  async function resetFeatureConfigs(event) {
+  async function resetFeatureConfigs(_event) {
     // Reset all feature configs to default 'write' access level
     return configDb.knex('feature_config').update({
       access_level: 'write',

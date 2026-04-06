@@ -8,7 +8,7 @@ const {
 */
 
 function TEMPLATE_Repo(fastify) {
-  async function SAMPLE_GET_CALL({ logTrace, input }) {
+  async function SAMPLE_GET_CALL({ logTrace, input: _input }) {
     const auth = await getAuthToken("PLATFORM");
     const response = await fastify.request({
       url: `${fastify.config.CORE_SAMPLE_URI}/v1/sample/get-call`,

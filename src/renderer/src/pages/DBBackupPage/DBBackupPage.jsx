@@ -39,7 +39,7 @@ const getColumns = (records) => {
   }))
 }
 
-const DBBackupPage = ({ renderSuccessNotification, renderErrorNotification }) => {
+const DBBackupPage = ({ renderSuccessNotification }) => {
   const [tables, setTables] = useState([])
   const [loadingTables, setLoadingTables] = useState(false)
 
