@@ -17,6 +17,7 @@ import {
 } from 'antd'
 import { Check, ChevronDown, ChevronRight, Copy, FileUp, Pencil, Play, Plus, Trash2, X } from 'lucide-react'
 import { Highlight, themes } from 'prism-react-renderer'
+import { useVirtualizer } from '@tanstack/react-virtual'
 import { useEffect, useMemo, useRef, useState } from 'react'
 import PageHeader from '../../components/PageHeader/PageHeader'
 import SubmitBtnForm from '../../components/SubmitBtnForm'
@@ -668,6 +669,8 @@ const RunView = ({ record }) => {
   const [delay, setDelay] = useState(0)
   const [csvData, setCsvData] = useState(null)
   const [results, setResults] = useState([])
+  const resultsAccRef = useRef([])
+  const flushTimerRef = useRef(null)
   const [selectedKey, setSelectedKey] = useState(null)
   const [filter, setFilter] = useState('all')
   const [totalDuration, setTotalDuration] = useState(0)
@@ -698,11 +701,18 @@ const RunView = ({ record }) => {
   const handleRun = async () => {
     setPhase('running')
     setResults([])
+    resultsAccRef.current = []
+    if (flushTimerRef.current) clearInterval(flushTimerRef.current)
     setSelectedKey(null)
     setFilter('all')
     const runStart = Date.now()
 
     const reqs = csvData.rows.map((row, i) => ({ idx: i, vars: row, label: `Row ${i + 1}` }))
+
+    // Flush accumulated results to state at most every 200ms to avoid O(n²) re-renders
+    flushTimerRef.current = setInterval(() => {
+      setResults(resultsAccRef.current.slice())
+    }, 200)
 
     for (let i = 0; i < reqs.length; i++) {
       const req = reqs[i]
@@ -718,39 +728,49 @@ const RunView = ({ record }) => {
         iterations: 1
       })
 
-      setResults((prev) => {
-        const next = [
-          ...prev,
-          {
-            ...res,
-            _key: req.idx,
-            label: req.label,
-            title: record.title,
-            rowData: req.vars,
-            requestSnapshot: {
-              url: sub.url,
-              method: record.method,
-              headers: sub.headers,
-              body: sub.body
-            }
-          }
-        ]
-        if (next.length === 1) setSelectedKey(0)
-        return next
+      resultsAccRef.current.push({
+        ...res,
+        _key: req.idx,
+        label: req.label,
+        title: record.title,
+        rowData: req.vars,
+        requestSnapshot: {
+          url: sub.url,
+          method: record.method,
+          headers: sub.headers,
+          body: sub.body
+        }
       })
+      if (resultsAccRef.current.length === 1) setSelectedKey(0)
     }
 
+    clearInterval(flushTimerRef.current)
+    flushTimerRef.current = null
+    // Final flush with stable reference
+    const finalResults = resultsAccRef.current.slice()
+    setResults(finalResults)
     setTotalDuration(Date.now() - runStart)
     setPhase('done')
   }
 
-  const filteredResults = results.filter((r) => {
-    if (filter === 'success') return !r.error && r.status >= 200 && r.status < 300
-    if (filter === 'failed') return r.error || (r.status && r.status >= 400)
-    return true
-  })
+  const filteredResults = useMemo(() => {
+    if (filter === 'success') return results.filter((r) => !r.error && r.status >= 200 && r.status < 300)
+    if (filter === 'failed') return results.filter((r) => r.error || (r.status && r.status >= 400))
+    return results
+  }, [results, filter])
 
-  const selectedResult = results.find((r) => r._key === selectedKey) || null
+  const selectedResult = useMemo(
+    () => (selectedKey != null ? results.find((r) => r._key === selectedKey) ?? null : null),
+    [results, selectedKey]
+  )
+
+  const resultListRef = useRef(null)
+  const rowVirtualizer = useVirtualizer({
+    count: filteredResults.length,
+    getScrollElement: () => resultListRef.current,
+    estimateSize: () => 58,
+    overscan: 10
+  })
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
@@ -891,8 +911,9 @@ const RunView = ({ record }) => {
               borderRadius: 6
             }}
           >
-            {/* Left: result list */}
+            {/* Left: result list — virtualised */}
             <div
+              ref={resultListRef}
               style={{
                 width: 360,
                 flexShrink: 0,
@@ -900,14 +921,29 @@ const RunView = ({ record }) => {
                 borderRight: '1px solid rgba(0,0,0,0.08)'
               }}
             >
-              {filteredResults.map((result) => (
-                <ResultListItem
-                  key={result._key}
-                  result={result}
-                  selected={selectedKey === result._key}
-                  onClick={() => setSelectedKey(result._key)}
-                />
-              ))}
+              <div style={{ height: rowVirtualizer.getTotalSize(), position: 'relative' }}>
+                {rowVirtualizer.getVirtualItems().map((vRow) => {
+                  const result = filteredResults[vRow.index]
+                  return (
+                    <div
+                      key={result._key}
+                      style={{
+                        position: 'absolute',
+                        top: 0,
+                        left: 0,
+                        width: '100%',
+                        transform: `translateY(${vRow.start}px)`
+                      }}
+                    >
+                      <ResultListItem
+                        result={result}
+                        selected={selectedKey === result._key}
+                        onClick={() => setSelectedKey(result._key)}
+                      />
+                    </div>
+                  )
+                })}
+              </div>
             </div>
 
             {/* Right: detail */}
