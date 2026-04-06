@@ -109,8 +109,8 @@ export const ROUTES = [
     element: <GithubSettingsPage />
   },
   {
-    label: 'DB Query',
-    path: '/db-Query',
+    label: 'Saved DB Query',
+    path: '/saved-db-query',
     icon: DatabaseZap,
     element: <SavedDBQueryPage />
   },
