@@ -15,7 +15,18 @@ import {
   Typography,
   Upload
 } from 'antd'
-import { Check, ChevronDown, ChevronRight, Copy, FileUp, Pencil, Play, Plus, Trash2, X } from 'lucide-react'
+import {
+  Check,
+  ChevronDown,
+  ChevronRight,
+  Copy,
+  FileUp,
+  Pencil,
+  Play,
+  Plus,
+  Trash2,
+  X
+} from 'lucide-react'
 import { Highlight, themes } from 'prism-react-renderer'
 import { useVirtualizer } from '@tanstack/react-virtual'
 import { useEffect, useMemo, useRef, useState } from 'react'
@@ -754,13 +765,14 @@ const RunView = ({ record }) => {
   }
 
   const filteredResults = useMemo(() => {
-    if (filter === 'success') return results.filter((r) => !r.error && r.status >= 200 && r.status < 300)
+    if (filter === 'success')
+      return results.filter((r) => !r.error && r.status >= 200 && r.status < 300)
     if (filter === 'failed') return results.filter((r) => r.error || (r.status && r.status >= 400))
     return results
   }, [results, filter])
 
   const selectedResult = useMemo(
-    () => (selectedKey != null ? results.find((r) => r._key === selectedKey) ?? null : null),
+    () => (selectedKey != null ? (results.find((r) => r._key === selectedKey) ?? null) : null),
     [results, selectedKey]
   )
 

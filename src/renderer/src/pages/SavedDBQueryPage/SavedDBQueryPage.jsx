@@ -42,7 +42,12 @@ const QueryListItem = ({ query, selected, onSelect, onEdit, onDelete }) => (
       </Text>
       <Space size={0} onClick={(e) => e.stopPropagation()} style={{ flexShrink: 0 }}>
         <Tooltip title="Edit">
-          <Button type="text" size="small" icon={<Edit2 size={13} />} onClick={() => onEdit(query)} />
+          <Button
+            type="text"
+            size="small"
+            icon={<Edit2 size={13} />}
+            onClick={() => onEdit(query)}
+          />
         </Tooltip>
         <Popconfirm title="Delete this query?" onConfirm={() => onDelete(query.id)}>
           <Button type="text" size="small" danger icon={<Trash2 size={13} />} />
@@ -70,7 +75,7 @@ const QueryListItem = ({ query, selected, onSelect, onEdit, onDelete }) => (
   </div>
 )
 
-const SavedDBQueryPageWOC = ({ renderErrorNotification, renderSuccessNotification }) => {
+const SavedDBQueryPageWOC = ({ renderSuccessNotification }) => {
   const [loading, setLoading] = useState(false)
   const [datasource, setDatasource] = useState({
     companies: [],
@@ -92,7 +97,12 @@ const SavedDBQueryPageWOC = ({ renderErrorNotification, renderSuccessNotificatio
       dbSecretsRepo.getAll(),
       savedDbQueryRepo.getAll()
     ])
-    setDatasource({ companies: allCompanies, environments: allEnvironments, allDbSecrets, savedQueries })
+    setDatasource({
+      companies: allCompanies,
+      environments: allEnvironments,
+      allDbSecrets,
+      savedQueries
+    })
     setLoading(false)
   }, [])
 
@@ -106,7 +116,7 @@ const SavedDBQueryPageWOC = ({ renderErrorNotification, renderSuccessNotificatio
       const updated = datasource.savedQueries.find((q) => q.id === selectedQuery.id)
       if (updated) setSelectedQuery(updated)
     }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [datasource.savedQueries])
 
   const filteredQueries = useMemo(() => {
@@ -176,7 +186,6 @@ const SavedDBQueryPageWOC = ({ renderErrorNotification, renderSuccessNotificatio
 
   return (
     <div style={{ display: 'flex', height: PAGE_HEIGHT, overflow: 'hidden' }}>
-
       {/* ── Left panel: query list ── */}
       <div
         style={{
@@ -190,9 +199,24 @@ const SavedDBQueryPageWOC = ({ renderErrorNotification, renderSuccessNotificatio
         }}
       >
         {/* Header */}
-        <div style={{ padding: '12px 12px 8px', borderBottom: '1px solid rgba(0,0,0,0.06)', flexShrink: 0 }}>
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 8 }}>
-            <Text strong style={{ fontSize: 13 }}>Saved DB Queries</Text>
+        <div
+          style={{
+            padding: '12px 12px 8px',
+            borderBottom: '1px solid rgba(0,0,0,0.06)',
+            flexShrink: 0
+          }}
+        >
+          <div
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'space-between',
+              marginBottom: 8
+            }}
+          >
+            <Text strong style={{ fontSize: 13 }}>
+              Saved DB Queries
+            </Text>
             <Button
               type="primary"
               size="small"
@@ -238,11 +262,7 @@ const SavedDBQueryPageWOC = ({ renderErrorNotification, renderSuccessNotificatio
       {/* ── Right panel: run + results ── */}
       <div style={{ flex: 1, minWidth: 0, overflow: 'hidden', height: '100%' }}>
         {selectedQuery ? (
-          <RunPanel
-            key={selectedQuery.id}
-            query={selectedQuery}
-            datasource={datasource}
-          />
+          <RunPanel key={selectedQuery.id} query={selectedQuery} datasource={datasource} />
         ) : (
           <div
             style={{
@@ -256,7 +276,9 @@ const SavedDBQueryPageWOC = ({ renderErrorNotification, renderSuccessNotificatio
             }}
           >
             <Database size={40} strokeWidth={1} />
-            <Text type="secondary" style={{ fontSize: 13 }}>Select a query from the list</Text>
+            <Text type="secondary" style={{ fontSize: 13 }}>
+              Select a query from the list
+            </Text>
           </div>
         )}
       </div>

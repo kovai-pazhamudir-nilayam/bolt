@@ -13,7 +13,7 @@ const { coreConfigRepo } = settingsFactory()
 const columns = [
   { title: 'Company', dataIndex: 'company_code', key: 'company_code' },
   { title: 'Environment', dataIndex: 'env_code', key: 'env_code' },
-  { title: 'Base URL', dataIndex: 'base_url', key: 'base_url' },
+  { title: 'Core Base URL', dataIndex: 'base_url', key: 'base_url' },
   { title: 'Token API', dataIndex: 'auth_api', key: 'auth_api' },
   {
     title: 'Auth Key',

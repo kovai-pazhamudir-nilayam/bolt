@@ -37,11 +37,19 @@ const parsePsqlCsv = (output) => {
   const headers = lines[0].split(',')
   if (headers.length < 1) return null
 
-  const columns = headers.map((h) => ({ key: h, name: h, resizable: true, sortable: true, minWidth: 100 }))
+  const columns = headers.map((h) => ({
+    key: h,
+    name: h,
+    resizable: true,
+    sortable: true,
+    minWidth: 100
+  }))
   const dataSource = lines.slice(1).map((line, idx) => {
     const values = line.split(',')
     const row = { key: idx }
-    headers.forEach((h, i) => { row[h] = values[i] || '' })
+    headers.forEach((h, i) => {
+      row[h] = values[i] || ''
+    })
     return row
   })
 
@@ -88,7 +96,12 @@ const RunPanelWOC = ({ query, datasource, renderErrorNotification, renderSuccess
   const displayRows = useMemo(() => {
     let rows = queryResult?.dataSource || []
     Object.entries(filters).forEach(([key, val]) => {
-      if (val) rows = rows.filter((r) => String(r[key] ?? '').toLowerCase().includes(val.toLowerCase()))
+      if (val)
+        rows = rows.filter((r) =>
+          String(r[key] ?? '')
+            .toLowerCase()
+            .includes(val.toLowerCase())
+        )
     })
     if (sortColumns.length > 0) {
       const { columnKey, direction } = sortColumns[0]
@@ -113,7 +126,9 @@ const RunPanelWOC = ({ query, datasource, renderErrorNotification, renderSuccess
         db.environment === values.env_code
     )
     if (!dbSecret) {
-      renderErrorNotification({ message: `No DB secret for ${query.db_name} in selected environment.` })
+      renderErrorNotification({
+        message: `No DB secret for ${query.db_name} in selected environment.`
+      })
       setLoading(false)
       return
     }
@@ -179,19 +194,30 @@ const RunPanelWOC = ({ query, datasource, renderErrorNotification, renderSuccess
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
-
       {/* Query info */}
-      <div style={{ padding: '14px 16px 10px', borderBottom: '1px solid rgba(0,0,0,0.06)', flexShrink: 0 }}>
+      <div
+        style={{
+          padding: '14px 16px 10px',
+          borderBottom: '1px solid rgba(0,0,0,0.06)',
+          flexShrink: 0
+        }}
+      >
         <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 4 }}>
           <Title level={5} style={{ margin: 0, flex: 1, minWidth: 0 }} ellipsis>
             {query.title}
           </Title>
-          <Tag icon={<Database size={11} style={{ marginRight: 3 }} />} color="blue" style={{ flexShrink: 0 }}>
+          <Tag
+            icon={<Database size={11} style={{ marginRight: 3 }} />}
+            color="blue"
+            style={{ flexShrink: 0 }}
+          >
             {query.db_name} · {query.company_code}
           </Tag>
         </div>
         {query.description && (
-          <Text type="secondary" style={{ fontSize: 12 }}>{query.description}</Text>
+          <Text type="secondary" style={{ fontSize: 12 }}>
+            {query.description}
+          </Text>
         )}
         <div
           style={{
@@ -273,6 +299,7 @@ const RunPanelWOC = ({ query, datasource, renderErrorNotification, renderSuccess
             rowKeyGetter={(row) => row.key}
             sortColumns={sortColumns}
             onSortColumnsChange={setSortColumns}
+            headerRowHeight={56}
             defaultColumnOptions={{ resizable: true }}
             style={{ height: GRID_HEIGHT, blockSize: GRID_HEIGHT }}
           />
