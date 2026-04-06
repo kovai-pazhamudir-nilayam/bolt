@@ -1,0 +1,575 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Download Bolt — Developer Productivity Desktop App</title>
+  <style>
+    :root {
+      --bg: #0a0a0f;
+      --bg2: #111118;
+      --bg3: #18181f;
+      --border: rgba(255,255,255,0.07);
+      --accent: #6c63ff;
+      --accent2: #4ecdc4;
+      --accent3: #ff6b6b;
+      --text: #e8e8f0;
+      --muted: #8888aa;
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+    body {
+      background: var(--bg); color: var(--text);
+      font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+      line-height: 1.6; min-height: 100vh;
+    }
+
+    /* NAV */
+    nav {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+      background: rgba(10,10,15,0.85); backdrop-filter: blur(16px);
+      border-bottom: 1px solid var(--border);
+      padding: 0 2rem; height: 60px;
+      display: flex; align-items: center; justify-content: space-between;
+    }
+    .nav-logo {
+      font-size: 1.4rem; font-weight: 800; letter-spacing: -0.5px;
+      background: linear-gradient(135deg, #6c63ff, #4ecdc4);
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+      text-decoration: none;
+    }
+    .nav-links { display: flex; gap: 2rem; list-style: none; }
+    .nav-links a {
+      color: var(--muted); text-decoration: none; font-size: 0.9rem;
+      transition: color 0.2s;
+    }
+    .nav-links a:hover, .nav-links a.active { color: var(--text); }
+    .nav-links a.active { color: #fff; font-weight: 600; }
+
+    /* PAGE */
+    .page { max-width: 860px; margin: 0 auto; padding: 100px 2rem 6rem; }
+
+    /* HERO */
+    .dl-hero { text-align: center; margin-bottom: 4rem; }
+    .version-badge {
+      display: inline-flex; align-items: center; gap: 0.5rem;
+      background: rgba(108,99,255,0.12); border: 1px solid rgba(108,99,255,0.25);
+      border-radius: 100px; padding: 0.35rem 1rem; font-size: 0.78rem;
+      color: #a89fff; margin-bottom: 1.2rem; font-weight: 500;
+    }
+    .version-badge .dot { width: 6px; height: 6px; background: #4ecdc4; border-radius: 50%; }
+    .dl-hero h1 {
+      font-size: clamp(2rem, 5vw, 3.2rem); font-weight: 900;
+      letter-spacing: -1.5px; line-height: 1.1; margin-bottom: 0.8rem;
+      background: linear-gradient(135deg, #fff 30%, #a89fff 70%);
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+    }
+    .dl-hero p { color: var(--muted); font-size: 1.05rem; max-width: 500px; margin: 0 auto; }
+
+    /* PLATFORM CARDS */
+    .platforms { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 1rem; margin-bottom: 3rem; }
+    .platform-card {
+      background: var(--bg2); border: 1px solid var(--border); border-radius: 16px;
+      padding: 1.6rem; display: flex; flex-direction: column; gap: 1rem;
+      transition: border-color 0.2s, background 0.2s; position: relative; overflow: hidden;
+    }
+    .platform-card.recommended {
+      border-color: rgba(108,99,255,0.35);
+    }
+    .platform-card.recommended::before {
+      content: 'Recommended'; position: absolute; top: 12px; right: 12px;
+      font-size: 0.65rem; font-weight: 700; text-transform: uppercase; letter-spacing: 1px;
+      color: #a89fff; background: rgba(108,99,255,0.15);
+      border: 1px solid rgba(108,99,255,0.25); border-radius: 100px; padding: 2px 8px;
+    }
+    .platform-card:hover { background: var(--bg3); border-color: rgba(255,255,255,0.12); }
+    .platform-icon { font-size: 2rem; }
+    .platform-name { font-size: 1rem; font-weight: 700; }
+    .platform-detail { font-size: 0.82rem; color: var(--muted); }
+    .dl-btn {
+      display: flex; align-items: center; justify-content: center; gap: 0.5rem;
+      padding: 0.65rem 1rem; border-radius: 10px; font-size: 0.88rem;
+      font-weight: 600; cursor: pointer; text-decoration: none;
+      transition: opacity 0.2s, transform 0.15s; border: none;
+    }
+    .dl-btn:hover { opacity: 0.85; transform: translateY(-1px); }
+    .dl-btn-primary {
+      background: linear-gradient(135deg, #6c63ff, #5a52e0);
+      color: #fff; box-shadow: 0 4px 16px rgba(108,99,255,0.3);
+    }
+    .dl-btn-secondary {
+      background: transparent; color: var(--text);
+      border: 1px solid var(--border) !important;
+    }
+    .dl-btn-secondary:hover { border-color: rgba(255,255,255,0.2) !important; }
+    .dl-btn-disabled {
+      background: rgba(255,255,255,0.05); color: var(--muted);
+      cursor: not-allowed; opacity: 0.6;
+    }
+    .dl-btn-disabled:hover { transform: none; opacity: 0.6; }
+    .btn-group { display: flex; flex-direction: column; gap: 0.5rem; }
+
+    /* RELEASE NOTES */
+    .section-title {
+      font-size: 1.3rem; font-weight: 800; letter-spacing: -0.5px;
+      margin-bottom: 1rem; display: flex; align-items: center; gap: 0.6rem;
+    }
+    .release-card {
+      background: var(--bg2); border: 1px solid var(--border); border-radius: 14px;
+      overflow: hidden; margin-bottom: 1rem;
+    }
+    .release-header {
+      padding: 1rem 1.25rem; border-bottom: 1px solid var(--border);
+      display: flex; align-items: center; gap: 0.75rem; flex-wrap: wrap;
+    }
+    .release-tag {
+      font-size: 0.85rem; font-weight: 700; color: #fff;
+      background: linear-gradient(135deg, #6c63ff, #4ecdc4);
+      padding: 0.2rem 0.7rem; border-radius: 100px;
+    }
+    .release-date { font-size: 0.8rem; color: var(--muted); }
+    .release-latest {
+      font-size: 0.7rem; font-weight: 700; text-transform: uppercase; letter-spacing: 1px;
+      color: #4ecdc4; background: rgba(78,205,196,0.1);
+      border: 1px solid rgba(78,205,196,0.25); border-radius: 100px; padding: 2px 8px;
+    }
+    .release-body { padding: 1rem 1.25rem; }
+    .release-body ul { list-style: none; display: flex; flex-direction: column; gap: 0.4rem; }
+    .release-body li {
+      font-size: 0.88rem; color: var(--muted); display: flex; align-items: flex-start; gap: 0.5rem;
+    }
+    .release-body li::before { content: '→'; color: var(--accent); flex-shrink: 0; }
+
+    /* REQUIREMENTS */
+    .req-grid {
+      display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+      gap: 0.75rem; margin-top: 1rem;
+    }
+    .req-item {
+      background: var(--bg2); border: 1px solid var(--border); border-radius: 10px;
+      padding: 0.9rem 1rem;
+    }
+    .req-label { font-size: 0.72rem; text-transform: uppercase; letter-spacing: 1px; color: var(--muted); margin-bottom: 0.3rem; font-weight: 600; }
+    .req-val { font-size: 0.88rem; font-weight: 600; }
+
+    /* INSTALL STEPS */
+    .install-steps { display: flex; flex-direction: column; gap: 0.75rem; margin-top: 1rem; }
+    .install-step {
+      display: flex; align-items: flex-start; gap: 1rem;
+      background: var(--bg2); border: 1px solid var(--border); border-radius: 10px;
+      padding: 0.9rem 1rem;
+    }
+    .step-num {
+      width: 26px; height: 26px; border-radius: 50%; flex-shrink: 0;
+      background: rgba(108,99,255,0.15); border: 1px solid rgba(108,99,255,0.3);
+      color: #a89fff; font-size: 0.75rem; font-weight: 800;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .step-text { font-size: 0.88rem; color: var(--muted); padding-top: 3px; }
+    .step-text strong { color: var(--text); }
+
+    /* ALL RELEASES LINK */
+    .all-releases {
+      display: inline-flex; align-items: center; gap: 0.4rem;
+      color: var(--accent); text-decoration: none; font-size: 0.88rem;
+      font-weight: 600; margin-top: 0.75rem; transition: gap 0.2s;
+    }
+    .all-releases:hover { gap: 0.6rem; }
+
+    /* DIVIDER */
+    .divider { border: none; border-top: 1px solid var(--border); margin: 3rem 0; }
+
+    /* FOOTER */
+    footer { background: var(--bg2); border-top: 1px solid var(--border); padding: 2rem; text-align: center; }
+    .footer-logo {
+      font-size: 1.3rem; font-weight: 900; margin-bottom: 0.4rem;
+      background: linear-gradient(135deg, #6c63ff, #4ecdc4);
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+    }
+    footer p { color: var(--muted); font-size: 0.82rem; }
+
+    @media (max-width: 600px) {
+      .nav-links { display: none; }
+      .platforms { grid-template-columns: 1fr; }
+    }
+
+    ::-webkit-scrollbar { width: 6px; }
+    ::-webkit-scrollbar-track { background: var(--bg); }
+    ::-webkit-scrollbar-thumb { background: #333; border-radius: 3px; }
+
+    /* Loading state for dynamic version */
+    .version-loading { opacity: 0.5; }
+    @keyframes shimmer { 0%,100%{opacity:0.5} 50%{opacity:1} }
+    .shimmer { animation: shimmer 1.5s infinite; }
+  </style>
+</head>
+<body>
+
+<nav>
+  <a class="nav-logo" href="index.html">⚡ Bolt</a>
+  <ul class="nav-links">
+    <li><a href="index.html#features">Features</a></li>
+    <li><a href="index.html#how-to-use">How to Use</a></li>
+    <li><a href="downloads.html" class="active">Downloads</a></li>
+  </ul>
+  <a class="nav-cta" href="#mac" style="background:linear-gradient(135deg,#6c63ff,#4ecdc4);color:#fff;border:none;padding:0.5rem 1.2rem;border-radius:8px;font-size:0.85rem;cursor:pointer;text-decoration:none;font-weight:600;">↓ Download</a>
+</nav>
+
+<div class="page">
+
+  <!-- HERO -->
+  <div class="dl-hero">
+    <div class="version-badge">
+      <span class="dot"></span>
+      <span id="version-text" class="shimmer">Fetching latest release…</span>
+    </div>
+    <h1>Download Bolt</h1>
+    <p>Available for macOS, Windows, and Linux. Free for internal use.</p>
+  </div>
+
+  <!-- PLATFORM CARDS -->
+  <div class="platforms" id="mac">
+
+    <!-- macOS Universal -->
+    <div class="platform-card recommended">
+      <div>
+        <div class="platform-icon">🍎</div>
+        <div class="platform-name" style="margin-top:0.5rem">macOS</div>
+        <div class="platform-detail">Universal — Apple Silicon &amp; Intel</div>
+      </div>
+      <div class="btn-group">
+        <a id="mac-dmg-btn" class="dl-btn dl-btn-primary" href="#" download>
+          ↓ Download .dmg
+        </a>
+        <a id="mac-zip-btn" class="dl-btn dl-btn-secondary" href="#" download>
+          ↓ Download .zip
+        </a>
+      </div>
+    </div>
+
+    <!-- Windows -->
+    <div class="platform-card">
+      <div>
+        <div class="platform-icon">🪟</div>
+        <div class="platform-name" style="margin-top:0.5rem">Windows</div>
+        <div class="platform-detail">Windows 10 / 11 · x64</div>
+      </div>
+      <div class="btn-group">
+        <a id="win-btn" class="dl-btn dl-btn-primary" href="#" download>
+          ↓ Download .exe
+        </a>
+      </div>
+    </div>
+
+    <!-- Linux -->
+    <div class="platform-card">
+      <div>
+        <div class="platform-icon">🐧</div>
+        <div class="platform-name" style="margin-top:0.5rem">Linux</div>
+        <div class="platform-detail">AppImage · deb · snap</div>
+      </div>
+      <div class="btn-group">
+        <a id="linux-appimage-btn" class="dl-btn dl-btn-primary" href="#" download>
+          ↓ Download .AppImage
+        </a>
+        <a id="linux-deb-btn" class="dl-btn dl-btn-secondary" href="#" download>
+          ↓ Download .deb
+        </a>
+      </div>
+    </div>
+
+  </div>
+
+  <a id="all-releases-link" href="#" class="all-releases" target="_blank" rel="noopener">
+    View all releases on GitHub →
+  </a>
+
+  <hr class="divider" />
+
+  <!-- INSTALLATION -->
+  <div style="margin-bottom:2.5rem">
+    <div class="section-title">⚡ Installation</div>
+
+    <div style="display:flex;gap:1rem;flex-wrap:wrap;margin-bottom:1.5rem">
+      <button class="install-tab active" data-os="mac" onclick="switchOS(this,'mac')" style="padding:0.4rem 1rem;border-radius:100px;border:1px solid rgba(108,99,255,0.3);background:rgba(108,99,255,0.15);color:#a89fff;cursor:pointer;font-size:0.85rem;font-weight:600;">🍎 macOS</button>
+      <button class="install-tab" data-os="win" onclick="switchOS(this,'win')" style="padding:0.4rem 1rem;border-radius:100px;border:1px solid var(--border);background:transparent;color:var(--muted);cursor:pointer;font-size:0.85rem;font-weight:500;">🪟 Windows</button>
+      <button class="install-tab" data-os="linux" onclick="switchOS(this,'linux')" style="padding:0.4rem 1rem;border-radius:100px;border:1px solid var(--border);background:transparent;color:var(--muted);cursor:pointer;font-size:0.85rem;font-weight:500;">🐧 Linux</button>
+    </div>
+
+    <div id="steps-mac" class="install-steps">
+      <div class="install-step">
+        <div class="step-num">1</div>
+        <div class="step-text">Download the <strong>.dmg</strong> file above.</div>
+      </div>
+      <div class="install-step">
+        <div class="step-num">2</div>
+        <div class="step-text">Open the <strong>.dmg</strong> — drag <strong>Bolt.app</strong> into your Applications folder.</div>
+      </div>
+      <div class="install-step">
+        <div class="step-num">3</div>
+        <div class="step-text">On first launch, macOS may show a security warning. Go to <strong>System Settings → Privacy &amp; Security</strong> and click <strong>"Open Anyway"</strong>.</div>
+      </div>
+      <div class="install-step">
+        <div class="step-num">4</div>
+        <div class="step-text">Launch Bolt from Applications. On first run, the database will be initialised automatically.</div>
+      </div>
+    </div>
+
+    <div id="steps-win" class="install-steps" style="display:none">
+      <div class="install-step">
+        <div class="step-num">1</div>
+        <div class="step-text">Download the <strong>.exe</strong> installer above.</div>
+      </div>
+      <div class="install-step">
+        <div class="step-num">2</div>
+        <div class="step-text">Run the installer. Windows SmartScreen may warn — click <strong>"More info" → "Run anyway"</strong>.</div>
+      </div>
+      <div class="install-step">
+        <div class="step-num">3</div>
+        <div class="step-text">Follow the installation wizard. Bolt will be added to your Start Menu and Desktop.</div>
+      </div>
+      <div class="install-step">
+        <div class="step-num">4</div>
+        <div class="step-text">Launch Bolt. The local database initialises on first run.</div>
+      </div>
+    </div>
+
+    <div id="steps-linux" class="install-steps" style="display:none">
+      <div class="install-step">
+        <div class="step-num">1</div>
+        <div class="step-text">Download the <strong>.AppImage</strong> or <strong>.deb</strong> above.</div>
+      </div>
+      <div class="install-step">
+        <div class="step-num">2</div>
+        <div class="step-text">For AppImage: <strong>chmod +x Bolt-*.AppImage</strong> then run it directly — no install needed.</div>
+      </div>
+      <div class="install-step">
+        <div class="step-num">3</div>
+        <div class="step-text">For .deb: <strong>sudo dpkg -i bolt-*.deb</strong> to install system-wide.</div>
+      </div>
+      <div class="install-step">
+        <div class="step-num">4</div>
+        <div class="step-text">Make sure <strong>gcloud CLI</strong> and <strong>kubectl</strong> are installed and on your PATH for GCP features to work.</div>
+      </div>
+    </div>
+  </div>
+
+  <hr class="divider" />
+
+  <!-- REQUIREMENTS -->
+  <div style="margin-bottom:2.5rem">
+    <div class="section-title">🖥️ System Requirements</div>
+    <div class="req-grid">
+      <div class="req-item">
+        <div class="req-label">macOS</div>
+        <div class="req-val">macOS 11+ (Big Sur)</div>
+      </div>
+      <div class="req-item">
+        <div class="req-label">Windows</div>
+        <div class="req-val">Windows 10 / 11 x64</div>
+      </div>
+      <div class="req-item">
+        <div class="req-label">Linux</div>
+        <div class="req-val">Ubuntu 20.04+ / Debian</div>
+      </div>
+      <div class="req-item">
+        <div class="req-label">RAM</div>
+        <div class="req-val">4 GB minimum</div>
+      </div>
+      <div class="req-item">
+        <div class="req-label">Disk</div>
+        <div class="req-val">500 MB free space</div>
+      </div>
+      <div class="req-item">
+        <div class="req-label">GCP Features</div>
+        <div class="req-val">gcloud CLI + kubectl</div>
+      </div>
+    </div>
+  </div>
+
+  <hr class="divider" />
+
+  <!-- RELEASE NOTES -->
+  <div>
+    <div class="section-title">📋 Release Notes</div>
+
+    <div class="release-card">
+      <div class="release-header">
+        <span class="release-tag" id="rn-version">v1.0.0</span>
+        <span class="release-latest">Latest</span>
+        <span class="release-date" id="rn-date">—</span>
+      </div>
+      <div class="release-body">
+        <ul id="rn-body">
+          <li>Initial release</li>
+          <li>Postgres &amp; Redis via GCP jumpbox</li>
+          <li>Saved DB Queries with inline run panel</li>
+          <li>API Collection with virtual scrolling (2000+ requests)</li>
+          <li>Kanban Task Manager with reminders and audio tones</li>
+          <li>Workflow Builder — visual drag-and-drop node editor</li>
+          <li>Password Manager, Notes, GitHub Settings</li>
+          <li>Built-in Base64, JWT Decoder, JSON Formatter, Time Converter</li>
+        </ul>
+      </div>
+    </div>
+
+    <a id="all-releases-link-2" href="#" class="all-releases" target="_blank" rel="noopener">
+      All releases on GitHub →
+    </a>
+  </div>
+
+</div>
+
+<footer>
+  <div class="footer-logo">⚡ Bolt</div>
+  <p>Internal developer productivity desktop app · Built with Electron + React</p>
+</footer>
+
+<script>
+  // ── CONFIG: set your GitHub repo here ─────────────────────────────────────
+  const GITHUB_OWNER = 'YOUR_GITHUB_USERNAME'
+  const GITHUB_REPO  = 'bolt'
+  // ──────────────────────────────────────────────────────────────────────────
+
+  const REPO_BASE   = `https://github.com/${GITHUB_OWNER}/${GITHUB_REPO}`
+  const API_BASE    = `https://api.github.com/repos/${GITHUB_OWNER}/${GITHUB_REPO}`
+
+  // Set all-releases links
+  document.querySelectorAll('#all-releases-link, #all-releases-link-2').forEach(el => {
+    el.href = `${REPO_BASE}/releases`
+  })
+
+  // Detect OS for install tab auto-switch
+  const ua = navigator.userAgent
+  if (ua.includes('Windows')) switchOS(document.querySelector('[data-os="win"]'), 'win')
+  else if (ua.includes('Linux') && !ua.includes('Android')) switchOS(document.querySelector('[data-os="linux"]'), 'linux')
+
+  function switchOS(btn, os) {
+    document.querySelectorAll('.install-tab').forEach(b => {
+      b.style.background = 'transparent'
+      b.style.color = 'var(--muted)'
+      b.style.borderColor = 'var(--border)'
+    })
+    btn.style.background = 'rgba(108,99,255,0.15)'
+    btn.style.color = '#a89fff'
+    btn.style.borderColor = 'rgba(108,99,255,0.3)'
+    document.querySelectorAll('[id^="steps-"]').forEach(el => el.style.display = 'none')
+    document.getElementById(`steps-${os}`).style.display = 'flex'
+  }
+
+  // ── Fetch latest release from GitHub API ──────────────────────────────────
+  async function loadRelease() {
+    const versionEl = document.getElementById('version-text')
+    const rnVersion = document.getElementById('rn-version')
+    const rnDate    = document.getElementById('rn-date')
+    const rnBody    = document.getElementById('rn-body')
+
+    versionEl.classList.add('shimmer')
+
+    const res = await fetch(`${API_BASE}/releases/latest`).catch(() => null)
+    if (!res || !res.ok) {
+      versionEl.textContent = 'v1.0.0 — check GitHub for latest'
+      versionEl.classList.remove('shimmer')
+      setFallbackLinks()
+      return
+    }
+
+    const data = await res.json()
+    const version = data.tag_name || 'v1.0.0'
+    const publishedAt = data.published_at
+      ? new Date(data.published_at).toLocaleDateString('en-US', { year:'numeric', month:'long', day:'numeric' })
+      : ''
+
+    versionEl.textContent = `${version} — released ${publishedAt}`
+    versionEl.classList.remove('shimmer')
+    rnVersion.textContent = version
+    if (publishedAt) rnDate.textContent = publishedAt
+
+    // Parse release notes body
+    if (data.body) {
+      const lines = data.body
+        .split('\n')
+        .map(l => l.trim())
+        .filter(l => l.startsWith('-') || l.startsWith('*') || l.startsWith('•'))
+        .map(l => l.replace(/^[-*•]\s*/, ''))
+        .filter(Boolean)
+      if (lines.length > 0) {
+        rnBody.innerHTML = lines.map(l => `<li>${escHtml(l)}</li>`).join('')
+      }
+    }
+
+    // Wire up download buttons from release assets
+    const assets = data.assets || []
+
+    const find = (patterns) =>
+      assets.find(a => patterns.some(p => a.name.toLowerCase().includes(p)))
+
+    const macDmg        = find(['universal.dmg', '.dmg'])
+    const macZip        = find(['universal-mac.zip', 'mac.zip', '.zip'])
+    const winExe        = find(['setup.exe', '-setup.exe', '.exe'])
+    const linuxAppImage = find(['.appimage'])
+    const linuxDeb      = find(['.deb'])
+
+    setDownloadBtn('mac-dmg-btn',        macDmg,        `${REPO_BASE}/releases/tag/${version}`)
+    setDownloadBtn('mac-zip-btn',        macZip,        `${REPO_BASE}/releases/tag/${version}`)
+    setDownloadBtn('win-btn',            winExe,        `${REPO_BASE}/releases/tag/${version}`)
+    setDownloadBtn('linux-appimage-btn', linuxAppImage, `${REPO_BASE}/releases/tag/${version}`)
+    setDownloadBtn('linux-deb-btn',      linuxDeb,      `${REPO_BASE}/releases/tag/${version}`)
+  }
+
+  function setDownloadBtn(id, asset, fallback) {
+    const btn = document.getElementById(id)
+    if (!btn) return
+    if (asset) {
+      btn.href = asset.browser_download_url
+      btn.removeAttribute('download')
+      btn.classList.remove('dl-btn-disabled')
+    } else {
+      btn.href = fallback
+      btn.target = '_blank'
+      btn.rel = 'noopener'
+      btn.classList.add('dl-btn-disabled')
+    }
+  }
+
+  function setFallbackLinks() {
+    const tag = `${REPO_BASE}/releases/latest`
+    ;['mac-dmg-btn','mac-zip-btn','win-btn','linux-appimage-btn','linux-deb-btn'].forEach(id => {
+      const btn = document.getElementById(id)
+      if (btn) { btn.href = tag; btn.target = '_blank'; btn.rel = 'noopener' }
+    })
+  }
+
+  function escHtml(str) {
+    return str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;')
+  }
+
+  loadRelease()
+
+  // Smooth scroll offset
+  document.querySelectorAll('a[href^="#"]').forEach(a => {
+    a.addEventListener('click', e => {
+      const t = document.querySelector(a.getAttribute('href'))
+      if (t) { e.preventDefault(); window.scrollTo({ top: t.offsetTop - 70, behavior: 'smooth' }) }
+    })
+  })
+
+  // Fade in on scroll
+  const observer = new IntersectionObserver(entries => {
+    entries.forEach(e => {
+      if (e.isIntersecting) {
+        e.target.style.opacity = '1'
+        e.target.style.transform = 'translateY(0)'
+        observer.unobserve(e.target)
+      }
+    })
+  }, { threshold: 0.1 })
+  document.querySelectorAll('.platform-card, .release-card, .install-step, .req-item').forEach(el => {
+    el.style.opacity = '0'
+    el.style.transform = 'translateY(16px)'
+    el.style.transition = 'opacity 0.4s ease, transform 0.4s ease'
+    observer.observe(el)
+  })
+</script>
+</body>
+</html>
