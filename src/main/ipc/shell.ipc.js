@@ -7,13 +7,13 @@ const activeProcesses = new Map()
 export const registerShellHandler = (ipcMain) => {
   // Handle shell command execution
   ipcMain.handle('shell:run', async (event, command, options = {}) => {
-    const { cwd = process.cwd(), shell = true, env = process.env } = options
+    const { cwd = process.cwd(), env = process.env } = options
     const processId = Date.now().toString() // Simple ID generation
+    const loginShell = process.env.SHELL || '/bin/zsh'
 
     return new Promise((resolve, reject) => {
-      const child = spawn(command, [], {
+      const child = spawn(loginShell, ['-l', '-c', command], {
         cwd,
-        shell,
         env,
         stdio: ['pipe', 'pipe', 'pipe']
       })

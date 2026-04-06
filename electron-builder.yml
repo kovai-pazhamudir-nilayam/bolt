@@ -26,8 +26,12 @@ nsis:
 mac:
   category: public.app-category.utilities
   target:
-    - dmg
-    - zip
+    - target: dmg
+      arch:
+        - universal
+    - target: zip
+      arch:
+        - universal
   hardenedRuntime: false       # disable hardened runtime
   gatekeeperAssess: false      # don’t run Gatekeeper assessment
   entitlementsInherit: build/entitlements.mac.plist
