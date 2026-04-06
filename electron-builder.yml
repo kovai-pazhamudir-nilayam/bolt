@@ -18,7 +18,7 @@ win:
   executableName: bolt
 
 nsis:
-  artifactName: ${name}-${version}-setup.${ext}
+  artifactName: Bolt-${version}-setup.${ext}
   shortcutName: ${productName}
   uninstallDisplayName: ${productName}
   createDesktopShortcut: always
@@ -32,28 +32,30 @@ mac:
     - target: zip
       arch:
         - universal
-  hardenedRuntime: false       # disable hardened runtime
-  gatekeeperAssess: false      # don’t run Gatekeeper assessment
+  hardenedRuntime: false
+  gatekeeperAssess: false
   entitlementsInherit: build/entitlements.mac.plist
   extendInfo:
-    - NSCameraUsageDescription: Application requests access to the device's camera.
-    - NSMicrophoneUsageDescription: Application requests access to the device's microphone.
-    - NSDocumentsFolderUsageDescription: Application requests access to the user's Documents folder.
-    - NSDownloadsFolderUsageDescription: Application requests access to the user's Downloads folder.
+    - NSCameraUsageDescription: Application requests access to the device’s camera.
+    - NSMicrophoneUsageDescription: Application requests access to the device’s microphone.
+    - NSDocumentsFolderUsageDescription: Application requests access to the user’s Documents folder.
+    - NSDownloadsFolderUsageDescription: Application requests access to the user’s Downloads folder.
 
 dmg:
-  artifactName: ${name}-${version}.${ext}
+  artifactName: Bolt-${version}-universal.dmg
+
+zip:
+  artifactName: Bolt-${version}-universal-mac.zip
 
 linux:
   target:
     - AppImage
-    - snap
     - deb
   maintainer: electronjs.org
   category: Utility
 
 appImage:
-  artifactName: ${name}-${version}.${ext}
+  artifactName: Bolt-${version}.AppImage
 
 npmRebuild: true
 

@@ -501,12 +501,18 @@
     // Wire up download buttons from release assets
     const assets = data.assets || []
 
+    // Filenames match electron-builder.yml artifact names:
+    //   Bolt-x.x.x-universal.dmg
+    //   Bolt-x.x.x-universal-mac.zip
+    //   Bolt-x.x.x-setup.exe
+    //   Bolt-x.x.x.AppImage
+    //   bolt_x.x.x_amd64.deb  (electron-builder default for deb)
     const find = (patterns) =>
       assets.find(a => patterns.some(p => a.name.toLowerCase().includes(p)))
 
-    const macDmg        = find(['universal.dmg', '.dmg'])
-    const macZip        = find(['universal-mac.zip', 'mac.zip', '.zip'])
-    const winExe        = find(['setup.exe', '-setup.exe', '.exe'])
+    const macDmg        = find(['universal.dmg'])
+    const macZip        = find(['universal-mac.zip'])
+    const winExe        = find(['-setup.exe'])
     const linuxAppImage = find(['.appimage'])
     const linuxDeb      = find(['.deb'])
 
