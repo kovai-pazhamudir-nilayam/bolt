@@ -47,15 +47,6 @@ dmg:
 zip:
   artifactName: Bolt-${version}-universal-mac.zip
 
-linux:
-  target:
-    - AppImage
-    - deb
-  maintainer: electronjs.org
-  category: Utility
-
-appImage:
-  artifactName: Bolt-${version}.AppImage
 
 npmRebuild: true
 

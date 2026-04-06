@@ -261,23 +261,6 @@
       </div>
     </div>
 
-    <!-- Linux -->
-    <div class="platform-card">
-      <div>
-        <div class="platform-icon">🐧</div>
-        <div class="platform-name" style="margin-top:0.5rem">Linux</div>
-        <div class="platform-detail">AppImage · deb · snap</div>
-      </div>
-      <div class="btn-group">
-        <a id="linux-appimage-btn" class="dl-btn dl-btn-primary" href="#" download>
-          ↓ Download .AppImage
-        </a>
-        <a id="linux-deb-btn" class="dl-btn dl-btn-secondary" href="#" download>
-          ↓ Download .deb
-        </a>
-      </div>
-    </div>
-
   </div>
 
   <a id="all-releases-link" href="#" class="all-releases" target="_blank" rel="noopener">
@@ -293,7 +276,6 @@
     <div style="display:flex;gap:1rem;flex-wrap:wrap;margin-bottom:1.5rem">
       <button class="install-tab active" data-os="mac" onclick="switchOS(this,'mac')" style="padding:0.4rem 1rem;border-radius:100px;border:1px solid rgba(108,99,255,0.3);background:rgba(108,99,255,0.15);color:#a89fff;cursor:pointer;font-size:0.85rem;font-weight:600;">🍎 macOS</button>
       <button class="install-tab" data-os="win" onclick="switchOS(this,'win')" style="padding:0.4rem 1rem;border-radius:100px;border:1px solid var(--border);background:transparent;color:var(--muted);cursor:pointer;font-size:0.85rem;font-weight:500;">🪟 Windows</button>
-      <button class="install-tab" data-os="linux" onclick="switchOS(this,'linux')" style="padding:0.4rem 1rem;border-radius:100px;border:1px solid var(--border);background:transparent;color:var(--muted);cursor:pointer;font-size:0.85rem;font-weight:500;">🐧 Linux</button>
     </div>
 
     <div id="steps-mac" class="install-steps">
@@ -334,24 +316,6 @@
       </div>
     </div>
 
-    <div id="steps-linux" class="install-steps" style="display:none">
-      <div class="install-step">
-        <div class="step-num">1</div>
-        <div class="step-text">Download the <strong>.AppImage</strong> or <strong>.deb</strong> above.</div>
-      </div>
-      <div class="install-step">
-        <div class="step-num">2</div>
-        <div class="step-text">For AppImage: <strong>chmod +x Bolt-*.AppImage</strong> then run it directly — no install needed.</div>
-      </div>
-      <div class="install-step">
-        <div class="step-num">3</div>
-        <div class="step-text">For .deb: <strong>sudo dpkg -i bolt-*.deb</strong> to install system-wide.</div>
-      </div>
-      <div class="install-step">
-        <div class="step-num">4</div>
-        <div class="step-text">Make sure <strong>gcloud CLI</strong> and <strong>kubectl</strong> are installed and on your PATH for GCP features to work.</div>
-      </div>
-    </div>
   </div>
 
   <hr class="divider" />
@@ -367,10 +331,6 @@
       <div class="req-item">
         <div class="req-label">Windows</div>
         <div class="req-val">Windows 10 / 11 x64</div>
-      </div>
-      <div class="req-item">
-        <div class="req-label">Linux</div>
-        <div class="req-val">Ubuntu 20.04+ / Debian</div>
       </div>
       <div class="req-item">
         <div class="req-label">RAM</div>
@@ -442,7 +402,6 @@
   // Detect OS for install tab auto-switch
   const ua = navigator.userAgent
   if (ua.includes('Windows')) switchOS(document.querySelector('[data-os="win"]'), 'win')
-  else if (ua.includes('Linux') && !ua.includes('Android')) switchOS(document.querySelector('[data-os="linux"]'), 'linux')
 
   function switchOS(btn, os) {
     document.querySelectorAll('.install-tab').forEach(b => {
@@ -513,14 +472,9 @@
     const macDmg        = find(['universal.dmg'])
     const macZip        = find(['universal-mac.zip'])
     const winExe        = find(['-setup.exe'])
-    const linuxAppImage = find(['.appimage'])
-    const linuxDeb      = find(['.deb'])
-
-    setDownloadBtn('mac-dmg-btn',        macDmg,        `${REPO_BASE}/releases/tag/${version}`)
-    setDownloadBtn('mac-zip-btn',        macZip,        `${REPO_BASE}/releases/tag/${version}`)
-    setDownloadBtn('win-btn',            winExe,        `${REPO_BASE}/releases/tag/${version}`)
-    setDownloadBtn('linux-appimage-btn', linuxAppImage, `${REPO_BASE}/releases/tag/${version}`)
-    setDownloadBtn('linux-deb-btn',      linuxDeb,      `${REPO_BASE}/releases/tag/${version}`)
+    setDownloadBtn('mac-dmg-btn', macDmg, `${REPO_BASE}/releases/tag/${version}`)
+    setDownloadBtn('mac-zip-btn', macZip, `${REPO_BASE}/releases/tag/${version}`)
+    setDownloadBtn('win-btn',     winExe, `${REPO_BASE}/releases/tag/${version}`)
   }
 
   function setDownloadBtn(id, asset, fallback) {

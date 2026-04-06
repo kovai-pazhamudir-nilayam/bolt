@@ -60,7 +60,10 @@ jobs:
           cache: npm
 
       - name: Install dependencies
-        run: npm ci
+        # npm ci breaks on Windows when package-lock.json was generated on macOS/Linux —
+        # it omits platform-specific optional packages like @rollup/rollup-win32-x64-msvc.
+        # npm install re-resolves optional deps for the current OS.
+        run: npm install
 
       - name: Rebuild native modules
         run: npx electron-builder install-app-deps
@@ -79,41 +82,9 @@ jobs:
             dist/latest.yml
           if-no-files-found: error
 
-  # ── Linux ────────────────────────────────────────────────────────────────────
-  build-linux:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-
-      - uses: actions/setup-node@v4
-        with:
-          node-version: 20
-          cache: npm
-
-      - name: Install dependencies
-        run: npm ci
-
-      - name: Rebuild native modules
-        run: npx electron-builder install-app-deps
-
-      - name: Build Linux (AppImage + deb)
-        env:
-          CSC_IDENTITY_AUTO_DISCOVERY: false
-        run: npm run build:linux
-
-      - name: Upload Linux artifacts
-        uses: actions/upload-artifact@v4
-        with:
-          name: artifacts-linux
-          path: |
-            dist/*.AppImage
-            dist/*.deb
-            dist/latest-linux.yml
-          if-no-files-found: error
-
   # ── GitHub Release ───────────────────────────────────────────────────────────
   release:
-    needs: [build-mac, build-win, build-linux]
+    needs: [build-mac, build-win]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
