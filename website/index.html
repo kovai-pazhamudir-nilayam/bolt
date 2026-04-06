@@ -1,0 +1,919 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Bolt — Developer Productivity Desktop App</title>
+  <style>
+    :root {
+      --bg: #0a0a0f;
+      --bg2: #111118;
+      --bg3: #18181f;
+      --border: rgba(255,255,255,0.07);
+      --accent: #6c63ff;
+      --accent2: #4ecdc4;
+      --accent3: #ff6b6b;
+      --text: #e8e8f0;
+      --muted: #8888aa;
+      --card-bg: rgba(255,255,255,0.03);
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+      line-height: 1.6;
+      overflow-x: hidden;
+    }
+
+    /* ── NAV ── */
+    nav {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+      background: rgba(10,10,15,0.85);
+      backdrop-filter: blur(16px);
+      border-bottom: 1px solid var(--border);
+      padding: 0 2rem;
+      height: 60px;
+      display: flex; align-items: center; justify-content: space-between;
+    }
+    .nav-logo {
+      font-size: 1.4rem; font-weight: 800; letter-spacing: -0.5px;
+      background: linear-gradient(135deg, #6c63ff, #4ecdc4);
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+      text-decoration: none;
+    }
+    .nav-links { display: flex; gap: 2rem; list-style: none; }
+    .nav-links a {
+      color: var(--muted); text-decoration: none; font-size: 0.9rem;
+      transition: color 0.2s;
+    }
+    .nav-links a:hover { color: var(--text); }
+    .nav-cta {
+      background: var(--accent); color: #fff; border: none; padding: 0.5rem 1.2rem;
+      border-radius: 8px; font-size: 0.85rem; cursor: pointer;
+      text-decoration: none; font-weight: 600; transition: opacity 0.2s;
+    }
+    .nav-cta:hover { opacity: 0.85; }
+
+    /* ── HERO ── */
+    .hero {
+      min-height: 100vh;
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
+      text-align: center; padding: 6rem 2rem 4rem;
+      position: relative; overflow: hidden;
+    }
+    .hero-glow {
+      position: absolute; inset: 0; pointer-events: none;
+      background:
+        radial-gradient(ellipse 80% 50% at 50% -10%, rgba(108,99,255,0.25), transparent),
+        radial-gradient(ellipse 60% 40% at 80% 80%, rgba(78,205,196,0.12), transparent);
+    }
+    .hero-badge {
+      display: inline-flex; align-items: center; gap: 0.4rem;
+      background: rgba(108,99,255,0.15); border: 1px solid rgba(108,99,255,0.3);
+      border-radius: 100px; padding: 0.3rem 1rem; font-size: 0.78rem;
+      color: #a89fff; margin-bottom: 1.5rem; font-weight: 500;
+    }
+    .hero-badge span { width: 6px; height: 6px; background: var(--accent); border-radius: 50%; animation: pulse 2s infinite; }
+    @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.4} }
+
+    h1 {
+      font-size: clamp(2.5rem, 6vw, 5rem);
+      font-weight: 900; letter-spacing: -2px; line-height: 1.05;
+      margin-bottom: 1.2rem;
+    }
+    .gradient-text {
+      background: linear-gradient(135deg, #fff 30%, #a89fff 70%);
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+    }
+    .accent-word {
+      background: linear-gradient(135deg, #6c63ff, #4ecdc4);
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+    }
+    .hero-sub {
+      font-size: clamp(1rem, 2.5vw, 1.25rem); color: var(--muted);
+      max-width: 640px; margin: 0 auto 2.5rem;
+    }
+    .hero-actions { display: flex; gap: 1rem; flex-wrap: wrap; justify-content: center; }
+    .btn-primary {
+      background: linear-gradient(135deg, #6c63ff, #4ecdc4);
+      color: #fff; border: none; padding: 0.85rem 2rem;
+      border-radius: 12px; font-size: 1rem; font-weight: 700;
+      cursor: pointer; text-decoration: none; transition: transform 0.2s, box-shadow 0.2s;
+      box-shadow: 0 0 30px rgba(108,99,255,0.3);
+    }
+    .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 0 50px rgba(108,99,255,0.5); }
+    .btn-secondary {
+      background: transparent; color: var(--text); border: 1px solid var(--border);
+      padding: 0.85rem 2rem; border-radius: 12px; font-size: 1rem; font-weight: 600;
+      cursor: pointer; text-decoration: none; transition: border-color 0.2s, background 0.2s;
+    }
+    .btn-secondary:hover { border-color: rgba(255,255,255,0.2); background: rgba(255,255,255,0.04); }
+
+    .hero-stats {
+      margin-top: 4rem; display: flex; gap: 3rem; flex-wrap: wrap; justify-content: center;
+      border-top: 1px solid var(--border); padding-top: 2.5rem;
+    }
+    .stat { text-align: center; }
+    .stat-num { font-size: 2rem; font-weight: 800; color: #fff; }
+    .stat-label { font-size: 0.8rem; color: var(--muted); text-transform: uppercase; letter-spacing: 1px; }
+
+    /* ── SECTION HEADERS ── */
+    section { padding: 6rem 2rem; }
+    .section-label {
+      display: inline-block; font-size: 0.75rem; font-weight: 700;
+      text-transform: uppercase; letter-spacing: 2px; color: var(--accent);
+      margin-bottom: 0.75rem;
+    }
+    .section-title {
+      font-size: clamp(1.8rem, 4vw, 2.8rem); font-weight: 800;
+      letter-spacing: -1px; line-height: 1.15; margin-bottom: 1rem;
+    }
+    .section-sub { color: var(--muted); font-size: 1.05rem; max-width: 580px; }
+    .centered { text-align: center; }
+    .centered .section-sub { margin: 0 auto; }
+
+    /* ── FEATURE GRID ── */
+    .features-grid {
+      max-width: 1200px; margin: 4rem auto 0;
+      display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+      gap: 1.5px;
+      border: 1.5px solid var(--border); border-radius: 20px; overflow: hidden;
+    }
+    .feat-card {
+      background: var(--bg2); padding: 2rem;
+      border: 1px solid var(--border);
+      transition: background 0.2s;
+      position: relative; overflow: hidden;
+    }
+    .feat-card::before {
+      content: '';
+      position: absolute; top: 0; left: 0; right: 0; height: 2px;
+      background: linear-gradient(90deg, var(--accent), var(--accent2));
+      transform: scaleX(0); transition: transform 0.3s; transform-origin: left;
+    }
+    .feat-card:hover { background: var(--bg3); }
+    .feat-card:hover::before { transform: scaleX(1); }
+    .feat-icon {
+      width: 44px; height: 44px; border-radius: 12px; margin-bottom: 1rem;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.3rem;
+    }
+    .feat-name { font-size: 1rem; font-weight: 700; margin-bottom: 0.5rem; }
+    .feat-desc { font-size: 0.88rem; color: var(--muted); line-height: 1.6; }
+    .feat-tags { margin-top: 1rem; display: flex; flex-wrap: wrap; gap: 0.4rem; }
+    .tag {
+      font-size: 0.72rem; padding: 0.2rem 0.6rem; border-radius: 100px;
+      background: rgba(108,99,255,0.1); color: #a89fff;
+      border: 1px solid rgba(108,99,255,0.2); font-weight: 500;
+    }
+
+    /* ── HOW TO USE ── */
+    .how-container {
+      max-width: 1100px; margin: 4rem auto 0;
+      display: flex; flex-direction: column; gap: 5rem;
+    }
+    .how-row {
+      display: grid; grid-template-columns: 1fr 1fr; gap: 4rem;
+      align-items: center;
+    }
+    .how-row.reverse { direction: rtl; }
+    .how-row.reverse > * { direction: ltr; }
+    .how-text {}
+    .how-number {
+      font-size: 4rem; font-weight: 900; line-height: 1;
+      background: linear-gradient(135deg, rgba(108,99,255,0.5), rgba(78,205,196,0.2));
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+      margin-bottom: 0.5rem;
+    }
+    .how-title { font-size: 1.6rem; font-weight: 800; letter-spacing: -0.5px; margin-bottom: 0.75rem; }
+    .how-desc { color: var(--muted); font-size: 0.95rem; line-height: 1.7; margin-bottom: 1rem; }
+    .how-steps { list-style: none; display: flex; flex-direction: column; gap: 0.5rem; }
+    .how-steps li {
+      display: flex; align-items: flex-start; gap: 0.6rem;
+      font-size: 0.88rem; color: var(--muted);
+    }
+    .how-steps li::before {
+      content: '→'; color: var(--accent); flex-shrink: 0; margin-top: 1px;
+    }
+    .how-visual {
+      background: var(--bg2); border: 1px solid var(--border); border-radius: 16px;
+      padding: 1.5rem; position: relative; overflow: hidden;
+      min-height: 240px;
+    }
+    .how-visual::after {
+      content: ''; position: absolute; inset: 0;
+      background: linear-gradient(135deg, rgba(108,99,255,0.06), rgba(78,205,196,0.04));
+      border-radius: 16px;
+    }
+    .terminal {
+      background: #0d0d14; border-radius: 10px; padding: 1rem 1.2rem;
+      font-family: 'Menlo', 'Consolas', monospace; font-size: 0.8rem; line-height: 1.7;
+    }
+    .term-bar {
+      display: flex; gap: 6px; margin-bottom: 0.8rem;
+    }
+    .term-dot { width: 10px; height: 10px; border-radius: 50%; }
+    .t-red { background: #ff5f57; }
+    .t-yellow { background: #ffbd2e; }
+    .t-green { background: #28c840; }
+    .term-line { color: #ccc; }
+    .term-cmd { color: #6c63ff; }
+    .term-out { color: #4ecdc4; }
+    .term-comment { color: #555; }
+
+    .kanban-mini {
+      display: flex; gap: 0.5rem; height: 180px;
+    }
+    .kb-col {
+      flex: 1; background: rgba(255,255,255,0.03); border-radius: 8px;
+      border: 1px solid var(--border); padding: 0.5rem; display: flex; flex-direction: column; gap: 0.4rem;
+    }
+    .kb-col-title { font-size: 0.65rem; text-transform: uppercase; letter-spacing: 1px; color: var(--muted); margin-bottom: 0.2rem; }
+    .kb-card {
+      background: var(--bg3); border-radius: 6px; padding: 0.4rem 0.5rem;
+      font-size: 0.7rem; border-left: 2px solid;
+    }
+    .kb-p1 { border-color: #ff6b6b; }
+    .kb-p2 { border-color: #ffd93d; }
+    .kb-p3 { border-color: #6c63ff; }
+
+    .api-mock {
+      display: flex; flex-direction: column; gap: 0.5rem;
+    }
+    .api-row {
+      display: flex; align-items: center; gap: 0.6rem;
+      background: rgba(255,255,255,0.03); border-radius: 8px;
+      padding: 0.5rem 0.75rem; border: 1px solid var(--border);
+    }
+    .method {
+      font-size: 0.65rem; font-weight: 700; padding: 0.15rem 0.4rem;
+      border-radius: 4px; font-family: monospace; flex-shrink: 0;
+    }
+    .m-get { background: rgba(78,205,196,0.15); color: #4ecdc4; }
+    .m-post { background: rgba(108,99,255,0.15); color: #a89fff; }
+    .m-del { background: rgba(255,107,107,0.15); color: #ff6b6b; }
+    .api-url { font-size: 0.75rem; color: var(--muted); font-family: monospace; flex: 1; }
+    .api-status { font-size: 0.65rem; color: #4ecdc4; }
+
+    /* ── CATEGORY TABS ── */
+    .cat-section { max-width: 1200px; margin: 0 auto; }
+    .cat-tabs { display: flex; gap: 0.5rem; flex-wrap: wrap; margin-bottom: 2.5rem; }
+    .cat-tab {
+      padding: 0.5rem 1.1rem; border-radius: 100px; font-size: 0.85rem;
+      cursor: pointer; border: 1px solid var(--border);
+      background: transparent; color: var(--muted);
+      transition: all 0.2s; font-weight: 500;
+    }
+    .cat-tab.active, .cat-tab:hover {
+      background: rgba(108,99,255,0.15); border-color: rgba(108,99,255,0.35);
+      color: #a89fff;
+    }
+
+    /* ── DETAIL CARDS ── */
+    .detail-grid {
+      display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 1.2rem;
+    }
+    .detail-card {
+      background: var(--bg2); border: 1px solid var(--border); border-radius: 16px;
+      padding: 1.5rem;
+    }
+    .detail-card-icon {
+      font-size: 1.8rem; margin-bottom: 0.75rem;
+    }
+    .detail-card-title { font-weight: 700; margin-bottom: 0.4rem; }
+    .detail-card-desc { font-size: 0.86rem; color: var(--muted); }
+
+    /* ── ARCHITECTURE ── */
+    .arch-section { max-width: 900px; margin: 4rem auto 0; }
+    .arch-flow {
+      display: flex; align-items: center; justify-content: center;
+      flex-wrap: wrap; gap: 0; background: var(--bg2); border: 1px solid var(--border);
+      border-radius: 16px; overflow: hidden;
+    }
+    .arch-step {
+      padding: 1.2rem 1.5rem; text-align: center; flex: 1; min-width: 130px;
+      border-right: 1px solid var(--border);
+    }
+    .arch-step:last-child { border-right: none; }
+    .arch-step-icon { font-size: 1.4rem; margin-bottom: 0.4rem; }
+    .arch-step-name { font-size: 0.8rem; font-weight: 700; margin-bottom: 0.2rem; }
+    .arch-step-sub { font-size: 0.7rem; color: var(--muted); }
+
+    /* ── FOOTER ── */
+    footer {
+      background: var(--bg2); border-top: 1px solid var(--border);
+      padding: 3rem 2rem; text-align: center;
+    }
+    .footer-logo {
+      font-size: 1.5rem; font-weight: 900;
+      background: linear-gradient(135deg, #6c63ff, #4ecdc4);
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+      margin-bottom: 0.5rem;
+    }
+    .footer-sub { color: var(--muted); font-size: 0.85rem; }
+
+    /* ── RESPONSIVE ── */
+    @media (max-width: 768px) {
+      .nav-links { display: none; }
+      .how-row, .how-row.reverse { grid-template-columns: 1fr; direction: ltr; }
+      .hero-stats { gap: 1.5rem; }
+      .arch-flow { flex-direction: column; }
+      .arch-step { border-right: none; border-bottom: 1px solid var(--border); }
+      .arch-step:last-child { border-bottom: none; }
+    }
+
+    /* ── SCROLLBAR ── */
+    ::-webkit-scrollbar { width: 6px; }
+    ::-webkit-scrollbar-track { background: var(--bg); }
+    ::-webkit-scrollbar-thumb { background: #333; border-radius: 3px; }
+
+    /* ── DIVIDER ── */
+    .divider {
+      max-width: 1200px; margin: 0 auto;
+      border: none; border-top: 1px solid var(--border);
+    }
+
+    /* ── HIGHLIGHT ── */
+    .hl { color: #fff; font-weight: 600; }
+  </style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <a class="nav-logo" href="#">⚡ Bolt</a>
+  <ul class="nav-links">
+    <li><a href="#features">Features</a></li>
+    <li><a href="#how-to-use">How to Use</a></li>
+    <li><a href="#tools">Tools</a></li>
+    <li><a href="#architecture">Architecture</a></li>
+  </ul>
+  <a class="nav-cta" href="#features">Get Started →</a>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-glow"></div>
+  <div class="hero-badge">
+    <span></span>
+    Internal Developer Platform · Desktop App
+  </div>
+  <h1>
+    <span class="gradient-text">Every dev tool</span><br />
+    in <span class="accent-word">one place.</span>
+  </h1>
+  <p class="hero-sub">
+    Bolt is an Electron desktop app that unifies your database management, API testing, credential storage,
+    workflow automation, and developer utilities — all in a single, beautiful workspace.
+  </p>
+  <div class="hero-actions">
+    <a class="btn-primary" href="#features">Explore Features →</a>
+    <a class="btn-secondary" href="#how-to-use">How to Use</a>
+  </div>
+  <div class="hero-stats">
+    <div class="stat">
+      <div class="stat-num">18+</div>
+      <div class="stat-label">Built-in Tools</div>
+    </div>
+    <div class="stat">
+      <div class="stat-num">GCP</div>
+      <div class="stat-label">Native Integration</div>
+    </div>
+    <div class="stat">
+      <div class="stat-num">SQLite</div>
+      <div class="stat-label">Local Database</div>
+    </div>
+    <div class="stat">
+      <div class="stat-num">0</div>
+      <div class="stat-label">External Services Needed</div>
+    </div>
+  </div>
+</section>
+
+<hr class="divider" />
+
+<!-- ALL FEATURES OVERVIEW -->
+<section id="features">
+  <div class="centered">
+    <div class="section-label">Everything you need</div>
+    <h2 class="section-title gradient-text">Packed with powerful features</h2>
+    <p class="section-sub">
+      From database management to task tracking — Bolt replaces a dozen browser tabs with one focused app.
+    </p>
+  </div>
+  <div class="features-grid">
+
+    <div class="feat-card">
+      <div class="feat-icon" style="background:rgba(108,99,255,0.12);">🗄️</div>
+      <div class="feat-name">Postgres via GCP Jumpbox</div>
+      <div class="feat-desc">Connect to any GCP Postgres database through a Kubernetes jumpbox pod. Execute queries, view results in a table, and switch environments at runtime.</div>
+      <div class="feat-tags"><span class="tag">GCP</span><span class="tag">Kubernetes</span><span class="tag">SQL</span></div>
+    </div>
+
+    <div class="feat-card">
+      <div class="feat-icon" style="background:rgba(255,107,107,0.12);">🔴</div>
+      <div class="feat-name">Redis Management</div>
+      <div class="feat-desc">Browse and query Redis instances through a jumpbox. Search keys, inspect values, and run commands on any company/environment pair.</div>
+      <div class="feat-tags"><span class="tag">Redis</span><span class="tag">GCP</span><span class="tag">Key-Value</span></div>
+    </div>
+
+    <div class="feat-card">
+      <div class="feat-icon" style="background:rgba(78,205,196,0.12);">💾</div>
+      <div class="feat-name">Saved DB Queries</div>
+      <div class="feat-desc">Save and organize frequently used SQL queries with title and description. Pick the environment at execution time — not when saving.</div>
+      <div class="feat-tags"><span class="tag">SQL</span><span class="tag">Snippets</span><span class="tag">Multi-env</span></div>
+    </div>
+
+    <div class="feat-card">
+      <div class="feat-icon" style="background:rgba(255,217,61,0.12);">📦</div>
+      <div class="feat-name">DB Backup & Restore</div>
+      <div class="feat-desc">Full database backup and restore with table-level export/import, manual record management, and CSV output support.</div>
+      <div class="feat-tags"><span class="tag">Backup</span><span class="tag">CSV</span><span class="tag">Tables</span></div>
+    </div>
+
+    <div class="feat-card">
+      <div class="feat-icon" style="background:rgba(108,99,255,0.12);">🌐</div>
+      <div class="feat-name">API Collection</div>
+      <div class="feat-desc">Manage and fire API requests like a lightweight Postman. Organise by collection, set headers, inspect responses — no browser needed.</div>
+      <div class="feat-tags"><span class="tag">REST</span><span class="tag">Postman-like</span><span class="tag">HTTP</span></div>
+    </div>
+
+    <div class="feat-card">
+      <div class="feat-icon" style="background:rgba(78,205,196,0.12);">⚙️</div>
+      <div class="feat-name">Workflow Builder</div>
+      <div class="feat-desc">Visual drag-and-drop node editor (React Flow) for automating data pipelines. Chain CSV input, loops, API calls, and transformations into exportable workflows.</div>
+      <div class="feat-tags"><span class="tag">No-code</span><span class="tag">Automation</span><span class="tag">Visual</span></div>
+    </div>
+
+    <div class="feat-card">
+      <div class="feat-icon" style="background:rgba(255,107,107,0.12);">🔑</div>
+      <div class="feat-name">Password Manager</div>
+      <div class="feat-desc">Store personal and professional credentials locally. Show/hide passwords, copy-to-clipboard, search, and separate personal vs. official accounts.</div>
+      <div class="feat-tags"><span class="tag">Credentials</span><span class="tag">Local</span><span class="tag">Secure</span></div>
+    </div>
+
+    <div class="feat-card">
+      <div class="feat-icon" style="background:rgba(78,205,196,0.12);">✅</div>
+      <div class="feat-name">Kanban Task Manager</div>
+      <div class="feat-desc">Drag-and-drop task board with 4 columns, priority levels, due dates, reminders (with custom audio tones), file attachments, and comments.</div>
+      <div class="feat-tags"><span class="tag">Kanban</span><span class="tag">Reminders</span><span class="tag">Priority</span></div>
+    </div>
+
+    <div class="feat-card">
+      <div class="feat-icon" style="background:rgba(108,99,255,0.12);">📝</div>
+      <div class="feat-name">Rich Text Notes</div>
+      <div class="feat-desc">Tiptap-powered rich text editor with sidebar note navigation. Keep documentation, runbooks, and personal notes organised in one place.</div>
+      <div class="feat-tags"><span class="tag">Tiptap</span><span class="tag">Markdown</span><span class="tag">Notes</span></div>
+    </div>
+
+    <div class="feat-card">
+      <div class="feat-icon" style="background:rgba(255,217,61,0.12);">🐙</div>
+      <div class="feat-name">GitHub Settings</div>
+      <div class="feat-desc">Manage repositories, users, configuration, and secrets across GitHub organisations without leaving Bolt.</div>
+      <div class="feat-tags"><span class="tag">GitHub</span><span class="tag">Repos</span><span class="tag">Secrets</span></div>
+    </div>
+
+    <div class="feat-card">
+      <div class="feat-icon" style="background:rgba(108,99,255,0.12);">⚡</div>
+      <div class="feat-name">Developer Utilities</div>
+      <div class="feat-desc">Built-in Base64 encoder/decoder, JWT inspector, Unix time converter, and JSON formatter/CSV converter — no more context switching to browser tools.</div>
+      <div class="feat-tags"><span class="tag">Base64</span><span class="tag">JWT</span><span class="tag">JSON</span><span class="tag">Epoch</span></div>
+    </div>
+
+    <div class="feat-card">
+      <div class="feat-icon" style="background:rgba(255,107,107,0.12);">📁</div>
+      <div class="feat-name">Jumpbox File Transfer</div>
+      <div class="feat-desc">Upload and download files to/from GCP Kubernetes jumpbox pods directly from the desktop app via kubectl exec.</div>
+      <div class="feat-tags"><span class="tag">kubectl</span><span class="tag">GCP</span><span class="tag">SCP-like</span></div>
+    </div>
+
+  </div>
+</section>
+
+<hr class="divider" />
+
+<!-- HOW TO USE -->
+<section id="how-to-use">
+  <div class="centered">
+    <div class="section-label">How to use</div>
+    <h2 class="section-title gradient-text">Get productive in minutes</h2>
+    <p class="section-sub">Follow these guides to get the most out of each major workflow in Bolt.</p>
+  </div>
+
+  <div class="how-container">
+
+    <!-- Step 1: Settings -->
+    <div class="how-row">
+      <div class="how-text">
+        <div class="how-number">01</div>
+        <div class="how-title">Configure companies & environments</div>
+        <p class="how-desc">Start by setting up your companies and environments in <span class="hl">Settings</span>. Everything in Bolt — from database connections to API collections — is scoped to a company + environment pair.</p>
+        <ul class="how-steps">
+          <li>Open <strong>Settings → Companies</strong> and add each company code</li>
+          <li>Go to <strong>Settings → Environments</strong> and define environments (dev, staging, prod)</li>
+          <li>Add GCP project configs (cluster name, region, project ID)</li>
+          <li>Save DB secrets (host, user, password) per environment</li>
+        </ul>
+      </div>
+      <div class="how-visual">
+        <div class="terminal">
+          <div class="term-bar">
+            <div class="term-dot t-red"></div>
+            <div class="term-dot t-yellow"></div>
+            <div class="term-dot t-green"></div>
+          </div>
+          <div class="term-line term-comment"># Settings → GCP Config</div>
+          <div class="term-line term-cmd">Company: <span class="term-out">acme</span></div>
+          <div class="term-line term-cmd">Environment: <span class="term-out">production</span></div>
+          <div class="term-line term-cmd">Cluster: <span class="term-out">prod-cluster-01</span></div>
+          <div class="term-line term-cmd">Region: <span class="term-out">us-central1</span></div>
+          <div class="term-line term-cmd">Project: <span class="term-out">acme-prod-infra</span></div>
+          <div class="term-line" style="margin-top:0.5rem; color:#4ecdc4">✓ Config saved</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Step 2: DB Query -->
+    <div class="how-row reverse">
+      <div class="how-text">
+        <div class="how-number">02</div>
+        <div class="how-title">Connect to databases via jumpbox</div>
+        <p class="how-desc">Bolt automatically handles GCP authentication and pod discovery. Just pick a company, environment, and database — Bolt runs <code style="color:#a89fff">gcloud get-credentials</code> and <code style="color:#a89fff">kubectl get pods</code> behind the scenes.</p>
+        <ul class="how-steps">
+          <li>Open <strong>Connect to Postgres</strong> from the sidebar</li>
+          <li>Select company and environment from the dropdowns</li>
+          <li>Bolt discovers the jumpbox pod automatically</li>
+          <li>Type your SQL and hit <strong>Run</strong> — results appear in a table</li>
+          <li>Save frequent queries in <strong>Saved DB Queries</strong></li>
+        </ul>
+      </div>
+      <div class="how-visual">
+        <div class="terminal">
+          <div class="term-bar">
+            <div class="term-dot t-red"></div>
+            <div class="term-dot t-yellow"></div>
+            <div class="term-dot t-green"></div>
+          </div>
+          <div class="term-line term-comment"># Auto-executed by Bolt</div>
+          <div class="term-line term-cmd">$ gcloud container clusters<br>&nbsp;&nbsp;get-credentials prod-cluster-01</div>
+          <div class="term-line term-out">Fetching cluster endpoint... done.</div>
+          <div class="term-line term-cmd" style="margin-top:0.4rem">$ kubectl get pods | grep jumpbox</div>
+          <div class="term-line term-out">jumpbox-7d6f9b-xkj2p   1/1  Running</div>
+          <div class="term-line term-cmd" style="margin-top:0.4rem">$ kubectl exec jumpbox-... -- psql ...</div>
+          <div class="term-line term-out" style="color:#4ecdc4">✓ Query executed · 42 rows</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Step 3: Kanban -->
+    <div class="how-row">
+      <div class="how-text">
+        <div class="how-number">03</div>
+        <div class="how-title">Manage tasks with Kanban board</div>
+        <p class="how-desc">The Task Manager gives you a drag-and-drop Kanban board. Set priorities, attach files, add comments, and configure smart reminders with custom audio tones.</p>
+        <ul class="how-steps">
+          <li>Click <strong>+ New Task</strong> and fill in title, priority, due date</li>
+          <li>Add tags, attachments, and comments to a task</li>
+          <li>Drag tasks between <em>Not Picked → In Progress → Done</em></li>
+          <li>Set reminder frequency: Once, Daily, or Custom schedule</li>
+          <li>Choose an audio tone (Chime, Alert, Buzz, etc.) for reminders</li>
+        </ul>
+      </div>
+      <div class="how-visual">
+        <div class="kanban-mini">
+          <div class="kb-col">
+            <div class="kb-col-title">Not Picked</div>
+            <div class="kb-card kb-p3" style="font-size:0.68rem;color:#ccc">Update API docs</div>
+            <div class="kb-card kb-p2" style="font-size:0.68rem;color:#ccc">Fix Redis key</div>
+          </div>
+          <div class="kb-col">
+            <div class="kb-col-title">In Progress</div>
+            <div class="kb-card kb-p1" style="font-size:0.68rem;color:#ccc">DB migration #42</div>
+          </div>
+          <div class="kb-col">
+            <div class="kb-col-title">On Hold</div>
+            <div class="kb-card kb-p2" style="font-size:0.68rem;color:#ccc">Review PR #88</div>
+          </div>
+          <div class="kb-col">
+            <div class="kb-col-title">Done</div>
+            <div class="kb-card kb-p3" style="font-size:0.68rem;color:#aaa">Setup GCP cluster</div>
+            <div class="kb-card kb-p3" style="font-size:0.68rem;color:#aaa">Add jumpbox IPC</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Step 4: API Collection -->
+    <div class="how-row reverse">
+      <div class="how-text">
+        <div class="how-number">04</div>
+        <div class="how-title">Test APIs without leaving the app</div>
+        <p class="how-desc">The API Collection works like a lightweight Postman. Build and save requests per collection, set headers, inspect the response body and status code — all within Bolt.</p>
+        <ul class="how-steps">
+          <li>Open <strong>API Collection</strong> from the sidebar</li>
+          <li>Create a new collection and add requests (GET / POST / DELETE)</li>
+          <li>Set URL, headers, and body per request</li>
+          <li>Hit <strong>Send</strong> and view the formatted JSON response</li>
+        </ul>
+      </div>
+      <div class="how-visual">
+        <div class="api-mock">
+          <div class="api-row">
+            <span class="method m-get">GET</span>
+            <span class="api-url">/api/users?company=acme</span>
+            <span class="api-status">200 OK</span>
+          </div>
+          <div class="api-row">
+            <span class="method m-post">POST</span>
+            <span class="api-url">/api/orders</span>
+            <span class="api-status">201 Created</span>
+          </div>
+          <div class="api-row">
+            <span class="method m-del">DEL</span>
+            <span class="api-url">/api/cache/flush</span>
+            <span class="api-status" style="color:#ff6b6b">404 Not Found</span>
+          </div>
+          <div style="margin-top:0.6rem; background:#0d0d14; border-radius:8px; padding:0.7rem; font-family:monospace; font-size:0.72rem; color:#4ecdc4; line-height:1.5;">
+            {<br />
+            &nbsp;&nbsp;"users": [ "alice", "bob" ],<br />
+            &nbsp;&nbsp;"total": 2<br />
+            }
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Step 5: Dev Tools -->
+    <div class="how-row">
+      <div class="how-text">
+        <div class="how-number">05</div>
+        <div class="how-title">Use built-in developer utilities</div>
+        <p class="how-desc">Stop switching browser tabs. Bolt ships with a full suite of everyday dev tools — all offline, all instant.</p>
+        <ul class="how-steps">
+          <li><strong>Base64</strong> — paste text, get encoded/decoded output instantly</li>
+          <li><strong>JWT Decoder</strong> — paste a token; see header, payload &amp; expiry in IST</li>
+          <li><strong>Time Converter</strong> — live clock, convert between Epoch ↔ IST ↔ UTC</li>
+          <li><strong>JSON Formatter</strong> — beautify, minify, or convert JSON ↔ CSV</li>
+        </ul>
+      </div>
+      <div class="how-visual">
+        <div class="terminal">
+          <div class="term-bar">
+            <div class="term-dot t-red"></div>
+            <div class="term-dot t-yellow"></div>
+            <div class="term-dot t-green"></div>
+          </div>
+          <div class="term-line term-comment"># JWT Decoder</div>
+          <div class="term-line" style="color:#888">Input: eyJhbGciOi...</div>
+          <div class="term-line term-cmd" style="margin-top:0.4rem">Header: <span style="color:#6c63ff">{ "alg": "RS256" }</span></div>
+          <div class="term-line term-cmd">Payload: <span style="color:#4ecdc4">{ "sub": "u_42", "exp": ... }</span></div>
+          <div class="term-line" style="color:#ffd93d; margin-top:0.4rem">⏰ Expires: 2026-04-07 09:30 IST</div>
+          <div class="term-line" style="color:#4ecdc4">✓ Valid token</div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<hr class="divider" />
+
+<!-- TOOLS DETAIL -->
+<section id="tools">
+  <div class="cat-section">
+    <div class="centered" style="margin-bottom:2.5rem">
+      <div class="section-label">Detailed Breakdown</div>
+      <h2 class="section-title gradient-text">Tools by category</h2>
+    </div>
+
+    <div style="margin-bottom:2.5rem;">
+      <h3 style="font-size:1.1rem;font-weight:700;margin-bottom:1rem;color:var(--muted);text-transform:uppercase;letter-spacing:1px;font-size:0.8rem;">🗄️ Database Tools</h3>
+      <div class="detail-grid">
+        <div class="detail-card">
+          <div class="detail-card-icon">🐘</div>
+          <div class="detail-card-title">Connect to Postgres</div>
+          <div class="detail-card-desc">Direct SQL execution on GCP Postgres through Kubernetes jumpbox. Live logs, tabular results, environment switching at runtime.</div>
+        </div>
+        <div class="detail-card">
+          <div class="detail-card-icon">🔴</div>
+          <div class="detail-card-title">Connect to Redis</div>
+          <div class="detail-card-desc">Browse Redis via GCP jumpbox. Key search, value inspection, and raw command execution across environments.</div>
+        </div>
+        <div class="detail-card">
+          <div class="detail-card-icon">📋</div>
+          <div class="detail-card-title">Saved DB Queries</div>
+          <div class="detail-card-desc">Full CRUD for query snippets. Title, description, parameterised SQL — environment is selected at run time, not stored.</div>
+        </div>
+        <div class="detail-card">
+          <div class="detail-card-icon">💾</div>
+          <div class="detail-card-title">DB Backup</div>
+          <div class="detail-card-desc">Table-level export to CSV, full backup/restore, manual record editing. Works via GCP jumpbox.</div>
+        </div>
+        <div class="detail-card">
+          <div class="detail-card-icon">📊</div>
+          <div class="detail-card-title">DB Dump</div>
+          <div class="detail-card-desc">Export SQL query results directly to CSV files through the jumpbox in one click.</div>
+        </div>
+      </div>
+    </div>
+
+    <div style="margin-bottom:2.5rem;">
+      <h3 style="font-size:0.8rem;font-weight:700;margin-bottom:1rem;color:var(--muted);text-transform:uppercase;letter-spacing:1px;">⚡ Developer Utilities</h3>
+      <div class="detail-grid">
+        <div class="detail-card">
+          <div class="detail-card-icon">🔐</div>
+          <div class="detail-card-title">Base64 Encoder/Decoder</div>
+          <div class="detail-card-desc">Two-way encoding with Unicode support. Auto-detects direction, swap input/output, copy-to-clipboard.</div>
+        </div>
+        <div class="detail-card">
+          <div class="detail-card-icon">🪪</div>
+          <div class="detail-card-title">JWT Decoder</div>
+          <div class="detail-card-desc">Paste any JWT. Inspect header, payload, signature with IST timestamp validation and expiry status.</div>
+        </div>
+        <div class="detail-card">
+          <div class="detail-card-icon">🕐</div>
+          <div class="detail-card-title">Time Converter</div>
+          <div class="detail-card-desc">Live clock. Convert Unix Epoch ↔ IST ↔ UTC. Copy as ISO 8601, epoch, or human-readable format.</div>
+        </div>
+        <div class="detail-card">
+          <div class="detail-card-icon">{ }</div>
+          <div class="detail-card-title">JSON Formatter</div>
+          <div class="detail-card-desc">Beautify, minify JSON. Bidirectional JSON ↔ CSV conversion with proper escaping.</div>
+        </div>
+        <div class="detail-card">
+          <div class="detail-card-icon">📁</div>
+          <div class="detail-card-title">Jumpbox File Transfer</div>
+          <div class="detail-card-desc">Upload and download files to/from GCP Kubernetes pods via kubectl exec. SCP-equivalent in the app.</div>
+        </div>
+      </div>
+    </div>
+
+    <div style="margin-bottom:2.5rem;">
+      <h3 style="font-size:0.8rem;font-weight:700;margin-bottom:1rem;color:var(--muted);text-transform:uppercase;letter-spacing:1px;">🚀 Automation & APIs</h3>
+      <div class="detail-grid">
+        <div class="detail-card">
+          <div class="detail-card-icon">🌐</div>
+          <div class="detail-card-title">API Collection</div>
+          <div class="detail-card-desc">Postman-style request management. Create collections, set headers/body, inspect responses. No browser extension needed.</div>
+        </div>
+        <div class="detail-card">
+          <div class="detail-card-icon">⚙️</div>
+          <div class="detail-card-title">Workflow Builder</div>
+          <div class="detail-card-desc">Visual node editor with React Flow. Chain CSV input → loops → API calls → transforms → export. Save/load as JSON.</div>
+        </div>
+      </div>
+    </div>
+
+    <div style="margin-bottom:2.5rem;">
+      <h3 style="font-size:0.8rem;font-weight:700;margin-bottom:1rem;color:var(--muted);text-transform:uppercase;letter-spacing:1px;">🗂️ Productivity</h3>
+      <div class="detail-grid">
+        <div class="detail-card">
+          <div class="detail-card-icon">✅</div>
+          <div class="detail-card-title">Task Manager (Kanban)</div>
+          <div class="detail-card-desc">4-column drag-and-drop board. Priorities (Low/Med/High), due dates, overdue highlighting, 6 reminder audio tones, file attachments, comments.</div>
+        </div>
+        <div class="detail-card">
+          <div class="detail-card-icon">📝</div>
+          <div class="detail-card-title">Rich Text Notes</div>
+          <div class="detail-card-desc">Tiptap editor with sidebar navigation. Organise runbooks, docs, and personal notes with full rich text formatting.</div>
+        </div>
+        <div class="detail-card">
+          <div class="detail-card-icon">🎫</div>
+          <div class="detail-card-title">Support Portals</div>
+          <div class="detail-card-desc">Embedded webview for company-specific osTicket support portals. Manage tickets without opening a browser.</div>
+        </div>
+      </div>
+    </div>
+
+    <div>
+      <h3 style="font-size:0.8rem;font-weight:700;margin-bottom:1rem;color:var(--muted);text-transform:uppercase;letter-spacing:1px;">⚙️ Configuration & Security</h3>
+      <div class="detail-grid">
+        <div class="detail-card">
+          <div class="detail-card-icon">🔑</div>
+          <div class="detail-card-title">Password Manager</div>
+          <div class="detail-card-desc">Local credential storage for personal/official accounts. Show/hide toggle, copy-to-clipboard, search, URL tracking.</div>
+        </div>
+        <div class="detail-card">
+          <div class="detail-card-icon">🐙</div>
+          <div class="detail-card-title">GitHub Settings</div>
+          <div class="detail-card-desc">Manage repos, users, configurations, and secrets across GitHub organisations. All CRUD in one place.</div>
+        </div>
+        <div class="detail-card">
+          <div class="detail-card-icon">🏢</div>
+          <div class="detail-card-title">Settings Hub</div>
+          <div class="detail-card-desc">Multi-tab config: Companies, Environments, GCP Projects, Media Config, DB Secrets — all scoped and persistent.</div>
+        </div>
+        <div class="detail-card">
+          <div class="detail-card-icon">🚩</div>
+          <div class="detail-card-title">Feature Flags</div>
+          <div class="detail-card-desc">Admin-protected feature toggle panel. Enable or hide individual features for different users without redeploying.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<hr class="divider" />
+
+<!-- ARCHITECTURE -->
+<section id="architecture">
+  <div class="centered">
+    <div class="section-label">Under the hood</div>
+    <h2 class="section-title gradient-text">Clean, strict IPC architecture</h2>
+    <p class="section-sub">
+      Renderer and main process are kept separate. Every feature follows the same five-layer pattern — predictable, debuggable, and extensible.
+    </p>
+  </div>
+  <div class="arch-section">
+    <div class="arch-flow">
+      <div class="arch-step">
+        <div class="arch-step-icon">⚛️</div>
+        <div class="arch-step-name">React Page</div>
+        <div class="arch-step-sub">Renderer (UI)</div>
+      </div>
+      <div class="arch-step">
+        <div class="arch-step-icon">🔗</div>
+        <div class="arch-step-name">Repo</div>
+        <div class="arch-step-sub">window.&lt;featureAPI&gt;</div>
+      </div>
+      <div class="arch-step">
+        <div class="arch-step-icon">🌉</div>
+        <div class="arch-step-name">Preload</div>
+        <div class="arch-step-sub">contextBridge</div>
+      </div>
+      <div class="arch-step">
+        <div class="arch-step-icon">📨</div>
+        <div class="arch-step-name">IPC Handler</div>
+        <div class="arch-step-sub">ipcMain</div>
+      </div>
+      <div class="arch-step">
+        <div class="arch-step-icon">🗄️</div>
+        <div class="arch-step-name">SQLite DB</div>
+        <div class="arch-step-sub">Knex + better-sqlite3</div>
+      </div>
+    </div>
+
+    <div style="margin-top:2rem; display:grid; grid-template-columns:repeat(auto-fill,minmax(220px,1fr)); gap:1rem;">
+      <div style="background:var(--bg2);border:1px solid var(--border);border-radius:12px;padding:1.2rem;">
+        <div style="font-size:0.75rem;font-weight:700;color:var(--accent);text-transform:uppercase;letter-spacing:1px;margin-bottom:0.4rem;">Frontend</div>
+        <div style="font-size:0.85rem;color:var(--muted);">React 19, Ant Design 5, React Router 7, Lucide Icons, React Flow, Tiptap, xterm.js</div>
+      </div>
+      <div style="background:var(--bg2);border:1px solid var(--border);border-radius:12px;padding:1.2rem;">
+        <div style="font-size:0.75rem;font-weight:700;color:var(--accent2);text-transform:uppercase;letter-spacing:1px;margin-bottom:0.4rem;">Desktop</div>
+        <div style="font-size:0.85rem;color:var(--muted);">Electron 32, Electron Vite, electron-builder for macOS / Windows / Linux</div>
+      </div>
+      <div style="background:var(--bg2);border:1px solid var(--border);border-radius:12px;padding:1.2rem;">
+        <div style="font-size:0.75rem;font-weight:700;color:var(--accent3);text-transform:uppercase;letter-spacing:1px;margin-bottom:0.4rem;">Database</div>
+        <div style="font-size:0.85rem;color:var(--muted);">SQLite (config.db in userData), Knex.js with auto-migration on app startup</div>
+      </div>
+      <div style="background:var(--bg2);border:1px solid var(--border);border-radius:12px;padding:1.2rem;">
+        <div style="font-size:0.75rem;font-weight:700;color:#ffd93d;text-transform:uppercase;letter-spacing:1px;margin-bottom:0.4rem;">Infrastructure</div>
+        <div style="font-size:0.85rem;color:var(--muted);">GCP, gcloud CLI, kubectl, Kubernetes jumpbox pods, postgres + redis</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-logo">⚡ Bolt</div>
+  <p class="footer-sub">An all-in-one developer productivity desktop app · Built with Electron + React</p>
+  <p style="margin-top:0.5rem;font-size:0.75rem;color:#444;">Internal use · Not for distribution</p>
+</footer>
+
+<script>
+  // Smooth scroll offset for fixed nav
+  document.querySelectorAll('a[href^="#"]').forEach(a => {
+    a.addEventListener('click', e => {
+      const target = document.querySelector(a.getAttribute('href'));
+      if (target) {
+        e.preventDefault();
+        window.scrollTo({ top: target.offsetTop - 70, behavior: 'smooth' });
+      }
+    });
+  });
+
+  // Fade-in on scroll
+  const observer = new IntersectionObserver(entries => {
+    entries.forEach(e => {
+      if (e.isIntersecting) {
+        e.target.style.opacity = '1';
+        e.target.style.transform = 'translateY(0)';
+        observer.unobserve(e.target);
+      }
+    });
+  }, { threshold: 0.1 });
+
+  document.querySelectorAll('.feat-card, .detail-card, .how-row, .arch-step').forEach(el => {
+    el.style.opacity = '0';
+    el.style.transform = 'translateY(20px)';
+    el.style.transition = 'opacity 0.5s ease, transform 0.5s ease';
+    observer.observe(el);
+  });
+</script>
+</body>
+</html>
