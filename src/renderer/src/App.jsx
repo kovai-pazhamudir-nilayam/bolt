@@ -100,29 +100,31 @@ function AppLayout({ collapsed, setCollapsed, isDark, setIsDark }) {
             style={{ width: collapsed ? 32 : 148 }}
           />
         </div>
-        <Menu
-          theme={isDark ? 'dark' : 'light'}
-          mode="inline"
-          selectedKeys={[pathKey[location.pathname] || '1']}
-          onClick={({ key }) => {
-            navigate(key)
-          }}
-          items={visibleRoutes.map(({ path, label, icon: IconComponent, hideInMenu }) => {
-            return {
-              key: path,
-              icon: <IconComponent size={18} />,
-              label,
-              className: hideInMenu ? 'hide' : 'show'
-            }
-          })}
-          style={{ background: isDark ? '#181818' : '#fff', color: isDark ? '#fff' : '#000' }}
-        />
+        <div className="sider-menu-scroll">
+          <Menu
+            theme={isDark ? 'dark' : 'light'}
+            mode="inline"
+            selectedKeys={[pathKey[location.pathname] || '1']}
+            onClick={({ key }) => {
+              navigate(key)
+            }}
+            items={visibleRoutes.map(({ path, label, icon: IconComponent, hideInMenu }) => {
+              return {
+                key: path,
+                icon: <IconComponent size={18} />,
+                label,
+                className: hideInMenu ? 'hide' : 'show'
+              }
+            })}
+            style={{ background: isDark ? '#181818' : '#fff', color: isDark ? '#fff' : '#000' }}
+          />
+        </div>
       </Sider>
       <Layout>
         <Header
           style={{
             background: isDark ? '#111' : '#fff',
-            color: isDark ? '#fff' : '#000',
+            color: '#fff',
             display: 'flex',
             alignItems: 'center',
             position: 'fixed',

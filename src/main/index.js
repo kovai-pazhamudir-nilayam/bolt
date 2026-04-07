@@ -35,6 +35,8 @@ function createWindow() {
     show: false,
     autoHideMenuBar: true,
     title: 'Bolt',
+    backgroundColor: '#000000',
+    // titleBarStyle: 'hiddenInset',
     // ...(process.platform === 'linux' ? { icon } : {}),
     webPreferences: {
       preload: join(__dirname, '../preload/index.js'),

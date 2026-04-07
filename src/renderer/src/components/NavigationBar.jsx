@@ -1,21 +1,31 @@
-import { useState } from 'react'
-import { Button, Col, Row, Space } from 'antd'
+import { useEffect, useState } from 'react'
+import { Button, Col, Row, Space, Spin } from 'antd'
 import { Undo2, Redo2, RefreshCw, Home, LogIn, LogOut, Moon, Sun } from 'lucide-react'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, useLocation } from 'react-router-dom'
 import { useAuth } from '../context/authContext'
 import LoginModal from './LoginModal'
 import UpdateBanner from './UpdateBanner'
 
 const NavigationBar = ({ isDark, setIsDark }) => {
   const navigate = useNavigate()
+  const location = useLocation()
 
   const { user, isAuthenticated, logout } = useAuth()
   const [isLoginModalOpen, setIsLoginModalOpen] = useState(false)
+  const [refreshing, setRefreshing] = useState(false)
+
+  // Hide loader once navigation completes (location.key changes on navigate(0))
+  useEffect(() => {
+    setRefreshing(false)
+  }, [location.key])
 
   const handleBack = () => navigate(-1)
   const handleForward = () => navigate(1)
-  const handleRefresh = () => window.location.reload()
-  const handleHome = () => navigate('/welcome') // 👈 your welcome page route
+  const handleRefresh = () => {
+    setRefreshing(true)
+    navigate(location.pathname, { replace: true })
+  }
+  const handleHome = () => navigate('/welcome')
 
   const showLoginModal = () => {
     setIsLoginModalOpen(true)
@@ -86,6 +96,23 @@ const NavigationBar = ({ isDark, setIsDark }) => {
       </Row>
 
       {isLoginModalOpen && <LoginModal onClose={() => setIsLoginModalOpen(false)} />}
+
+      {refreshing && (
+        <div
+          style={{
+            position: 'fixed',
+            inset: 0,
+            zIndex: 2000,
+            background: isDark ? 'rgba(0,0,0,0.6)' : 'rgba(255,255,255,0.6)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            backdropFilter: 'blur(2px)'
+          }}
+        >
+          <Spin size="large" />
+        </div>
+      )}
     </>
   )
 }
