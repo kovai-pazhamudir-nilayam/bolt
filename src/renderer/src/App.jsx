@@ -11,6 +11,7 @@ import { ROUTES } from './routing'
 import BottomPanel from './components/BottomPanel/BottomPanel'
 import CommandPalette from './components/CommandPalette/CommandPalette'
 import NavigationBar from './components/NavigationBar'
+import UpdateBanner from './components/UpdateBanner'
 import { AuthProvider } from './context/authContext'
 import { DevPanelProvider } from './context/devPanelContext'
 import { FeatureConfigProvider } from './context/featureConfigContext'
@@ -178,6 +179,7 @@ function AppLayout({ collapsed, setCollapsed, isDark, setIsDark }) {
         </Layout.Footer>
       </Layout>
       <CommandPalette ROUTES={ROUTES} />
+      <UpdateBanner />
     </Layout>
   )
 }

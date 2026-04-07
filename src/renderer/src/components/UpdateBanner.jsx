@@ -1,6 +1,9 @@
 import { useEffect, useState } from 'react'
-import { Button, Progress, Space, Tag } from 'antd'
-import { Download, RefreshCw, X } from 'lucide-react'
+import { Button, Modal, Progress, Typography } from 'antd'
+import { Download, RefreshCw } from 'lucide-react'
+import iconLogo from '../assets/icon-logo.png'
+
+const { Text, Title } = Typography
 
 const STATE = {
   IDLE: 'idle',
@@ -14,7 +17,7 @@ const UpdateBanner = () => {
   const [state, setState] = useState(STATE.IDLE)
   const [info, setInfo] = useState(null)
   const [progress, setProgress] = useState(0)
-  const [dismissed, setDismissed] = useState(false)
+  const [open, setOpen] = useState(false)
 
   useEffect(() => {
     if (!window.updaterAPI) return
@@ -22,7 +25,7 @@ const UpdateBanner = () => {
     window.updaterAPI.onAvailable((updateInfo) => {
       setInfo(updateInfo)
       setState(STATE.AVAILABLE)
-      setDismissed(false)
+      setOpen(true)
     })
 
     window.updaterAPI.onProgress((p) => {
@@ -38,6 +41,7 @@ const UpdateBanner = () => {
     window.updaterAPI.onError((msg) => {
       console.error('[Updater]', msg)
       setState(STATE.ERROR)
+      setOpen(false)
     })
 
     return () => {
@@ -55,76 +59,90 @@ const UpdateBanner = () => {
     window.updaterAPI.install()
   }
 
-  if (dismissed || state === STATE.IDLE || state === STATE.ERROR) return null
+  const isDownloading = state === STATE.DOWNLOADING
 
   return (
-    <Space
-      size={8}
-      style={{
-        background: '#1677ff',
-        color: '#fff',
-        padding: '4px 12px',
-        borderRadius: 6,
-        fontSize: 13,
-        alignItems: 'center',
-        display: 'flex'
-      }}
+    <Modal
+      open={open}
+      onCancel={() => !isDownloading && setOpen(false)}
+      closable={!isDownloading}
+      maskClosable={!isDownloading}
+      footer={null}
+      width={420}
+      centered
     >
-      {state === STATE.AVAILABLE && (
-        <>
-          <Tag color="green" style={{ marginRight: 0 }}>
-            New
-          </Tag>
-          <span>v{info?.version} available</span>
-          <Button
-            size="small"
-            icon={<Download size={13} />}
-            onClick={handleDownload}
-            style={{ background: '#fff', color: '#1677ff', border: 'none', fontWeight: 600 }}
-          >
-            Download
-          </Button>
-          <Button
-            type="text"
-            size="small"
-            icon={<X size={13} />}
-            onClick={() => setDismissed(true)}
-            style={{ color: '#fff', padding: '0 4px' }}
-          />
-        </>
-      )}
+      <div style={{ textAlign: 'center', padding: '12px 8px 4px' }}>
+        {/* Icon */}
+        <img
+          src={iconLogo}
+          alt="Bolt"
+          style={{ width: 64, height: 64, margin: '0 auto 16px', display: 'block' }}
+        />
 
-      {state === STATE.DOWNLOADING && (
-        <>
-          <span>Downloading update…</span>
-          <Progress
-            percent={progress}
-            size="small"
-            style={{ width: 120, margin: 0 }}
-            strokeColor="#fff"
-            trailColor="rgba(255,255,255,0.3)"
-            format={(p) => <span style={{ color: '#fff', fontSize: 11 }}>{p}%</span>}
-          />
-        </>
-      )}
+        {/* Title */}
+        <Title level={4} style={{ marginBottom: 4 }}>
+          {state === STATE.AVAILABLE && 'Update Available'}
+          {state === STATE.DOWNLOADING && 'Downloading Update'}
+          {state === STATE.DOWNLOADED && 'Ready to Install'}
+        </Title>
 
-      {state === STATE.DOWNLOADED && (
-        <>
-          <Tag color="green" style={{ marginRight: 0 }}>
-            Ready
-          </Tag>
-          <span>Update downloaded</span>
-          <Button
-            size="small"
-            icon={<RefreshCw size={13} />}
-            onClick={handleInstall}
-            style={{ background: '#fff', color: '#1677ff', border: 'none', fontWeight: 600 }}
-          >
-            Restart &amp; Update
-          </Button>
-        </>
-      )}
-    </Space>
+        {/* Version */}
+        {info?.version && (
+          <Text type="secondary" style={{ fontSize: 13 }}>
+            Version {info.version}
+          </Text>
+        )}
+
+        {/* Progress bar */}
+        {state === STATE.DOWNLOADING && (
+          <div style={{ marginTop: 24, marginBottom: 8 }}>
+            <Progress
+              percent={progress}
+              strokeColor={{ from: '#1677ff', to: '#4096ff' }}
+              status="active"
+              style={{ marginBottom: 4 }}
+            />
+            <Text type="secondary" style={{ fontSize: 12 }}>
+              Please wait while the update is being downloaded…
+            </Text>
+          </div>
+        )}
+
+        {/* Description text */}
+        {state === STATE.AVAILABLE && (
+          <Text type="secondary" style={{ display: 'block', marginTop: 12, fontSize: 13 }}>
+            A new version of Bolt is ready to download. You can install it now or later.
+          </Text>
+        )}
+
+        {state === STATE.DOWNLOADED && (
+          <Text type="secondary" style={{ display: 'block', marginTop: 12, fontSize: 13 }}>
+            The update has been downloaded and is ready to install. Bolt will restart automatically.
+          </Text>
+        )}
+
+        {/* Actions */}
+        <div style={{ marginTop: 24, display: 'flex', gap: 8, justifyContent: 'center' }}>
+          {state === STATE.AVAILABLE && (
+            <>
+              <Button onClick={() => setOpen(false)}>Later</Button>
+              <Button type="primary" icon={<Download size={14} />} onClick={handleDownload}>
+                Download Now
+              </Button>
+            </>
+          )}
+
+          {state === STATE.DOWNLOADED && (
+            <>
+              <Button onClick={() => setOpen(false)}>Later</Button>
+              <Button type="primary" icon={<RefreshCw size={14} />} onClick={handleInstall}>
+                Restart &amp; Update
+              </Button>
+            </>
+          )}
+        </div>
+      </div>
+    </Modal>
   )
 }
 
