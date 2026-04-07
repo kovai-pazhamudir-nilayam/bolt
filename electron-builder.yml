@@ -32,21 +32,19 @@ mac:
   target:
     - target: dmg
       arch:
-        - x64
-        - arm64
+        - universal
     - target: zip
       arch:
-        - x64
-        - arm64
+        - universal
   hardenedRuntime: false
   gatekeeperAssess: false
   entitlementsInherit: build/entitlements.mac.plist
 
 dmg:
-  artifactName: Bolt-${version}-${arch}.dmg
+  artifactName: Bolt-${version}.dmg
 
 zip:
-  artifactName: Bolt-${version}-${arch}.zip
+  artifactName: Bolt-${version}-mac.zip
 
 npmRebuild: true
 

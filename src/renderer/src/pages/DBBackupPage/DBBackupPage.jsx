@@ -8,6 +8,7 @@ import {
   Input,
   InputNumber,
   Modal,
+  Popconfirm,
   Row,
   Space,
   Table,
@@ -15,7 +16,7 @@ import {
   Tag,
   Typography
 } from 'antd'
-import { Download, PenLine, Plus, RefreshCw, Upload } from 'lucide-react'
+import { Download, PenLine, Pencil, Plus, RefreshCw, Trash2, Upload } from 'lucide-react'
 import { useEffect, useState } from 'react'
 import PageHeader from '../../components/PageHeader/PageHeader'
 import withNotification from '../../hoc/withNotification'
@@ -67,6 +68,7 @@ const DBBackupPage = ({ renderSuccessNotification }) => {
   const [manualRecords, setManualRecords] = useState([])
   const [loadingManualRecords, setLoadingManualRecords] = useState(false)
   const [modalOpen, setModalOpen] = useState(false)
+  const [editingRecord, setEditingRecord] = useState(null) // null = Add mode, record = Edit mode
   const [saving, setSaving] = useState(false)
   const [manualForm] = Form.useForm()
 
@@ -170,17 +172,43 @@ const DBBackupPage = ({ renderSuccessNotification }) => {
     setLoadingSchema(false)
   }
 
+  // Build WHERE clause using PK columns from schema
+  const buildWhere = (record) => {
+    const pkCols = schema.filter((c) => c.pk > 0)
+    if (pkCols.length === 0) return record // fallback: match all fields
+    return Object.fromEntries(pkCols.map((c) => [c.name, record[c.name]]))
+  }
+
   const handleManualSave = async (values) => {
     setSaving(true)
-    await dbBackupRepo.insertRecord({ tableName: manualTable, record: values })
+    if (editingRecord) {
+      await dbBackupRepo.updateRecord({ tableName: manualTable, where: buildWhere(editingRecord), record: values })
+      renderSuccessNotification({ message: 'Record updated', description: `Updated in ${manualTable}` })
+    } else {
+      await dbBackupRepo.insertRecord({ tableName: manualTable, record: values })
+      renderSuccessNotification({ message: 'Record created', description: `Inserted into ${manualTable}` })
+    }
     setSaving(false)
     manualForm.resetFields()
+    setEditingRecord(null)
     setModalOpen(false)
-    renderSuccessNotification({
-      message: 'Record created',
-      description: `Inserted into ${manualTable}`
-    })
     loadManualRecords(manualTable)
+  }
+
+  const handleManualDelete = async (record) => {
+    await dbBackupRepo.deleteRecord({ tableName: manualTable, where: buildWhere(record) })
+    renderSuccessNotification({ message: 'Record deleted', description: `Deleted from ${manualTable}` })
+    loadManualRecords(manualTable)
+  }
+
+  const handleEditClick = (record) => {
+    setEditingRecord(record)
+    // Only set editable fields (skip auto cols)
+    const editableValues = Object.fromEntries(
+      schema.filter((c) => !isAutoCol(c)).map((c) => [c.name, record[c.name]])
+    )
+    manualForm.setFieldsValue(editableValues)
+    setModalOpen(true)
   }
 
   const activeRecords = tableData[activeTable] || []
@@ -476,6 +504,7 @@ const DBBackupPage = ({ renderSuccessNotification }) => {
                   icon={<Plus size={14} />}
                   disabled={loadingSchema || schema.filter((c) => !isAutoCol(c)).length === 0}
                   onClick={() => {
+                    setEditingRecord(null)
                     manualForm.resetFields()
                     setModalOpen(true)
                   }}
@@ -487,7 +516,33 @@ const DBBackupPage = ({ renderSuccessNotification }) => {
                 size="small"
                 rowKey={getRowKey}
                 dataSource={manualRecords}
-                columns={getColumns(manualRecords)}
+                columns={[
+                  ...getColumns(manualRecords),
+                  {
+                    title: '',
+                    key: '_actions',
+                    fixed: 'right',
+                    width: 80,
+                    render: (_, record) => (
+                      <Space size={4}>
+                        <Button
+                          type="text"
+                          size="small"
+                          icon={<Pencil size={13} />}
+                          onClick={() => handleEditClick(record)}
+                        />
+                        <Popconfirm
+                          title="Delete this record?"
+                          onConfirm={() => handleManualDelete(record)}
+                          okText="Delete"
+                          okButtonProps={{ danger: true }}
+                        >
+                          <Button type="text" danger size="small" icon={<Trash2 size={13} />} />
+                        </Popconfirm>
+                      </Space>
+                    )
+                  }
+                ]}
                 loading={loadingManualRecords}
                 scroll={{ x: 'max-content', y: 380 }}
                 pagination={{ pageSize: 20, showSizeChanger: false, size: 'small' }}
@@ -513,9 +568,9 @@ const DBBackupPage = ({ renderSuccessNotification }) => {
       </Row>
 
       <Modal
-        title={`Add Record — ${manualTable}`}
+        title={`${editingRecord ? 'Edit' : 'Add'} Record — ${manualTable}`}
         open={modalOpen}
-        onCancel={() => setModalOpen(false)}
+        onCancel={() => { setModalOpen(false); setEditingRecord(null) }}
         footer={null}
         width={560}
         destroyOnClose
@@ -546,9 +601,9 @@ const DBBackupPage = ({ renderSuccessNotification }) => {
               ))}
             <Form.Item style={{ marginBottom: 0, textAlign: 'right' }}>
               <Space>
-                <Button onClick={() => setModalOpen(false)}>Cancel</Button>
+                <Button onClick={() => { setModalOpen(false); setEditingRecord(null) }}>Cancel</Button>
                 <Button type="primary" htmlType="submit" loading={saving}>
-                  Save Record
+                  {editingRecord ? 'Update Record' : 'Save Record'}
                 </Button>
               </Space>
             </Form.Item>

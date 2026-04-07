@@ -12,7 +12,7 @@ permissions:
 jobs:
 
   # ─────────────────────────────────────────────
-  # 🍏 macOS Build (x64 + arm64)
+  # 🍏 macOS Build (UNIVERSAL for auto-update)
   # ─────────────────────────────────────────────
   build-mac:
     runs-on: macos-latest
@@ -33,15 +33,15 @@ jobs:
       - name: Rebuild native modules
         run: npx electron-builder install-app-deps
 
-      # 🔥 Build BOTH architectures
-      - name: Build macOS (x64 + arm64)
+      # 🔥 Build UNIVERSAL (fixes mac auto-update issues)
+      - name: Build macOS (universal)
         env:
           CSC_IDENTITY_AUTO_DISCOVERY: false
         run: |
           npx electron-vite build
-          npx electron-builder --mac --x64 --arm64 --publish never
+          npx electron-builder --mac --universal --publish never
 
-      - name: Debug dist folder (mac)
+      - name: List dist (mac)
         run: ls -lh dist
 
       - name: Upload macOS artifacts
@@ -49,10 +49,8 @@ jobs:
         with:
           name: artifacts-mac
           path: |
-            dist/*-x64.dmg
-            dist/*-arm64.dmg
-            dist/*-x64.zip
-            dist/*-arm64.zip
+            dist/*.dmg
+            dist/*.zip
             dist/*.yml
           if-no-files-found: error
 
@@ -76,6 +74,7 @@ jobs:
       - name: Install dependencies
         run: npm install
 
+      # Fix for rollup native issue
       - name: Install Rollup Windows binary
         shell: bash
         run: npm install --no-save "@rollup/rollup-win32-x64-msvc@$(node -p "require('./node_modules/rollup/package.json').version")"
@@ -90,7 +89,7 @@ jobs:
           npx electron-vite build
           npx electron-builder --win --publish never
 
-      - name: Debug dist folder (win)
+      - name: List dist (win)
         run: dir dist
 
       - name: Upload Windows artifacts
@@ -111,9 +110,6 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-
       - name: Download macOS artifacts
         uses: actions/download-artifact@v4
         with:
@@ -126,8 +122,8 @@ jobs:
           name: artifacts-win
           path: release-files
 
-      - name: Verify release files
-        run: ls -R release-files
+      - name: List release files
+        run: ls -lh release-files
 
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v2

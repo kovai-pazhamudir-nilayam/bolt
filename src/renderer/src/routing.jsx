@@ -45,6 +45,7 @@ export const ROUTES = [
     path: '/tools',
     icon: ToolCase,
     hideInMenu: false,
+    description: 'Utility tools: Base64, JWT, JSON formatter, time converter and more',
     element: <ToolsPage />
   },
   {
@@ -100,24 +101,28 @@ export const ROUTES = [
     label: 'API Collection',
     path: '/api-collection',
     icon: Play,
+    description: 'Save and run HTTP API requests with environment support',
     element: <ApiCollectionPage />
   },
   {
     label: 'GitHub Settings',
     path: '/github-settings',
     icon: Github,
+    description: 'Manage GitHub tokens and repository settings',
     element: <GithubSettingsPage />
   },
   {
     label: 'Saved DB Query',
     path: '/saved-db-query',
     icon: DatabaseZap,
+    description: 'Save and run database queries via jumpbox',
     element: <SavedDBQueryPage />
   },
   {
     label: 'Media Process',
     path: '/media-process',
     icon: ImageUp,
+    description: 'Process and convert media files',
     element: <MediaProcessPage />
   },
   {
@@ -125,12 +130,14 @@ export const ROUTES = [
     path: '/connect-redis',
     icon: HardDrive,
     hideInMenu: false,
+    description: 'Connect to and query Redis instances',
     element: <ConnectRedisPage />
   },
   {
     label: 'Postgres',
     path: '/connect-postgres',
     icon: Database,
+    description: 'Connect to and query Postgres databases',
     element: <ConnectPostgresPage />
   },
   {
@@ -138,6 +145,7 @@ export const ROUTES = [
     path: '/Notes',
     icon: BookOpen,
     hideInMenu: false,
+    description: 'Rich-text notes and documentation',
     element: <NotesPage />
   },
   {
@@ -145,37 +153,42 @@ export const ROUTES = [
     path: '/task-list',
     hideInMenu: false,
     icon: ListCheck,
+    description: 'Task tracking and kanban board',
     element: <TaskListPage />
   },
   {
     label: 'DB Backup',
     path: '/db-backup',
     icon: Database,
+    description: 'Manage and restore database backups',
     element: <DBBackupPage />
   },
   {
     label: 'Password Manager',
     path: '/password-manager',
     icon: Key,
+    description: 'Store and manage passwords securely',
     element: <PasswordManagerPage />
   },
-
   {
     label: 'User Profile',
     path: '/user-profile',
     icon: User,
+    description: 'View and edit user profile information',
     element: <UserProfilePage />
   },
   {
     label: 'osTicket',
     path: '/os-ticket',
     icon: Ticket,
+    description: 'Manage osTicket support tickets',
     element: <OsTicketPage />
   },
   {
     label: 'Workflow',
     path: '/workflow',
     icon: Workflow,
+    description: 'Visual workflow builder and automation',
     element: <WorkflowPage />
   },
   {
@@ -183,12 +196,14 @@ export const ROUTES = [
     path: '/feature-config',
     icon: Shield,
     requiresAuth: true,
+    description: 'Control page and tab visibility across the app',
     element: <FeatureConfigPage />
   },
   {
     label: 'Settings',
     path: '/settings',
     icon: SettingsIcon,
+    description: 'App settings: companies, environments, configs and secrets',
     element: <SettingsPage />
   }
 ]

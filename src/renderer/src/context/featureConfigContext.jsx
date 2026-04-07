@@ -49,10 +49,10 @@ export const FeatureConfigProvider = ({ children }) => {
     return userLevel >= requiredLevelValue
   }
 
-  // Check if feature is hidden
+  // Check if feature is hidden. No config entry = hidden by default.
   const isFeatureHidden = (featureKey) => {
     const config = featureConfigs.find((fc) => fc.feature_key === featureKey)
-    return config ? config.access_level === 'hidden' : false
+    return config ? config.access_level === 'hidden' : true
   }
 
   // Check if feature is read-only
@@ -100,7 +100,10 @@ export const FeatureConfigProvider = ({ children }) => {
       // Always show routes with hideInMenu: true (they're accessed programmatically)
       if (route.hideInMenu) return true
 
-      // Check if route should be hidden
+      // In dev mode, feature config page is always visible
+      if (route.path === '/feature-config' && import.meta.env.DEV) return true
+
+      // Check if route should be hidden (no config entry = hidden by default)
       return !isFeatureHidden(route.path.replace('/', ''))
     })
   }

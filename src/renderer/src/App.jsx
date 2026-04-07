@@ -74,7 +74,10 @@ function AppLayout({ collapsed, setCollapsed, isDark, setIsDark }) {
   }
 
   // Filter routes based on feature configuration and auth
-  const visibleRoutes = getFilteredRoutes(ROUTES).filter((r) => !r.requiresAuth || isAuthenticated)
+  const visibleRoutes = getFilteredRoutes(ROUTES).filter((r) => {
+    if (import.meta.env.DEV && r.path === '/feature-config') return true
+    return !r.requiresAuth || isAuthenticated
+  })
   return (
     <Layout style={{ minHeight: '100vh' }}>
       <Sider

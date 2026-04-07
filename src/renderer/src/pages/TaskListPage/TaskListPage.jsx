@@ -53,12 +53,12 @@ const genId = () => `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`
 // ─── Audio & Notifications ────────────────────────────────────────────────────
 
 const TONES = {
-  alert:  { label: '🔔 Alert',   freq: 440,  type: 'sine',     duration: 1.0, double: false },
-  chime:  { label: '🎵 Chime',   freq: 880,  type: 'sine',     duration: 0.6, double: false },
-  ding:   { label: '🔔 Ding Ding', freq: 660, type: 'sine',    duration: 0.4, double: true  },
-  gentle: { label: '🌙 Gentle',  freq: 330,  type: 'sine',     duration: 1.5, double: false },
-  buzz:   { label: '📳 Buzz',    freq: 180,  type: 'square',   duration: 0.4, double: true  },
-  sharp:  { label: '⚡ Sharp',   freq: 1046, type: 'triangle', duration: 0.3, double: false }
+  alert: { label: '🔔 Alert', freq: 440, type: 'sine', duration: 1.0, double: false },
+  chime: { label: '🎵 Chime', freq: 880, type: 'sine', duration: 0.6, double: false },
+  ding: { label: '🔔 Ding Ding', freq: 660, type: 'sine', duration: 0.4, double: true },
+  gentle: { label: '🌙 Gentle', freq: 330, type: 'sine', duration: 1.5, double: false },
+  buzz: { label: '📳 Buzz', freq: 180, type: 'square', duration: 0.4, double: true },
+  sharp: { label: '⚡ Sharp', freq: 1046, type: 'triangle', duration: 0.3, double: false }
 }
 
 const playTone = (toneKey = 'alert') => {
@@ -88,7 +88,9 @@ const triggerReminder = (task) => {
       body: [
         task.description ? task.description.slice(0, 80) : '',
         task.dueDate ? `Due ${dayjs(task.dueDate).format('MMM D')}` : ''
-      ].filter(Boolean).join(' · ')
+      ]
+        .filter(Boolean)
+        .join(' · ')
     })
   }
   playTone(task.reminder?.tone)
@@ -283,7 +285,9 @@ function TaskListPage() {
   const db = window.kanbanTaskAPI?.kanbanTask
 
   useEffect(() => {
-    db?.getAll().then((loaded) => { if (loaded) setTasks(loaded) })
+    db?.getAll().then((loaded) => {
+      if (loaded) setTasks(loaded)
+    })
   }, [])
 
   // Create modal
@@ -472,12 +476,14 @@ function TaskListPage() {
               onDragOver={(e) => e.preventDefault()}
               onDrop={() => {
                 if (draggedId) {
-                  setTasks((prev) => prev.map((t) => {
-                    if (t.id !== draggedId) return t
-                    const updated = { ...t, status }
-                    db?.upsert(updated)
-                    return updated
-                  }))
+                  setTasks((prev) =>
+                    prev.map((t) => {
+                      if (t.id !== draggedId) return t
+                      const updated = { ...t, status }
+                      db?.upsert(updated)
+                      return updated
+                    })
+                  )
                   setDraggedId(null)
                 }
               }}

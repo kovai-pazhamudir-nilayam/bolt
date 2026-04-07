@@ -21,6 +21,7 @@ import { registerApiCollectionHandler } from './ipc/apiCollection.ipc.js'
 import { registerDbBackupHandler } from './ipc/dbBackup.ipc.js'
 import { registerKanbanTaskHandler } from './ipc/kanbanTask.ipc.js'
 import { registerFileHandler } from './ipc/file.ipc.js'
+import { registerUpdaterHandler, checkForUpdates } from './ipc/updater.ipc.js'
 
 function createWindow() {
   // Get the primary display dimensions
@@ -74,6 +75,8 @@ function createWindow() {
     console.log('[Main] loading file:', htmlPath)
     mainWindow.loadFile(htmlPath)
   }
+
+  return mainWindow
 }
 
 // Initialize database
@@ -133,7 +136,15 @@ app.whenReady().then(async () => {
   registerFileHandler(ipcMain)
   console.log('[Main] IPC handlers registered, creating window')
 
-  createWindow()
+  const mainWindow = createWindow()
+  registerUpdaterHandler(ipcMain, mainWindow)
+
+  // Trigger background update check once the renderer is loaded
+  if (!is.dev) {
+    mainWindow.webContents.once('did-finish-load', () => {
+      checkForUpdates()
+    })
+  }
 
   app.on('activate', function () {
     // On macOS it's common to re-create a window in the app when the

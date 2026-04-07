@@ -13,7 +13,9 @@ const dbBackupDB = {
   exportBackup: (data) => window.dbBackupAPI.dbBackup.exportBackup(data),
   importBackup: () => window.dbBackupAPI.dbBackup.importBackup(),
   getTableSchema: (tableName) => window.dbBackupAPI.dbBackup.getTableSchema(tableName),
-  insertRecord: (data) => window.dbBackupAPI.dbBackup.insertRecord(data)
+  insertRecord: (data) => window.dbBackupAPI.dbBackup.insertRecord(data),
+  updateRecord: (data) => window.dbBackupAPI.dbBackup.updateRecord(data),
+  deleteRecord: (data) => window.dbBackupAPI.dbBackup.deleteRecord(data)
 }
 
 const dbBackupFactory = () => {

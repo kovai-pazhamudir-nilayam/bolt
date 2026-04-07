@@ -1,6 +1,7 @@
 import CustomTabs from '../../components/CustomTabs/CustomTabs'
 import { BookKeyIcon, Database, GitBranch, TicketPlusIcon, User } from 'lucide-react'
 import PageHeader from './../../components/PageHeader/PageHeader'
+import { useFeatureConfig } from '../../context/featureConfigContext'
 import AddGithubRepoSecretTab from './_tabs/AddGithubRepoSecretTab'
 import AddGithubRepoTab from './_tabs/AddGithubRepoTab'
 import GitHubConfigsTab from './_tabs/GitHubConfigsTab'
@@ -8,9 +9,12 @@ import GithubRepositoriesTab from './_tabs/GithubRepositoriesTab'
 import GithubUsersTab from './_tabs/GithubUsersTab'
 
 const GithubSettingsPage = () => {
-  const tabItems = [
+  const { isFeatureHidden } = useFeatureConfig()
+
+  const allTabItems = [
     {
       key: 'github-Repositories',
+      featureKey: 'github-repositories',
       label: (
         <span>
           <GitBranch size={16} style={{ marginRight: 8 }} />
@@ -21,6 +25,7 @@ const GithubSettingsPage = () => {
     },
     {
       key: 'github-users',
+      featureKey: 'github-users',
       label: (
         <span>
           <User size={16} style={{ marginRight: 8 }} />
@@ -31,6 +36,7 @@ const GithubSettingsPage = () => {
     },
     {
       key: 'github-configs',
+      featureKey: 'github-configs',
       label: (
         <span>
           <Database size={16} style={{ marginRight: 8 }} />
@@ -41,6 +47,7 @@ const GithubSettingsPage = () => {
     },
     {
       key: 'add-github-repo',
+      featureKey: 'github-add-repo',
       label: (
         <span>
           <TicketPlusIcon size={16} style={{ marginRight: 8 }} />
@@ -51,6 +58,7 @@ const GithubSettingsPage = () => {
     },
     {
       key: 'add-github-secret',
+      featureKey: 'github-add-secret',
       label: (
         <span>
           <BookKeyIcon size={16} style={{ marginRight: 8 }} />
@@ -60,6 +68,8 @@ const GithubSettingsPage = () => {
       children: <AddGithubRepoSecretTab />
     }
   ]
+
+  const tabItems = allTabItems.filter((tab) => !isFeatureHidden(tab.featureKey))
 
   return (
     <div>

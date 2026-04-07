@@ -48,6 +48,40 @@ Every new feature requires all five pieces wired together:
 4. Repo in `src/renderer/src/repos/`
 5. Page in `src/renderer/src/pages/` + entry in `src/renderer/src/routing.jsx`
 
+### Feature Config registration (REQUIRED for every new page and tab)
+
+Pages and tabs default to **hidden** if no feature config entry exists. Every new page or tab must be registered so it appears in the Missing Configs panel on the Feature Config page.
+
+**New sidebar page** — add a `description` field to its entry in `src/renderer/src/routing.jsx`:
+```js
+{
+  label: 'My Feature',
+  path: '/my-feature',
+  icon: SomeIcon,
+  description: 'What this page does',   // ← required
+  element: <MyFeaturePage />
+}
+```
+The `MissingConfigsPanel` auto-derives page configs from `ROUTES`, so adding `description` here is all that's needed.
+
+**New tab inside a page** — two steps:
+
+1. Add `featureKey` to the tab definition and filter with `isFeatureHidden` in the page component (follow the `SettingsPage` pattern):
+```js
+const { isFeatureHidden } = useFeatureConfig()
+
+const allTabItems = [
+  { key: 'my-tab', featureKey: 'my-tab', label: '...', children: <MyTab /> },
+]
+
+const tabItems = allTabItems.filter((tab) => !isFeatureHidden(tab.featureKey))
+```
+
+2. Add the tab to `KNOWN_TAB_CONFIGS` in `src/renderer/src/pages/FeatureConfigPage/featureConfig.helpers.js`:
+```js
+{ feature_key: 'my-tab', feature_name: 'My Page › My Tab', feature_type: 'tab', description: 'What this tab does' }
+```
+
 ### Database
 
 - Single SQLite file at Electron's `userData` path (`config.db`)

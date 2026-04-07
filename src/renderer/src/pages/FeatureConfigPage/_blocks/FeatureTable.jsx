@@ -1,5 +1,5 @@
-import { Card, Select, Space, Table, Tag, Typography } from 'antd'
-import { Edit, Eye, EyeOff } from 'lucide-react'
+import { Button, Card, Popconfirm, Select, Space, Table, Tag, Typography } from 'antd'
+import { Edit, Eye, EyeOff, Trash2 } from 'lucide-react'
 import { ACCESS_OPTIONS, accessColor } from '../featureConfig.helpers'
 
 const ACCESS_ICONS = { write: <Edit size={12} />, read: <Eye size={12} />, hidden: <EyeOff size={12} /> }
@@ -7,7 +7,7 @@ const accessIcon = (v) => ACCESS_ICONS[v] || null
 
 const { Text } = Typography
 
-const FeatureTable = ({ features, loading, onAccessChange }) => {
+const FeatureTable = ({ features, loading, onAccessChange, onDelete }) => {
   const columns = [
     {
       title: 'Feature',
@@ -72,6 +72,21 @@ const FeatureTable = ({ features, loading, onAccessChange }) => {
       dataIndex: 'description',
       key: 'description',
       render: (text) => text || <Text type="secondary">—</Text>
+    },
+    {
+      title: '',
+      key: 'delete',
+      width: 48,
+      render: (_, record) => (
+        <Popconfirm
+          title="Delete this config?"
+          onConfirm={() => onDelete(record.feature_key)}
+          okText="Delete"
+          okButtonProps={{ danger: true }}
+        >
+          <Button type="text" danger size="small" icon={<Trash2 size={14} />} />
+        </Popconfirm>
+      )
     }
   ]
 

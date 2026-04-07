@@ -77,10 +77,20 @@ export const registerDbBackupHandler = (ipcMain, configDb) => {
     return inserted
   }
 
+  async function updateRecord(event, { tableName, where, record }) {
+    return configDb.knex(tableName).where(where).update(record)
+  }
+
+  async function deleteRecord(event, { tableName, where }) {
+    return configDb.knex(tableName).where(where).del()
+  }
+
   ipcMain.handle('dbBackup:getTables', getTables)
   ipcMain.handle('dbBackup:getTableRecords', getTableRecords)
   ipcMain.handle('dbBackup:exportBackup', exportBackup)
   ipcMain.handle('dbBackup:importBackup', importBackup)
   ipcMain.handle('dbBackup:getTableSchema', getTableSchema)
   ipcMain.handle('dbBackup:insertRecord', insertRecord)
+  ipcMain.handle('dbBackup:updateRecord', updateRecord)
+  ipcMain.handle('dbBackup:deleteRecord', deleteRecord)
 }

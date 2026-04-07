@@ -4,6 +4,7 @@ import { Undo2, Redo2, RefreshCw, Home, LogIn, LogOut, Moon, Sun } from 'lucide-
 import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/authContext'
 import LoginModal from './LoginModal'
+import UpdateBanner from './UpdateBanner'
 
 const NavigationBar = ({ isDark, setIsDark }) => {
   const navigate = useNavigate()
@@ -43,6 +44,10 @@ const NavigationBar = ({ isDark, setIsDark }) => {
               <Button type="primary" onClick={handleHome} icon={<Home size={16} />} />
             </Col>
           </Row>
+        </Col>
+
+        <Col flex="auto" style={{ display: 'flex', justifyContent: 'center' }}>
+          <UpdateBanner />
         </Col>
 
         <Col>

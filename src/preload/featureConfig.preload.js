@@ -25,6 +25,9 @@ const featureConfigAPI = {
   // Delete feature configuration
   deleteFeatureConfig: (featureKey) => ipcRenderer.invoke('feature-config:delete', featureKey),
 
+  // Delete all feature configurations
+  deleteAllFeatureConfigs: () => ipcRenderer.invoke('feature-config:deleteAll'),
+
   // Reset all feature configurations to default
   resetFeatureConfigs: () => ipcRenderer.invoke('feature-config:reset'),
 

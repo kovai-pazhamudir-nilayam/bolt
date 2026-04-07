@@ -69,6 +69,10 @@ export const registerFeatureConfigHandler = (ipcMain, configDb) => {
     return configDb.knex('feature_config').where({ feature_key: featureKey }).del()
   }
 
+  async function deleteAllFeatureConfigs(_event) {
+    return configDb.knex('feature_config').del()
+  }
+
   async function resetFeatureConfigs(_event) {
     // Reset all feature configs to default 'write' access level
     return configDb.knex('feature_config').update({
@@ -91,6 +95,7 @@ export const registerFeatureConfigHandler = (ipcMain, configDb) => {
   ipcMain.handle('feature-config:updateAccessLevel', updateFeatureConfigAccessLevel)
   ipcMain.handle('feature-config:updateRoleAccess', updateRoleAccess)
   ipcMain.handle('feature-config:delete', deleteFeatureConfig)
+  ipcMain.handle('feature-config:deleteAll', deleteAllFeatureConfigs)
   ipcMain.handle('feature-config:reset', resetFeatureConfigs)
   ipcMain.handle('feature-config:getSuperadminFeatures', getSuperadminFeatures)
 }
