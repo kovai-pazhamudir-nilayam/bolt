@@ -86,7 +86,6 @@ function AppLayout({ collapsed, setCollapsed, isDark, setIsDark }) {
         collapsed={collapsed}
         onCollapse={setCollapsed}
         style={{
-          background: isDark ? '#181818' : '#fff',
           position: 'fixed',
           left: 0,
           top: 0,
@@ -103,28 +102,22 @@ function AppLayout({ collapsed, setCollapsed, isDark, setIsDark }) {
         </div>
         <div className="sider-menu-scroll">
           <Menu
-            theme={isDark ? 'dark' : 'light'}
             mode="inline"
             selectedKeys={[pathKey[location.pathname] || '1']}
-            onClick={({ key }) => {
-              navigate(key)
-            }}
-            items={visibleRoutes.map(({ path, label, icon: IconComponent, hideInMenu }) => {
-              return {
-                key: path,
-                icon: <IconComponent size={18} />,
-                label,
-                className: hideInMenu ? 'hide' : 'show'
-              }
-            })}
-            style={{ background: isDark ? '#181818' : '#fff', color: isDark ? '#fff' : '#000' }}
+            onClick={({ key }) => navigate(key)}
+            items={visibleRoutes.map(({ path, label, icon: IconComponent, hideInMenu }) => ({
+              key: path,
+              icon: <IconComponent size={18} />,
+              label,
+              className: hideInMenu ? 'hide' : 'show'
+            }))}
           />
         </div>
       </Sider>
       <Layout>
         <Header
           style={{
-            background: isDark ? '#111' : '#fff',
+            background: '#000',
             color: '#fff',
             display: 'flex',
             alignItems: 'center',
@@ -146,14 +139,7 @@ function AppLayout({ collapsed, setCollapsed, isDark, setIsDark }) {
             paddingBottom: isOpen ? panelHeight + 28 : 28
           }}
         >
-          <div
-            style={{
-              padding: 12,
-              background: isDark ? '#181818' : '#fff',
-              color: isDark ? '#fff' : '#000',
-              borderRadius: 8
-            }}
-          >
+          <div style={{ padding: 12, borderRadius: 8 }}>
             <Routes>
               {visibleRoutes.map(({ path, element, hideInMenu }) => (
                 <Route
@@ -170,7 +156,6 @@ function AppLayout({ collapsed, setCollapsed, isDark, setIsDark }) {
           style={{
             textAlign: 'center',
             background: 'transparent',
-            color: isDark ? '#fff' : '#000',
             fontSize: 13,
             padding: 8
           }}
