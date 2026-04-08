@@ -1,7 +1,7 @@
 {
   "name": "bolt",
   "productName": "Bolt",
-  "version": "1.2.0",
+  "version": "1.2.1",
   "description": "An Electron application with React",
   "main": "./out/main/index.js",
   "author": "example.com",
