@@ -1,4 +1,4 @@
-import { ConfigProvider, Layout, Menu, notification } from 'antd'
+import { ConfigProvider, Layout, Menu, notification, Typography } from 'antd'
 import { useState, useEffect } from 'react'
 import { Route, HashRouter as Router, Routes, useLocation, useNavigate } from 'react-router-dom'
 import iconlogo from './assets/icon-logo.png'
@@ -65,6 +65,11 @@ function AppLayout({ collapsed, setCollapsed, isDark, setIsDark }) {
   const { getFilteredRoutes } = useFeatureConfig()
   const { isAuthenticated } = useAuth()
   const { isOpen, panelHeight } = useDevPanel()
+  const [appVersion, setAppVersion] = useState(null)
+
+  useEffect(() => {
+    window.updaterAPI?.getVersion().then(setAppVersion)
+  }, [])
 
   // Map path to menu key
   const pathKey = {
@@ -94,12 +99,20 @@ function AppLayout({ collapsed, setCollapsed, isDark, setIsDark }) {
           zIndex: 1001
         }}
       >
-        <div style={{ height: 64, margin: 16, textAlign: 'center' }}>
+        <div style={{ margin: '12px 16px 8px', textAlign: 'center' }}>
           <img
             src={collapsed ? iconlogo : logo}
             alt="logo"
-            style={{ width: collapsed ? 32 : 148 }}
+            style={{ width: collapsed ? 32 : 148, display: 'block', margin: '0 auto' }}
           />
+          {appVersion && (
+            <Typography.Text
+              type="secondary"
+              style={{ fontSize: 11, display: 'block', marginTop: 4, opacity: 0.6 }}
+            >
+              v{appVersion}
+            </Typography.Text>
+          )}
         </div>
         <div className="sider-menu-scroll">
           <Menu

@@ -2,7 +2,9 @@
 import { createContext, useCallback, useEffect, useState } from 'react'
 import { shellFactory } from '../repos/shell.repo'
 
+// eslint-disable-next-line react-refresh/only-export-components
 export const DevPanelContext = createContext(null)
+
 const { shellRepo } = shellFactory()
 
 export const DevPanelProvider = ({ children }) => {

@@ -69,6 +69,7 @@
   "dependencies": {
     "@electron-toolkit/preload": "^3.0.2",
     "@electron-toolkit/utils": "^4.0.0",
+    "@tanstack/react-table": "^8.21.3",
     "better-sqlite3": "^11.5.0",
     "electron-updater": "^6.3.9",
     "fs-extra": "^11.3.1",

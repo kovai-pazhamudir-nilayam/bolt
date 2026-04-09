@@ -21,10 +21,13 @@ export const registerShellHandler = (ipcMain) => {
       // Store the process for potential cleanup
       activeProcesses.set(processId, child)
 
+      let stdout = ''
+
       // Handle stdout
       child.stdout.on('data', (data) => {
         const output = data.toString()
         if (output) {
+          stdout += output
           event.sender.send('shell:log', { processId, output, type: 'stdout' })
         }
       })
@@ -41,12 +44,7 @@ export const registerShellHandler = (ipcMain) => {
       child.on('close', (code) => {
         activeProcesses.delete(processId)
         event.sender.send('shell:end', { processId, code })
-
-        if (code === 0) {
-          resolve({ processId, success: true, code })
-        } else {
-          reject(new Error(`Process failed with code ${code}`))
-        }
+        resolve({ processId, success: code === 0, code, stdout })
       })
 
       // Handle process errors

@@ -19,7 +19,7 @@ const columns = [
     title: 'Company',
     dataIndex: 'company_code',
     key: 'company_code',
-    onFilter: (value, record) => record.address.startsWith(value),
+    onFilter: (value, record) => record.company_code === value,
     filterSearch: true,
     filters: [
       {
@@ -40,8 +40,6 @@ const columns = [
     title: 'Repository',
     dataIndex: 'repo_name',
     key: 'repo_name',
-    onFilter: (value, record) => record.address.startsWith(value),
-    filterSearch: true,
     render: (text, record) => (
       <Space>
         {text}
@@ -239,6 +237,7 @@ const GithubRepositoriesTabWOC = ({ renderErrorNotification, renderSuccessNotifi
         <EntityTable
           data={datasource.repos}
           columns={columns}
+          rowKey="id"
           loading={loading}
           extraActions={[
             {

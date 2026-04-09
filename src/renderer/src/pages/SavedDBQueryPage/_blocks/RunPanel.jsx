@@ -1,22 +1,38 @@
-import { Button, Empty, Form, Select, Space, Tag, Typography } from 'antd'
-import { DataGrid } from 'react-data-grid'
-import 'react-data-grid/lib/styles.css'
-import { Database, Download, Play } from 'lucide-react'
+import { Button, Empty, Form, Input, Select, Space, Tag, Typography } from 'antd'
+import { Database, Download, Play, Search, X, ChevronUp, ChevronDown, ChevronsUpDown } from 'lucide-react'
 import withNotification from '../../../hoc/withNotification'
 import { getJumpboxPod } from '../../../helpers/jumpbox.helper'
 import { shellFactory } from '../../../repos/shell.repo'
 import { settingsFactory } from '../../../repos/SettingsPage.repo'
 import { useEffect, useState, useMemo } from 'react'
+import {
+  useReactTable,
+  getCoreRowModel,
+  getSortedRowModel,
+  getFilteredRowModel,
+  flexRender
+} from '@tanstack/react-table'
+import { useVirtualizer } from '@tanstack/react-virtual'
 
 const { Text, Title } = Typography
 
-// Same offset as page container (100px top + 64px bottom = 164px)
-// Plus: query-info header ~100px + run toolbar ~52px + borders ~4px = 156px extra
-const GRID_HEIGHT = 'calc(100vh - 320px)'
-
 const downloadCSV = (result, title) => {
-  if (!result?.rawOutput) return
-  const blob = new Blob([result.rawOutput], { type: 'text/csv;charset=utf-8;' })
+  if (!result?.columns || !result?.dataSource) return
+  const headers = result.columns
+  const csvLines = [
+    headers.join(','),
+    ...result.dataSource.map((row) =>
+      headers
+        .map((h) => {
+          const val = String(row[h] ?? '')
+          return val.includes(',') || val.includes('"') || val.includes('\n')
+            ? `"${val.replace(/"/g, '""')}"`
+            : val
+        })
+        .join(',')
+    )
+  ]
+  const blob = new Blob([csvLines.join('\n')], { type: 'text/csv;charset=utf-8;' })
   const link = document.createElement('a')
   link.href = URL.createObjectURL(blob)
   link.download = `${title || 'query'}_${new Date().toISOString()}.csv`
@@ -34,90 +50,203 @@ const parsePsqlCsv = (output) => {
     .filter((l) => !l.match(/^\(\d+ row/) && !l.startsWith('--'))
 
   if (lines.length < 1) return null
-  const headers = lines[0].split(',')
-  if (headers.length < 1) return null
+  const columns = lines[0].split(',')
+  if (columns.length < 1) return null
 
-  const columns = headers.map((h) => ({
-    key: h,
-    name: h,
-    resizable: true,
-    sortable: true,
-    minWidth: 100
-  }))
-  const dataSource = lines.slice(1).map((line, idx) => {
+  const dataSource = lines.slice(1).map((line) => {
     const values = line.split(',')
-    const row = { key: idx }
-    headers.forEach((h, i) => {
+    const row = {}
+    columns.forEach((h, i) => {
       row[h] = values[i] || ''
     })
     return row
   })
 
-  return { columns, dataSource, rawOutput: output }
+  return { columns, dataSource }
+}
+
+const SortIcon = ({ sorted }) => {
+  if (sorted === 'asc') return <ChevronUp size={12} />
+  if (sorted === 'desc') return <ChevronDown size={12} />
+  return <ChevronsUpDown size={12} style={{ opacity: 0.3 }} />
+}
+
+const ResultsTable = ({ queryResult }) => {
+  const [scrollEl, setScrollEl] = useState(null)
+  const [columnFilters, setColumnFilters] = useState([])
+  const [sorting, setSorting] = useState([])
+
+  const columns = useMemo(
+    () =>
+      (queryResult?.columns || []).map((h) => ({
+        accessorKey: h,
+        header: h,
+        size: 150,
+        minSize: 80
+      })),
+    [queryResult]
+  )
+
+  const table = useReactTable({
+    data: queryResult?.dataSource || [],
+    columns,
+    state: { sorting, columnFilters },
+    onSortingChange: setSorting,
+    onColumnFiltersChange: setColumnFilters,
+    getCoreRowModel: getCoreRowModel(),
+    getSortedRowModel: getSortedRowModel(),
+    getFilteredRowModel: getFilteredRowModel()
+  })
+
+  const { rows } = table.getRowModel()
+
+  const rowVirtualizer = useVirtualizer({
+    count: rows.length,
+    getScrollElement: () => scrollEl,
+    estimateSize: () => 34,
+    overscan: 20
+  })
+
+  const virtualRows = rowVirtualizer.getVirtualItems()
+  const totalHeight = rowVirtualizer.getTotalSize()
+  const paddingTop = virtualRows.length > 0 ? virtualRows[0].start : 0
+  const paddingBottom =
+    virtualRows.length > 0 ? totalHeight - virtualRows[virtualRows.length - 1].end : 0
+
+  return (
+    <div ref={setScrollEl} style={{ position: 'absolute', inset: 0, overflow: 'auto' }}>
+      <table style={{ borderCollapse: 'collapse', tableLayout: 'fixed', minWidth: '100%' }}>
+        <colgroup>
+          {table.getHeaderGroups()[0]?.headers.map((header) => (
+            <col key={header.id} style={{ width: header.getSize() }} />
+          ))}
+        </colgroup>
+        <thead style={{ position: 'sticky', top: 0, zIndex: 1 }}>
+          {table.getHeaderGroups().map((headerGroup) => (
+            <tr key={headerGroup.id}>
+              {headerGroup.headers.map((header) => {
+                const col = header.column
+                const filterValue = col.getFilterValue() || ''
+                return (
+                  <th
+                    key={header.id}
+                    style={{
+                      padding: '6px 8px',
+                      textAlign: 'left',
+                      fontWeight: 600,
+                      fontSize: 12,
+                      background: '#fafafa',
+                      borderRight: '1px solid #f0f0f0',
+                      borderBottom: '2px solid #f0f0f0',
+                      userSelect: 'none',
+                      width: header.getSize()
+                    }}
+                  >
+                    <div
+                      style={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: 4,
+                        cursor: 'pointer',
+                        marginBottom: 4
+                      }}
+                      onClick={col.getToggleSortingHandler()}
+                    >
+                      <span
+                        style={{
+                          overflow: 'hidden',
+                          textOverflow: 'ellipsis',
+                          whiteSpace: 'nowrap',
+                          flex: 1
+                        }}
+                      >
+                        {flexRender(col.columnDef.header, header.getContext())}
+                      </span>
+                      <SortIcon sorted={col.getIsSorted()} />
+                    </div>
+                    <Input
+                      size="small"
+                      prefix={<Search size={10} />}
+                      suffix={
+                        filterValue ? (
+                          <X
+                            size={10}
+                            style={{ cursor: 'pointer' }}
+                            onClick={() => col.setFilterValue('')}
+                          />
+                        ) : null
+                      }
+                      placeholder="Filter..."
+                      value={filterValue}
+                      onChange={(e) => col.setFilterValue(e.target.value)}
+                      onClick={(e) => e.stopPropagation()}
+                      style={{ fontSize: 11 }}
+                    />
+                  </th>
+                )
+              })}
+            </tr>
+          ))}
+        </thead>
+        <tbody>
+          {paddingTop > 0 && (
+            <tr>
+              <td colSpan={columns.length} style={{ height: paddingTop, padding: 0 }} />
+            </tr>
+          )}
+          {virtualRows.map((virtualRow) => {
+            const row = rows[virtualRow.index]
+            return (
+              <tr
+                key={row.id}
+                style={{ background: virtualRow.index % 2 === 0 ? 'transparent' : '#fafafa' }}
+              >
+                {row.getVisibleCells().map((cell) => (
+                  <td
+                    key={cell.id}
+                    style={{
+                      padding: '5px 8px',
+                      fontSize: 12,
+                      borderRight: '1px solid #f0f0f0',
+                      borderBottom: '1px solid #f0f0f0',
+                      overflow: 'hidden',
+                      textOverflow: 'ellipsis',
+                      whiteSpace: 'nowrap',
+                      width: cell.column.getSize()
+                    }}
+                  >
+                    {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                  </td>
+                ))}
+              </tr>
+            )
+          })}
+          {paddingBottom > 0 && (
+            <tr>
+              <td colSpan={columns.length} style={{ height: paddingBottom, padding: 0 }} />
+            </tr>
+          )}
+        </tbody>
+      </table>
+    </div>
+  )
 }
 
 const RunPanelWOC = ({ query, datasource, renderErrorNotification, renderSuccessNotification }) => {
   const [runForm] = Form.useForm()
   const [queryResult, setQueryResult] = useState(null)
   const [loading, setLoading] = useState(false)
-  const [sortColumns, setSortColumns] = useState([])
-  const [filters, setFilters] = useState({})
   const { shellRepo } = shellFactory()
   const { gcpProjectConfigRepo } = settingsFactory()
 
-  // Reset when selected query changes
   useEffect(() => {
     setQueryResult(null)
-    setFilters({})
-    setSortColumns([])
     runForm.resetFields()
   }, [query?.id, runForm])
-
-  const gridColumns = useMemo(
-    () =>
-      (queryResult?.columns || []).map((col) => ({
-        ...col,
-        renderHeaderCell: () => (
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
-            <span>{col.name}</span>
-            <input
-              style={{ width: '100%', fontSize: 11, padding: '1px 4px', boxSizing: 'border-box' }}
-              placeholder="Filter..."
-              value={filters[col.key] || ''}
-              onChange={(e) => setFilters((prev) => ({ ...prev, [col.key]: e.target.value }))}
-              onClick={(e) => e.stopPropagation()}
-            />
-          </div>
-        )
-      })),
-    [queryResult, filters]
-  )
-
-  const displayRows = useMemo(() => {
-    let rows = queryResult?.dataSource || []
-    Object.entries(filters).forEach(([key, val]) => {
-      if (val)
-        rows = rows.filter((r) =>
-          String(r[key] ?? '')
-            .toLowerCase()
-            .includes(val.toLowerCase())
-        )
-    })
-    if (sortColumns.length > 0) {
-      const { columnKey, direction } = sortColumns[0]
-      rows = [...rows].sort((a, b) => {
-        const cmp = String(a[columnKey] ?? '').localeCompare(String(b[columnKey] ?? ''))
-        return direction === 'ASC' ? cmp : -cmp
-      })
-    }
-    return rows
-  }, [queryResult, sortColumns, filters])
 
   const onRunSubmit = async (values) => {
     setLoading(true)
     setQueryResult(null)
-    setSortColumns([])
-    setFilters({})
 
     const dbSecret = datasource.allDbSecrets.find(
       (db) =>
@@ -166,20 +295,10 @@ const RunPanelWOC = ({ query, datasource, renderErrorNotification, renderSuccess
     const psqlCmd = `PGPASSWORD='${escapedPassword}' psql -h ${host} -U ${user} ${dbName} -A -F , -q -c '${escapedQuery}'`
     const command = `kubectl exec ${jumpboxPod} -- sh -c "${psqlCmd.replace(/"/g, '\\"')}"`
 
-    // Collect stdout locally for CSV parsing; footer receives all shell output via DevPanelContext
-    let output = ''
-    let procId = null
-    const logUnsub = shellRepo.onLog((data) => {
-      if (!procId && data.type === 'info' && data.output.includes(command)) procId = data.processId
-      if (procId && data.processId !== procId) return
-      if (data.type === 'stdout') output += data.output + '\n'
-    })
-
     const result = await shellRepo.run(command)
-    logUnsub()
 
     if (result.code === 0) {
-      const parsed = parsePsqlCsv(output)
+      const parsed = parsePsqlCsv(result.stdout || '')
       if (parsed) {
         setQueryResult(parsed)
         renderSuccessNotification({ message: `${parsed.dataSource.length} row(s) returned` })
@@ -291,18 +410,9 @@ const RunPanelWOC = ({ query, datasource, renderErrorNotification, renderSuccess
       </div>
 
       {/* Results */}
-      <div style={{ flex: 1, overflow: 'hidden' }}>
+      <div style={{ flex: 1, minHeight: 0, position: 'relative' }}>
         {queryResult ? (
-          <DataGrid
-            columns={gridColumns}
-            rows={displayRows}
-            rowKeyGetter={(row) => row.key}
-            sortColumns={sortColumns}
-            onSortColumnsChange={setSortColumns}
-            headerRowHeight={56}
-            defaultColumnOptions={{ resizable: true }}
-            style={{ height: GRID_HEIGHT, blockSize: GRID_HEIGHT }}
-          />
+          <ResultsTable queryResult={queryResult} />
         ) : (
           !loading && (
             <Empty
